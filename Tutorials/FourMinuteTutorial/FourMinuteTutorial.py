@@ -4,7 +4,7 @@ import qt
 import slicer
 
 from slicer.ScriptedLoadableModule import *
-import Lib.utils as utils
+from Lib.TutorialUtils import Util
 
 # Slicer4Minute
 
@@ -30,7 +30,6 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         """ Tests parts of the Slicer4Minute tutorial.
         """
         
-        util = utils.util()
         layoutManager = slicer.app.layoutManager()
         mainWindow = slicer.util.mainWindow()  
         
@@ -69,9 +68,9 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         self.delayDisplay('Screenshot #2: In the Models screen with the sample data loaded.')
 
         # 3 shot:
-        redControl = util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget").inner()
-        greenControl = util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/SliceController/qMRMLSliceControllerWidget").inner()
-        yellowControl = util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/SliceController/qMRMLSliceControllerWidget").inner()
+        redControl = Util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget").inner()
+        greenControl = Util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/SliceController/qMRMLSliceControllerWidget").inner()
+        yellowControl = Util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/SliceController/qMRMLSliceControllerWidget").inner()
         red = slicer.util.getNode(pattern="vtkMRMLSliceNode1")
         red.SetSliceVisible(1)
         redControl.show()
@@ -87,7 +86,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         # 5 shot
         skin = slicer.util.getNode(pattern='Skin')
         skin.GetDisplayNode().SetOpacity(0.5)
-        nodeList = util.getNamedWidget("PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView").inner()
+        nodeList = Util.getNamedWidget("PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView").inner()
         nodeList.setCurrentNode(skin)
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #5: With the skin node selected and opacity lowered to 0,5.')
@@ -133,7 +132,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
             clip.SetRedSliceClipState(0)
             clip.SetYellowSliceClipState(0)
             clip.SetGreenSliceClipState(2)
-        scrolBar = util.getNamedWidget("PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea").inner()
+        scrolBar = Util.getNamedWidget("PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea").inner()
         scrolBar.verticalScrollBar().setValue(scrolBar.height)
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #9: Select hemispheric_white_matter, click in the clipping and change the clip state of the node.')
@@ -155,7 +154,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         # 12 shot
         cam.GetCamera().Azimuth(-90)
         cam.GetCamera().Elevation(0)
-        util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/ThreeDWidget1/qMRMLThreeDViewControllerWidget:0/qMRMLThreeDViewControllerWidget").inner().show()
+        Util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/ThreeDWidget1/qMRMLThreeDViewControllerWidget:0/qMRMLThreeDViewControllerWidget").inner().show()
         slicer.util.findChildren(name="SpinButton")[0].click()
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #11: Active the 3D view spin button.')
