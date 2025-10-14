@@ -1,0 +1,288 @@
+name: Tutorial Tests Automation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Tutorials/**'
+      - 'Scripts/**'
+  
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Tutorials/**'
+      - 'Scripts/**'
+  
+  schedule:
+    - cron: '0 3 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      tutorial_filter:
+        description: 'Tutorial ID to test (leave empty for all)'
+        required: false
+        type: string
+      languages:
+        description: 'Languages to test (space-separated)'
+        default: 'pt-BR es-419 fr-FR'
+        required: false
+        type: string
+
+env:
+  SLICER_VERSION: '5.8.1'
+  DEFAULT_LANGUAGES: 'pt-BR es-419 fr-FR'
+  SCREEN_RESOLUTION: '1920x1080'
+
+jobs:
+  detect-tutorials:
+    name: Detect Tutorials
+    runs-on: ubuntu-latest
+    outputs:
+      tutorials: ${{ steps.scan.outputs.tutorials }}
+      tutorial-count: ${{ steps.scan.outputs.tutorial-count }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Scan for tutorials with IDs
+      id: scan
+      run: |
+        echo "Scanning for tutorials with valid IDs..."
+        
+        tutorials_json="["
+        tutorial_count=0
+        
+        for tutorial_dir in Tutorials/*/; do
+          if [[ -d "$tutorial_dir" ]]; then
+            tutorial_name=$(basename "$tutorial_dir")
+            echo "Checking tutorial: $tutorial_name"
+            
+            # Extract ID from tutorial name (everything before first underscore)
+            if [[ "$tutorial_name" =~ ^([^_]+)_ ]]; then
+              tutorial_id="${BASH_REMATCH[1]}"
+              
+              # Check if this tutorial should be filtered
+              if [[ -n "${{ github.event.inputs.tutorial_filter }}" ]]; then
+                if [[ "$tutorial_id" != "${{ github.event.inputs.tutorial_filter }}" ]]; then
+                  echo "  Skipping $tutorial_id (filtered out)"
+                  continue
+                fi
+              fi
+              
+              echo "  Found valid tutorial: $tutorial_id -> $tutorial_name"
+              
+              if [[ $tutorial_count -gt 0 ]]; then
+                tutorials_json="$tutorials_json,"
+              fi
+              
+              tutorials_json="$tutorials_json{\"id\":\"$tutorial_id\",\"name\":\"$tutorial_name\",\"path\":\"$tutorial_dir\"}"
+              tutorial_count=$((tutorial_count + 1))
+            else
+              echo "  Skipping $tutorial_name (no valid ID pattern)"
+            fi
+          fi
+        done
+        
+        tutorials_json="$tutorials_json]"
+        
+        echo "Found $tutorial_count tutorials with valid IDs"
+        echo "tutorials=$tutorials_json" >> $GITHUB_OUTPUT
+        echo "tutorial-count=$tutorial_count" >> $GITHUB_OUTPUT
+        
+        echo "Tutorials JSON: $tutorials_json"
+
+  test-tutorials:
+    name: Test Tutorial
+    runs-on: ubuntu-latest
+    needs: detect-tutorials
+    if: needs.detect-tutorials.outputs.tutorial-count > 0
+    container:
+      image: ubuntu:22.04
+      options: --shm-size=2g
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        tutorial: ${{ fromJson(needs.detect-tutorials.outputs.tutorials) }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    
+    - name: Install system dependencies
+      run: |
+        apt-get update -qq
+        apt-get install -y \
+          wget curl unzip \
+          xvfb x11vnc \
+          python3 python3-pip \
+          libgl1-mesa-glx \
+          libxrender1 libxext6 libsm6 libice6 \
+          libfontconfig1 libxss1 libasound2 \
+          libglib2.0-0 libxrandr2 libxcomposite1 \
+          libxdamage1 libxcursor1 libxi6 libxtst6 \
+          libglu1-mesa \
+          ca-certificates \
+          git
+    
+    - name: Setup Python
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install requests
+    
+    - name: Download and install Slicer
+      run: |
+        echo "Downloading Slicer ${{ env.SLICER_VERSION }}..."
+        mkdir -p /opt/slicer
+        cd /opt/slicer
+        
+        # Download Slicer 5.8.1
+        wget -O slicer.tar.gz "https://download.slicer.org/bitstream/66ec4de29b1e4f4dbb050b0a"
+        
+        # Extract
+        tar -xzf slicer.tar.gz --strip-components=1
+        rm slicer.tar.gz
+        
+        # Make executable
+        chmod +x ./Slicer
+        
+        # Verify installation
+        ls -la /opt/slicer/
+        echo "Slicer installation completed"
+    
+    - name: Setup virtual display
+      run: |
+        echo "Setting up virtual display ${{ env.SCREEN_RESOLUTION }}..."
+        export DISPLAY=:99
+        
+        # Start Xvfb with specified resolution
+        Xvfb :99 -screen 0 ${{ env.SCREEN_RESOLUTION }}x24 > /dev/null 2>&1 &
+        sleep 3
+        
+        # Verify display
+        echo "DISPLAY=$DISPLAY" >> $GITHUB_ENV
+    
+    - name: Install required Slicer extensions
+      run: |
+        echo "Installing required Slicer extensions..."
+        export DISPLAY=:99
+        
+        # Run the extension installation script
+        /opt/slicer/Slicer --no-splash --python-script Scripts/install-slicer-extensions.py
+        
+        echo "Slicer extensions installation completed"
+    
+    - name: Prepare tutorial test environment
+      run: |
+        echo "Preparing test environment for tutorial: ${{ matrix.tutorial.name }}"
+        
+        # Create Results directory in tutorial folder
+        tutorial_results_dir="Tutorials/${{ matrix.tutorial.name }}/Results"
+        mkdir -p "$tutorial_results_dir"
+        echo "Created results directory: $tutorial_results_dir"
+        
+        # Set languages to test
+        if [[ -n "${{ github.event.inputs.languages }}" ]]; then
+          test_languages="${{ github.event.inputs.languages }}"
+        else
+          test_languages="${{ env.DEFAULT_LANGUAGES }}"
+        fi
+        
+        echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
+        echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
+        echo "Will test languages: $test_languages"
+    
+    - name: Run tutorial tests
+      run: |
+        echo "Running tests for tutorial: ${{ matrix.tutorial.name }} (ID: ${{ matrix.tutorial.id }})"
+        echo "Languages: $TEST_LANGUAGES"
+        echo "Results directory: $TUTORIAL_RESULTS_DIR"
+        
+        export DISPLAY=:99
+        
+        # Change to repository root
+        cd "$GITHUB_WORKSPACE"
+        
+        # Run the test script
+        python3 Scripts/run_tutorial_tests_ci.py \
+          /opt/slicer/Slicer \
+          --tutorial "${{ matrix.tutorial.id }}" \
+          --languages $TEST_LANGUAGES \
+          --output "$TUTORIAL_RESULTS_DIR" \
+          --timeout 300
+        
+        echo "Tutorial tests completed"
+    
+    - name: Process test results
+      if: always()
+      run: |
+        echo "Processing test results..."
+        
+        # Check if results exist
+        if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
+          echo "✅ Test report found"
+          
+          # Show basic results using a simple approach
+          echo "Tutorial: ${{ matrix.tutorial.name }}"
+          cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || echo "Results available"
+        else
+          echo "❌ No test report found"
+          ls -la "$TUTORIAL_RESULTS_DIR" || echo "Results directory not found"
+        fi
+    
+    - name: Commit test results
+      if: always()
+      run: |
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Actions Tutorial Tests"
+        
+        # Add results to git
+        git add "Tutorials/${{ matrix.tutorial.name }}/Results/"
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No new results to commit"
+        else
+          # Create commit message
+          COMMIT_MSG="Update test results for tutorial ${{ matrix.tutorial.name }} - Auto-generated by GitHub Actions"
+          
+          git commit -m "$COMMIT_MSG"
+          git push
+          
+          echo "Test results committed and pushed"
+        fi
+    
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.tutorial.id }}
+        path: |
+          Tutorials/${{ matrix.tutorial.name }}/Results/
+        retention-days: 30
+    
+    - name: Check test success
+      if: always()
+      run: |
+        if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
+          # Extract success rate using grep and basic text processing
+          SUCCESS_RATE=$(grep '"success_rate"' "$TUTORIAL_RESULTS_DIR/test_report.json" | sed 's/.*: *\([0-9.]*\).*/\1/' || echo "0")
+          
+          echo "Tutorial ${{ matrix.tutorial.name }} success rate: $SUCCESS_RATE%"
+          
+          # Consider test successful if success rate >= 75%
+          if (( $(echo "$SUCCESS_RATE >= 75.0" | bc -l 2>/dev/null) )); then
+            echo "✅ Tutorial tests passed"
+          else
+            echo "❌ Tutorial tests failed - success rate too low"
+            exit 1
+          fi
+        else
+          echo "❌ No test results available"
+          exit 1
+        fi
