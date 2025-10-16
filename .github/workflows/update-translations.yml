@@ -158,24 +158,23 @@ jobs:
             mkdir -p "$language_translations_dir"
             
             # Copy the .ts file from the translations repository
-            ts_source="temp-translations/translations/$file"
-            ts_dest="$language_translations_dir/$file"
+            ts_source_absolute="$GITHUB_WORKSPACE/temp-translations/translations/$file"
             
-            if [[ -f "$ts_source" ]]; then
-              echo "Found TS source file: $ts_source"
+            if [[ -f "$ts_source_absolute" ]]; then
+              echo "Found TS source file: $ts_source_absolute"
               
               # Convert TS to JSON directly without copying TS file to destination
               echo "Converting TS to JSON using update_translations.py"
               cd "$language_translations_dir"
               
               # Check if script exists
-              if [[ -f "../../../../Scripts/update_translations.py" ]]; then
+              if [[ -f "$GITHUB_WORKSPACE/Scripts/update_translations.py" ]]; then
                 # Copy TS file temporarily for conversion
-                cp "$ts_source" "./$file"
+                cp "$ts_source_absolute" "./$file"
                 
                 # Convert TS to JSON with custom output name
-                echo "Running: python ../../../../Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
-                python ../../../../Scripts/update_translations.py ts2json "$file" --output "text_dict_default.json"
+                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
+                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "text_dict_default.json"
                 
                 # Remove the temporary TS file (we don't want to keep it)
                 echo "Removing temporary TS file: $file"
