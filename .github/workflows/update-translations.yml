@@ -162,50 +162,44 @@ jobs:
             ts_dest="$language_translations_dir/$file"
             
             if [[ -f "$ts_source" ]]; then
-              echo "Copying $ts_source to $ts_dest"
-              cp "$ts_source" "$ts_dest"
+              echo "Found TS source file: $ts_source"
               
-              # Verify copy was successful
-              if [[ -f "$ts_dest" ]]; then
-                echo "✅ TS file copied successfully"
-              else
-                echo "❌ Failed to copy TS file"
-                continue
-              fi
-              
-              # Run the update_translations.py script to convert TS to JSON
+              # Convert TS to JSON directly without copying TS file to destination
               echo "Converting TS to JSON using update_translations.py"
               cd "$language_translations_dir"
               
               # Check if script exists
               if [[ -f "../../../../Scripts/update_translations.py" ]]; then
-                python ../../../../Scripts/update_translations.py ts2json "$file"
+                # Copy TS file temporarily for conversion
+                cp "$ts_source" "./$file"
                 
-                # Check if conversion was successful
-                json_file=$(echo "$file" | sed 's/\.ts$/.json/')
-                echo "Looking for generated JSON file: $json_file"
+                # Convert TS to JSON with custom output name
+                echo "Running: python ../../../../Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
+                python ../../../../Scripts/update_translations.py ts2json "$file" --output "text_dict_default.json"
                 
-                if [[ -f "$json_file" ]]; then
-                  echo "✅ JSON file generated successfully"
+                # Remove the temporary TS file (we don't want to keep it)
+                echo "Removing temporary TS file: $file"
+                rm -f "$file"
+                
+                # Verify final file exists
+                if [[ -f "text_dict_default.json" ]]; then
+                  echo "✅ text_dict_default.json created successfully"
+                  echo "File size: $(wc -c < text_dict_default.json) bytes"
                   
-                  # Ensure the JSON file is named text_dict_default.json
-                  if [[ "$json_file" != "text_dict_default.json" ]]; then
-                    echo "Renaming $json_file to text_dict_default.json"
-                    mv "$json_file" "text_dict_default.json"
-                  fi
-                  
-                  # Verify final file exists
-                  if [[ -f "text_dict_default.json" ]]; then
-                    echo "✅ Final text_dict_default.json created successfully"
-                    echo "File size: $(wc -c < text_dict_default.json) bytes"
-                  else
-                    echo "❌ Failed to create text_dict_default.json"
-                  fi
+                  # Show first few lines for verification
+                  echo "First few lines of generated file:"
+                  head -5 "text_dict_default.json" || echo "Could not preview file"
                 else
-                  echo "❌ Failed to generate JSON file from TS"
+                  echo "❌ Failed to create text_dict_default.json"
+                  
+                  # Debug: List all files in directory
+                  echo "Files in directory after conversion:"
+                  ls -la || echo "Could not list files"
                 fi
               else
                 echo "❌ update_translations.py script not found"
+                echo "Looking for script in alternative locations..."
+                find ../../../.. -name "update_translations.py" -type f 2>/dev/null || echo "Script not found anywhere"
               fi
               
               cd - > /dev/null
