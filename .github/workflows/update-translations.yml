@@ -1,4 +1,4 @@
-name: Update Translations from SlicerLanguageTranslations
+name: Update All Translations from SlicerLanguageTranslations
 
 on:
   schedule:
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
     inputs:
       translation_files:
-        description: 'Comma-separated list of translation files to process (e.g., STC-SEG-103_pt-BR.ts,STC-SEG-103_es-ES.ts)'
+        description: 'Comma-separated list of translation files to process (e.g., STC-SEG-103_pt-BR.ts,STC-SEG-103_es-ES.ts). Leave empty to process ALL files.'
         required: false
         type: string
 
 jobs:
-  update-translations:
+  update-all-translations:
     runs-on: ubuntu-latest
     
     steps:
@@ -33,9 +33,10 @@ jobs:
       with:
         repository: 'Slicer/SlicerLanguageTranslations'
         path: 'temp-translations'
-        fetch-depth: 2  # Get current and previous commit to detect changes
+        ref: 'main'  # Always use main branch
+        fetch-depth: 1  # Only need current state
     
-    - name: Detect changed translation files
+    - name: Find all translation files for tutorials
       id: detect-changes
       run: |
         cd temp-translations
@@ -61,63 +62,55 @@ jobs:
         
         # Check if manually triggered with specific files
         if [[ -n "${{ github.event.inputs.translation_files }}" ]]; then
-          echo "Manual trigger with files: ${{ github.event.inputs.translation_files }}"
-          CHANGED_FILES="${{ github.event.inputs.translation_files }}"
+          echo "Manual trigger with specific files: ${{ github.event.inputs.translation_files }}"
+          RELEVANT_FILES="${{ github.event.inputs.translation_files }}"
         else
-          # Detect changed files in translations/ directory in the last hour
-          # Get commits from the last hour
-          SINCE_TIME=$(date -d '1 hour ago' -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "Checking for changes since: $SINCE_TIME"
+          # Find ALL translation files for our tutorials (not just changed ones)
+          echo "Scanning for all translation files matching our tutorials..."
           
-          # Get list of commits in the last hour
-          RECENT_COMMITS=$(git log --since="$SINCE_TIME" --pretty=format:"%H" -- translations/)
-          
-          if [[ -n "$RECENT_COMMITS" ]]; then
-            # Get changed files from recent commits
-            CHANGED_FILES=$(echo "$RECENT_COMMITS" | head -1 | xargs -I {} git diff-tree --no-commit-id --name-only -r {} -- translations/ | grep '\.ts$' | xargs -r basename -a | tr '\n' ',' | sed 's/,$//')
-          else
-            echo "No commits found in the last hour"
-            CHANGED_FILES=""
+          RELEVANT_FILES=""
+          if [[ -n "$TUTORIAL_IDS" && -d "translations" ]]; then
+            # Look for all .ts files that match our tutorial pattern
+            for ts_file in translations/*.ts; do
+              if [[ -f "$ts_file" ]]; then
+                file=$(basename "$ts_file")
+                echo "Checking file: $file"
+                
+                # Check if file matches pattern [ID]_[Language].ts
+                if [[ "$file" =~ ^(${TUTORIAL_IDS})_([a-z]{2}[_-][A-Z]{2}|[a-z]{2})\.ts$ ]]; then
+                  tutorial_id="${BASH_REMATCH[1]}"
+                  language_raw="${BASH_REMATCH[2]}"
+                  # Normalize language format
+                  language=$(echo "$language_raw" | sed 's/_/-/g')
+                  echo "Found matching file: $file (Tutorial: $tutorial_id, Language: $language)"
+                  
+                  if [[ -n "$RELEVANT_FILES" ]]; then
+                    RELEVANT_FILES="$RELEVANT_FILES,$file"
+                  else
+                    RELEVANT_FILES="$file"
+                  fi
+                fi
+              fi
+            done
           fi
         fi
         
-        echo "Changed files: $CHANGED_FILES"
-        
-        # Filter files that match our tutorial pattern [ID]_[Language].ts
-        RELEVANT_FILES=""
-        if [[ -n "$CHANGED_FILES" && -n "$TUTORIAL_IDS" ]]; then
-          IFS=',' read -ra FILES <<< "$CHANGED_FILES"
-          for file in "${FILES[@]}"; do
-            # Check if file matches pattern [ID]_[Language].ts (accepts both pt_BR and pt-BR formats)
-            if [[ "$file" =~ ^(${TUTORIAL_IDS})_([a-z]{2}[_-][A-Z]{2}|[a-z]{2})\.ts$ ]]; then
-              tutorial_id="${BASH_REMATCH[1]}"
-              language_raw="${BASH_REMATCH[2]}"
-              # Normalize language format
-              language=$(echo "$language_raw" | sed 's/_/-/g')
-              echo "Found relevant file: $file (Tutorial: $tutorial_id, Language: $language)"
-              if [[ -n "$RELEVANT_FILES" ]]; then
-                RELEVANT_FILES="$RELEVANT_FILES,$file"
-              else
-                RELEVANT_FILES="$file"
-              fi
-            fi
-          done
-        fi
-        
-        echo "Relevant files to process: $RELEVANT_FILES"
+        echo "All relevant files to process: $RELEVANT_FILES"
         echo "relevant_files=$RELEVANT_FILES" >> $GITHUB_OUTPUT
         
         # Set flag to continue processing
         if [[ -n "$RELEVANT_FILES" ]]; then
           echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Total files found: $(echo "$RELEVANT_FILES" | tr ',' '\n' | wc -l)"
         else
           echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No translation files found for our tutorials"
         fi
     
     - name: Process translation files
       if: steps.detect-changes.outputs.has_changes == 'true'
       run: |
-        echo "Processing files: ${{ steps.detect-changes.outputs.relevant_files }}"
+        echo "Processing all translation files: ${{ steps.detect-changes.outputs.relevant_files }}"
         
         IFS=',' read -ra FILES <<< "${{ steps.detect-changes.outputs.relevant_files }}"
         PROCESSED_TUTORIALS=""
@@ -161,6 +154,7 @@ jobs:
             
             # Create Translations/[Language] directory structure
             language_translations_dir="${tutorial_dir}Translations/${language}"
+            echo "Creating directory: $language_translations_dir"
             mkdir -p "$language_translations_dir"
             
             # Copy the .ts file from the translations repository
@@ -171,16 +165,47 @@ jobs:
               echo "Copying $ts_source to $ts_dest"
               cp "$ts_source" "$ts_dest"
               
+              # Verify copy was successful
+              if [[ -f "$ts_dest" ]]; then
+                echo "✅ TS file copied successfully"
+              else
+                echo "❌ Failed to copy TS file"
+                continue
+              fi
+              
               # Run the update_translations.py script to convert TS to JSON
               echo "Converting TS to JSON using update_translations.py"
               cd "$language_translations_dir"
-              python ../../../../Scripts/update_translations.py ts2json "$file"
               
-              # Ensure the JSON file is named text_dict_default.json
-              json_file=$(echo "$file" | sed 's/\.ts$/.json/')
-              if [[ -f "$json_file" && "$json_file" != "text_dict_default.json" ]]; then
-                echo "Renaming $json_file to text_dict_default.json"
-                mv "$json_file" "text_dict_default.json"
+              # Check if script exists
+              if [[ -f "../../../../Scripts/update_translations.py" ]]; then
+                python ../../../../Scripts/update_translations.py ts2json "$file"
+                
+                # Check if conversion was successful
+                json_file=$(echo "$file" | sed 's/\.ts$/.json/')
+                echo "Looking for generated JSON file: $json_file"
+                
+                if [[ -f "$json_file" ]]; then
+                  echo "✅ JSON file generated successfully"
+                  
+                  # Ensure the JSON file is named text_dict_default.json
+                  if [[ "$json_file" != "text_dict_default.json" ]]; then
+                    echo "Renaming $json_file to text_dict_default.json"
+                    mv "$json_file" "text_dict_default.json"
+                  fi
+                  
+                  # Verify final file exists
+                  if [[ -f "text_dict_default.json" ]]; then
+                    echo "✅ Final text_dict_default.json created successfully"
+                    echo "File size: $(wc -c < text_dict_default.json) bytes"
+                  else
+                    echo "❌ Failed to create text_dict_default.json"
+                  fi
+                else
+                  echo "❌ Failed to generate JSON file from TS"
+                fi
+              else
+                echo "❌ update_translations.py script not found"
               fi
               
               cd - > /dev/null
@@ -213,23 +238,42 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
-        # Check if there are any changes to commit
-        if git diff --quiet && git diff --staged --quiet; then
-          echo "No changes to commit"
+        echo "Checking for changes before adding files..."
+        echo "Git status before adding:"
+        git status --porcelain
+        
+        # Add all changes in Tutorials directory first
+        echo "Adding files to git..."
+        git add Tutorials/*/Translations/
+        
+        echo "Git status after adding:"
+        git status --porcelain
+        
+        # Check if there are any staged changes to commit
+        if git diff --staged --quiet; then
+          echo "No staged changes to commit"
+          echo "Checking if there are any untracked files..."
+          
+          # List what we're trying to add
+          echo "Files in Tutorials/*/Translations/:"
+          find Tutorials -name "Translations" -type d -exec find {} -type f \; 2>/dev/null || echo "No translation files found"
+          
+          echo "No changes to commit after processing"
         else
-          # Add all changes in Tutorials directory
-          git add Tutorials/*/Translations/
+          echo "Found staged changes, proceeding with commit..."
           
           # Create commit message
-          COMMIT_MSG="Update translations"
+          COMMIT_MSG="Update all translations from SlicerLanguageTranslations main branch"
           if [[ -n "$PROCESSED_TUTORIALS" ]]; then
             COMMIT_MSG="$COMMIT_MSG for: $PROCESSED_TUTORIALS"
           fi
           COMMIT_MSG="$COMMIT_MSG - Files: ${{ steps.detect-changes.outputs.relevant_files }} - Auto-generated by GitHub Actions workflow."
           
+          echo "Committing with message: $COMMIT_MSG"
           git commit -m "$COMMIT_MSG"
           
           # Push changes
+          echo "Pushing changes..."
           git push
           
           echo "Changes committed and pushed successfully"
