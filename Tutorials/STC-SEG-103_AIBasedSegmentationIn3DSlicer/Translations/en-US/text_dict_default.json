@@ -1,0 +1,23 @@
+{
+  "1_0_ArrowText_0": "Click on Add Data in the Welcome\nto Slicer module",
+  "2_2_TextBox_1": "Click on Choose Directory to add\nand browse to the location of the\nSlicer datasets",
+  "3_0_TextBox_0": "Slicer loads the prostate MRI\ndatase",
+  "4_3_TextBox_1": "Click on Welcome to Slicer in the\nModules menu and browse to\n\nthe category Segmentation.\n\nSelect the MONAI Auto3DSeg\nmodule",
+  "5_0_ArrowText_0": "Enter the models name Prostate in\nthe Segmentation model menu",
+  "6_0_ArrowText_0": "Select the model Prostate - Multisequence",
+  "7_0_TextBox_0": "Enter the Input T2 volume msd-\nprostate-01-adc and he Input ADC\nvolume msd-prostate-01-adc",
+  "7_0_ArrowText_1": "Select Create new segmentation on\nApply",
+  "7_0_ArrowText_2": "Click on Apply",
+  "8_0_TextBox_0": "Slicer stars the inference",
+  "9_0_TextBox_0": "Slicer shows the result of the AI-\nbased prostate segmentation",
+  "10_2_TextBox_2": "Click on Add Data in the Welcome\nto Slicer module\n\n\n\n\n\n\n\n\n\n\nClick on Choose File(s) to Add and\nbrowse to the location of the Slicer\ndatasets",
+  "12_0_TextBox_0": "Select the module MONAIAuto3DSeg and enter the\nmodel’s name Brain Tumor Segmentation in the\nSegmentation model menu",
+  "12_0_ArrowText_1": "Select the model Brain Tumor Segmentation\n(BRATS) GLI",
+  "13_0_TextBox_0": "Enter the input volumes as follows:",
+  "16_2_TextBox_0": "In the Add DICOM Data module,\nselect the Patient patient1 and\nclick on Load to load it in Slicer",
+  "17_0_TextBox_0": "Select the module MONAIAuto3DSeg and enter the\nmodel’s name Whole Body Segmentation in the\n\nSegmentation model menu",
+  "17_0_ArrowText_1": "Select the model Whole Body Segmentation\nTS1 - quick",
+  "18_0_TextBox_3": "Select the input Volume 6: CT_Thorax_Abdomen,\n\nClick on Create new Segmentation on Apply\nClick on Apply to start the segmentation",
+  "19_0_TextBox_0": "Slicer starts the segmentation",
+  "20_0_TextBox_1": "Click on Show 3D to see\n\nthe segments 3D view"
+}

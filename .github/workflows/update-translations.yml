@@ -1,0 +1,279 @@
+name: Update All Translations from SlicerLanguageTranslations
+
+on:
+  schedule:
+    - cron: '* 4 * * *' 
+  
+  # Allow manual triggering for testing
+  workflow_dispatch:
+    inputs:
+      translation_files:
+        description: 'Comma-separated list of translation files to process (e.g., STC-SEG-103_pt-BR.ts,STC-SEG-103_es-ES.ts). Leave empty to process ALL files.'
+        required: false
+        type: string
+
+jobs:
+  update-all-translations:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout SlicerTestTutorial repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Checkout SlicerLanguageTranslations repository
+      uses: actions/checkout@v4
+      with:
+        repository: 'Slicer/SlicerLanguageTranslations'
+        path: 'temp-translations'
+        ref: 'main'  # Always use main branch
+        fetch-depth: 1  # Only need current state
+    
+    - name: Find all translation files for tutorials
+      id: detect-changes
+      run: |
+        cd temp-translations
+        
+        # Get list of tutorials in our repository
+        TUTORIAL_IDS=""
+        for tutorial_dir in ../Tutorials/*/; do
+          if [[ -d "$tutorial_dir" ]]; then
+            tutorial_name=$(basename "$tutorial_dir")
+            # Extract ID from tutorial name (everything before first underscore)
+            if [[ "$tutorial_name" =~ ^([^_]+)_ ]]; then
+              tutorial_id="${BASH_REMATCH[1]}"
+              if [[ -n "$TUTORIAL_IDS" ]]; then
+                TUTORIAL_IDS="$TUTORIAL_IDS|$tutorial_id"
+              else
+                TUTORIAL_IDS="$tutorial_id"
+              fi
+            fi
+          fi
+        done
+        
+        echo "Found tutorial IDs: $TUTORIAL_IDS"
+        
+        # Check if manually triggered with specific files
+        if [[ -n "${{ github.event.inputs.translation_files }}" ]]; then
+          echo "Manual trigger with specific files: ${{ github.event.inputs.translation_files }}"
+          RELEVANT_FILES="${{ github.event.inputs.translation_files }}"
+        else
+          # Find ALL translation files for our tutorials (not just changed ones)
+          echo "Scanning for all translation files matching our tutorials..."
+          
+          RELEVANT_FILES=""
+          if [[ -n "$TUTORIAL_IDS" && -d "translations" ]]; then
+            # Look for all .ts files that match our tutorial pattern
+            for ts_file in translations/*.ts; do
+              if [[ -f "$ts_file" ]]; then
+                file=$(basename "$ts_file")
+                echo "Checking file: $file"
+                
+                # Check if file matches pattern [ID]_[Language].ts
+                if [[ "$file" =~ ^(${TUTORIAL_IDS})_([a-z]{2}[_-][A-Z]{2}|[a-z]{2})\.ts$ ]]; then
+                  tutorial_id="${BASH_REMATCH[1]}"
+                  language_raw="${BASH_REMATCH[2]}"
+                  # Normalize language format
+                  language=$(echo "$language_raw" | sed 's/_/-/g')
+                  echo "Found matching file: $file (Tutorial: $tutorial_id, Language: $language)"
+                  
+                  if [[ -n "$RELEVANT_FILES" ]]; then
+                    RELEVANT_FILES="$RELEVANT_FILES,$file"
+                  else
+                    RELEVANT_FILES="$file"
+                  fi
+                fi
+              fi
+            done
+          fi
+        fi
+        
+        echo "All relevant files to process: $RELEVANT_FILES"
+        echo "relevant_files=$RELEVANT_FILES" >> $GITHUB_OUTPUT
+        
+        # Set flag to continue processing
+        if [[ -n "$RELEVANT_FILES" ]]; then
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Total files found: $(echo "$RELEVANT_FILES" | tr ',' '\n' | wc -l)"
+        else
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No translation files found for our tutorials"
+        fi
+    
+    - name: Process translation files
+      if: steps.detect-changes.outputs.has_changes == 'true'
+      run: |
+        echo "Processing all translation files: ${{ steps.detect-changes.outputs.relevant_files }}"
+        
+        IFS=',' read -ra FILES <<< "${{ steps.detect-changes.outputs.relevant_files }}"
+        PROCESSED_TUTORIALS=""
+        
+        for file in "${FILES[@]}"; do
+          if [[ -z "$file" ]]; then
+            continue
+          fi
+          
+          echo "Processing file: $file"
+          
+          # Extract tutorial ID and language from filename
+          # Handle patterns like STC-SEG-103_pt_BR.ts or STC-SEG-103_pt-BR.ts
+          if [[ "$file" =~ ^([^_]+)_([a-z]{2}[_-][A-Z]{2}|[a-z]{2})\.ts$ ]]; then
+            tutorial_id="${BASH_REMATCH[1]}"
+            language_raw="${BASH_REMATCH[2]}"
+            
+            # Normalize language format: convert underscores to hyphens
+            language=$(echo "$language_raw" | sed 's/_/-/g')
+            
+            echo "Tutorial ID: $tutorial_id, Language: $language (from $language_raw)"
+            
+            # Find matching tutorial directory
+            tutorial_dir=""
+            for dir in Tutorials/*/; do
+              if [[ -d "$dir" ]]; then
+                dir_name=$(basename "$dir")
+                if [[ "$dir_name" =~ ^${tutorial_id}_ ]]; then
+                  tutorial_dir="$dir"
+                  break
+                fi
+              fi
+            done
+            
+            if [[ -z "$tutorial_dir" ]]; then
+              echo "Warning: No tutorial directory found for ID: $tutorial_id"
+              continue
+            fi
+            
+            echo "Found tutorial directory: $tutorial_dir"
+            
+            # Create Translations/[Language] directory structure
+            language_translations_dir="${tutorial_dir}Translations/${language}"
+            echo "Creating directory: $language_translations_dir"
+            mkdir -p "$language_translations_dir"
+            
+            # Copy the .ts file from the translations repository
+            ts_source_absolute="$GITHUB_WORKSPACE/temp-translations/translations/$file"
+            
+            if [[ -f "$ts_source_absolute" ]]; then
+              echo "Found TS source file: $ts_source_absolute"
+              
+              # Convert TS to JSON directly without copying TS file to destination
+              echo "Converting TS to JSON using update_translations.py"
+              cd "$language_translations_dir"
+              
+              # Check if script exists
+              if [[ -f "$GITHUB_WORKSPACE/Scripts/update_translations.py" ]]; then
+                # Copy TS file temporarily for conversion
+                cp "$ts_source_absolute" "./$file"
+                
+                # Convert TS to JSON with custom output name
+                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
+                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "text_dict_default.json"
+                
+                # Remove the temporary TS file (we don't want to keep it)
+                echo "Removing temporary TS file: $file"
+                rm -f "$file"
+                
+                # Verify final file exists
+                if [[ -f "text_dict_default.json" ]]; then
+                  echo "✅ text_dict_default.json created successfully"
+                  echo "File size: $(wc -c < text_dict_default.json) bytes"
+                  
+                  # Show first few lines for verification
+                  echo "First few lines of generated file:"
+                  head -5 "text_dict_default.json" || echo "Could not preview file"
+                else
+                  echo "❌ Failed to create text_dict_default.json"
+                  
+                  # Debug: List all files in directory
+                  echo "Files in directory after conversion:"
+                  ls -la || echo "Could not list files"
+                fi
+              else
+                echo "❌ update_translations.py script not found"
+                echo "Looking for script in alternative locations..."
+                find ../../../.. -name "update_translations.py" -type f 2>/dev/null || echo "Script not found anywhere"
+              fi
+              
+              cd - > /dev/null
+              
+              # Track processed tutorials for commit message
+              tutorial_name=$(basename "$tutorial_dir")
+              if [[ "$PROCESSED_TUTORIALS" != *"$tutorial_name"* ]]; then
+                if [[ -n "$PROCESSED_TUTORIALS" ]]; then
+                  PROCESSED_TUTORIALS="$PROCESSED_TUTORIALS, $tutorial_name"
+                else
+                  PROCESSED_TUTORIALS="$tutorial_name"
+                fi
+              fi
+              
+              echo "Successfully processed $file for tutorial $tutorial_name"
+            else
+              echo "Warning: Source file not found: $ts_source"
+            fi
+          else
+            echo "Warning: File $file doesn't match expected pattern [ID]_[Language].ts"
+          fi
+        done
+        
+        echo "PROCESSED_TUTORIALS=$PROCESSED_TUTORIALS" >> $GITHUB_ENV
+    
+    - name: Commit and push changes
+      if: steps.detect-changes.outputs.has_changes == 'true'
+      run: |
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        echo "Checking for changes before adding files..."
+        echo "Git status before adding:"
+        git status --porcelain
+        
+        # Add all changes in Tutorials directory first
+        echo "Adding files to git..."
+        git add Tutorials/*/Translations/
+        
+        echo "Git status after adding:"
+        git status --porcelain
+        
+        # Check if there are any staged changes to commit
+        if git diff --staged --quiet; then
+          echo "No staged changes to commit"
+          echo "Checking if there are any untracked files..."
+          
+          # List what we're trying to add
+          echo "Files in Tutorials/*/Translations/:"
+          find Tutorials -name "Translations" -type d -exec find {} -type f \; 2>/dev/null || echo "No translation files found"
+          
+          echo "No changes to commit after processing"
+        else
+          echo "Found staged changes, proceeding with commit..."
+          
+          # Create commit message
+          COMMIT_MSG="Update all translations from SlicerLanguageTranslations main branch"
+          if [[ -n "$PROCESSED_TUTORIALS" ]]; then
+            COMMIT_MSG="$COMMIT_MSG for: $PROCESSED_TUTORIALS"
+          fi
+          COMMIT_MSG="$COMMIT_MSG - Files: ${{ steps.detect-changes.outputs.relevant_files }} - Auto-generated by GitHub Actions workflow."
+          
+          echo "Committing with message: $COMMIT_MSG"
+          git commit -m "$COMMIT_MSG"
+          
+          # Push changes
+          echo "Pushing changes..."
+          git push
+          
+          echo "Changes committed and pushed successfully"
+        fi
+    
+    - name: Clean up
+      if: always()
+      run: |
+        # Remove temporary translations directory
+        rm -rf temp-translations
