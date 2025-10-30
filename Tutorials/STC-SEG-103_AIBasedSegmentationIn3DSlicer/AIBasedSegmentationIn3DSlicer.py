@@ -35,6 +35,14 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         mainWindow = slicer.util.mainWindow()  
         
         self.delayDisplay("Starting the test")
+        
+        # Instalar dependências necessárias ANTES de começar
+        self.delayDisplay("Verificando e instalando dependências...")
+        import MONAIAuto3DSeg
+        logic = MONAIAuto3DSeg.MONAIAuto3DSegLogic()
+        logic.setupPythonRequirements(upgrade=False)
+        self.delayDisplay("Dependências instaladas com sucesso!")
+    
         # TUTORIALMAKER BEGIN
 
         # Clear the scene to start fresh
@@ -77,7 +85,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         import zipfile
 
         # Caminho para salvar o ZIP e extrair
-        zip_url = "https://www.dropbox.com/scl/fi/mdbz1gklawyxmi0tukxpu/SlicerData.zip?rlkey=7lymqsoa39e9pkr1v8hatq2e2&e=1&dl=1"
+        zip_url = "https://www.dropbox.com/scl/fi/2lz93yzzghymnek8hy5f0/SlicerData.zip?rlkey=vzkk5v7dezr96eppa3rgw7vv4&e=1&st=6nw38gaj&dl=1"
         zip_path = os.path.join(slicer.app.temporaryPath, "SlicerData.zip")
         extract_path = os.path.join(slicer.app.temporaryPath, "SlicerData")
 

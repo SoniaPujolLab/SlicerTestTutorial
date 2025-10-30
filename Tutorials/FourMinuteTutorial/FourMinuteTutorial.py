@@ -163,5 +163,6 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         self.delayDisplay('Optic chiasm should be visible. Front part of white matter should be clipped.')
         
         # Done
+        slicer.util.findChildren(name="SpinButton")[0].click()
         # TUTORIALMAKER END
         self.delayDisplay('Test passed!')
