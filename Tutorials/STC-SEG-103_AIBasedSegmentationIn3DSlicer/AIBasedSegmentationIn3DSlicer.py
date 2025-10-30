@@ -38,6 +38,18 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         
         # Instalar dependências necessárias ANTES de começar
         self.delayDisplay("Verificando e instalando dependências...")
+        
+        # Pré-instalar PyTorch sem confirmação do usuário
+        try:
+            import PyTorchUtils
+            torchLogic = PyTorchUtils.PyTorchUtilsLogic()
+            if not torchLogic.torchInstalled():
+                self.delayDisplay("Instalando PyTorch... (pode levar alguns minutos)")
+                torchLogic.installTorch(askConfirmation=False, torchVersionRequirement=">=1.12")
+        except Exception as e:
+            print(f"Erro ao instalar PyTorch: {e}")
+        
+        # Agora instalar MONAI e verificar dependências
         import MONAIAuto3DSeg
         logic = MONAIAuto3DSeg.MONAIAuto3DSegLogic()
         logic.setupPythonRequirements(upgrade=False)
@@ -85,7 +97,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         import zipfile
 
         # Caminho para salvar o ZIP e extrair
-        zip_url = "https://www.dropbox.com/scl/fi/2lz93yzzghymnek8hy5f0/SlicerData.zip?rlkey=vzkk5v7dezr96eppa3rgw7vv4&e=1&st=6nw38gaj&dl=1"
+        zip_url = "https://www.dropbox.com/scl/fi/6wblo2a3gmxngbd0h4ums/SlicerData.zip?rlkey=bkp7g1pofcyd2zo7v3erihsl0&st=kxwp96l9&dl=1"
         zip_path = os.path.join(slicer.app.temporaryPath, "SlicerData.zip")
         extract_path = os.path.join(slicer.app.temporaryPath, "SlicerData")
 
@@ -302,12 +314,67 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         mainWindow.moduleSelector().selectModule('DICOM')
         ct_thorax_folder = os.path.join(extract_path, "dataset1_ThoraxAbdomenCT")
         
-        from DICOMLib import DICOMUtils
+        # Criar/configurar banco de dados DICOM
         import DICOMLib
+        from DICOMLib import DICOMUtils
+        
+        # Obter ou criar o banco de dados DICOM
+        dicomDatabase = slicer.dicomDatabase
+        if not dicomDatabase:
+            # Se não existe, criar um banco temporário
+            dicomDatabasePath = os.path.join(slicer.app.temporaryPath, "DICOMDatabase")
+            if not os.path.exists(dicomDatabasePath):
+                os.makedirs(dicomDatabasePath)
+            
+            # Inicializar o banco de dados
+            dicomWidget = slicer.modules.dicom.widgetRepresentation().self()
+            dicomWidget.onDatabaseDirectoryChanged(dicomDatabasePath)
+            dicomDatabase = slicer.dicomDatabase
+        
+        # Importar arquivos DICOM
+        self.delayDisplay('Importando arquivos DICOM...')
         DICOMUtils.importDicom(ct_thorax_folder)
+        
+        # Aguardar a importação ser concluída
+        import time
+        time.sleep(2)
+        slicer.app.processEvents()
+        
+        # Carregar os dados DICOM
+        self.delayDisplay('Carregando dados DICOM...')
         dicomFiles = slicer.util.getFilesInDirectory(ct_thorax_folder)
         loadablesByPlugin, loadEnabled = DICOMLib.getLoadablesFromFileLists([dicomFiles])
         loadedNodeIDs = DICOMLib.loadLoadables(loadablesByPlugin)
+        
+        # Aguardar o carregamento ser concluído e verificar se os nós foram criados
+        max_wait_time = 30  # 30 segundos no máximo
+        start_time = time.time()
+        ct_node = None
+        
+        while ct_node is None and (time.time() - start_time) < max_wait_time:
+            slicer.app.processEvents()
+            time.sleep(0.5)
+            
+            # Procurar especificamente pelo nó "6: CT_Thorax_Abdomen"
+            try:
+                ct_node = slicer.util.getNode("6: CT_Thorax_Abdomen")
+                if ct_node:
+                    print(f"Nó DICOM encontrado: {ct_node.GetName()}")
+                    break
+            except:
+                # Se não encontrar com o nome exato, procurar por padrão similar
+                volumeNodes = slicer.util.getNodesByClass('vtkMRMLScalarVolumeNode')
+                for node in volumeNodes:
+                    nodeName = node.GetName()
+                    if 'CT_Thorax_Abdomen' in nodeName:
+                        ct_node = node
+                        print(f"Nó DICOM encontrado: {nodeName}")
+                        break
+        
+        if ct_node is None:
+            raise Exception("Falha ao carregar dados DICOM. Nó '6: CT_Thorax_Abdomen' não foi encontrado.")
+        
+        self.delayDisplay(f'Dados DICOM carregados: {ct_node.GetName()}')
         
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #1: DICOM module selected')
@@ -324,8 +391,8 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
 
         # 3 shot: Select volume input
         nodeSelectorTc = slicer.util.findChild(slicer.util.mainWindow(), "inputNodeSelector0")
-        nodeTc = slicer.util.getNode("6: CT_Thorax_Abdomen")
-        nodeSelectorTc.setCurrentNode(nodeTc)
+        # Usar o nó CT que foi encontrado anteriormente
+        nodeSelectorTc.setCurrentNode(ct_node)
 
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #3: Volume input selected for Whole Body Segmentation (TS1 - quick)')
