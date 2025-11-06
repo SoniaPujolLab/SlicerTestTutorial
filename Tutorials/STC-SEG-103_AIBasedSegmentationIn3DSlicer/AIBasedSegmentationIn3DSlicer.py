@@ -82,11 +82,11 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         self.delayDisplay('Screenshot #1: In the Welcome screen.')
     
         # 2 shot: 
-        addDataDialog=slicer.qSlicerDataDialog()
-        qt.QTimer.singleShot(0, lambda: addDataDialog.exec())
+        #addDataDialog=slicer.qSlicerDataDialog()
+        #qt.QTimer.singleShot(0, lambda: addDataDialog.exec())
 
 
-        # TUTORIALMAKER SCREENSHOT
+        
         self.delayDisplay('Screenshot #2: Click in Add Data button')
         ww = slicer.app.activeWindow()
         ww.close()
