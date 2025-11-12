@@ -38,6 +38,8 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         
         # Instalar dependências necessárias ANTES de começar
         self.delayDisplay("Verificando e instalando dependências...")
+    
+        # TUTORIALMAKER BEGIN
         
         # Pré-instalar PyTorch sem confirmação do usuário
         try:
@@ -54,8 +56,6 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         logic = MONAIAuto3DSeg.MONAIAuto3DSegLogic()
         logic.setupPythonRequirements(upgrade=False)
         self.delayDisplay("Dependências instaladas com sucesso!")
-    
-        # TUTORIALMAKER BEGIN
 
         # Clear the scene to start fresh
         slicer.mrmlScene.Clear(0)
@@ -73,6 +73,7 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         # TUTORIALMAKER INFO AUTHOR Sonia Pujol, Ph.D.
         # TUTORIALMAKER INFO DATE 30/06/2025
         # TUTORIALMAKER INFO DESC AI - based Segmentation in 3D Slicer
+        # TUTORIALMAKER INFO DEPENDENCIES MONAIAuto3DSeg
         
         # 1 shot: 
         mainWindow.moduleSelector().selectModule('Welcome')
@@ -82,14 +83,11 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         self.delayDisplay('Screenshot #1: In the Welcome screen.')
     
         # 2 shot: 
-        addDataDialog=slicer.qSlicerDataDialog()
-        qt.QTimer.singleShot(0, lambda: addDataDialog.exec())
-
-
-        # TUTORIALMAKER SCREENSHOT
-        self.delayDisplay('Screenshot #2: Click in Add Data button')
-        ww = slicer.app.activeWindow()
-        ww.close()
+        #addDataDialog=slicer.qSlicerDataDialog()
+        #qt.QTimer.singleShot(0, lambda: addDataDialog.exec())
+        #self.delayDisplay('Screenshot #2: Click in Add Data button')
+        #ww = slicer.app.activeWindow()
+        #ww.close()
 
         # 3 shot: Load protate data
         import os
