@@ -105,15 +105,17 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         if not os.path.exists(zip_path):
             urllib.request.urlretrieve(zip_url, zip_path)
 
-        # Extrair ZIP se não estiver extraído
-        if not os.path.exists(extract_path):
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(slicer.app.temporaryPath)
-
         # Carregar os volumes
         prostate_folder = os.path.join(extract_path, "dataset3_ProstateMRI")
         adc_path = os.path.join(prostate_folder, "msd-prostate-01-adc.nrrd")
         t2_path = os.path.join(prostate_folder, "msd-prostate-01-t2.nrrd")
+
+        # Extrair ZIP se não estiver extraído
+        if not (os.path.exists(adc_path) and os.path.exists(t2_path)):
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(slicer.app.temporaryPath)
+
+        
 
         slicer.util.loadVolume(adc_path)
         slicer.util.loadVolume(t2_path)
