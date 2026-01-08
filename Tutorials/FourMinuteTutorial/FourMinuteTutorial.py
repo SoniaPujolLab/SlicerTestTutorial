@@ -161,6 +161,10 @@ class Slicer4MinuteTest(ScriptedLoadableModuleTest):
         controller.setAnimationMode(0) 
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay('Screenshot #11: Active the 3D view spin button.')
+        #util.getNamedWidget("CentralWidget/CentralWidgetLayoutFrame/ThreeDWidget1/qMRMLThreeDViewControllerWidget:0/qMRMLThreeDViewControllerWidget").inner().hide()
+
         self.delayDisplay('Optic chiasm should be visible. Front part of white matter should be clipped.')
+        
+        # Done
         # TUTORIALMAKER END
         self.delayDisplay('Test passed!')
