@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Script para executar testes do TutorialMaker em múltiplas linguagens no CI/GitHub Actions
-Otimizado para execução em containers e ambientes headless
+Script to run TutorialMaker tests in multiple languages on CI/GitHub Actions
+Optimized for execution in containers and headless environments
 """
 
 import sys
@@ -12,12 +12,12 @@ import tempfile
 import subprocess
 from pathlib import Path
 
-# Configurações padrão
+# Default settings
 DEFAULT_LANGUAGES = ["pt-BR", "es-419", "fr-FR"]
-SLICER_TIMEOUT = 300  # 5 minutos timeout por teste
+SLICER_TIMEOUT = 300  # 5 minutes timeout per test
 
 class TutorialTestRunner:
-    """Runner para testes de tutorial em múltiplas linguagens"""
+    """Runner for tutorial tests in multiple languages"""
     
     def __init__(self, slicer_executable, tutorial_name=None, output_dir=None):
         self.slicer_executable = Path(slicer_executable)
@@ -25,26 +25,26 @@ class TutorialTestRunner:
         self.output_dir = Path(output_dir) if output_dir else Path.cwd() / "test_outputs"
         self.results = {}
         
-        # Criar diretório de saída
+        # Create output directory
         self.output_dir.mkdir(exist_ok=True)
         
     def run_test_for_language(self, language_code):
         """
-        Executa teste para uma linguagem específica usando estratégia de reinício:
-        1. Primeira sessão: Configura linguagem e aguarda
-        2. Segunda sessão: Executa tutorial com linguagem aplicada
+        Runs test for a specific language using restart strategy:
+        1. First session: Configure language and wait
+        2. Second session: Execute tutorial with applied language
         
         Args:
-            language_code (str): Código da linguagem
+            language_code (str): Language code
             
         Returns:
-            dict: Resultado do teste
+            dict: Test result
         """
-        print(f"\\n=== Testando linguagem: {language_code} ===")
+        print(f"\\n=== Testing language: {language_code} ===")
         
         try:
-            # Passo 1: Configurar linguagem
-            print("Passo 1: Configurando linguagem...")
+            # Step 1: Configure language
+            print("Step 1: Configuring language...")
             config_success = self._configure_language(language_code)
             
             if not config_success:
@@ -52,16 +52,16 @@ class TutorialTestRunner:
                     "language": language_code,
                     "tutorial": self.tutorial_name,
                     "status": "error",
-                    "error": "Falha na configuração de linguagem",
+                    "error": "Language configuration failed",
                     "execution_time": 0
                 }
             
-            # Passo 2: Executar tutorial com linguagem configurada
-            print("Passo 2: Executando tutorial com linguagem aplicada...")
+            # Step 2: Execute tutorial with configured language
+            print("Step 2: Executing tutorial with applied language...")
             return self._run_tutorial_test(language_code)
             
         except Exception as e:
-            print(f"💥 Erro geral no teste para {language_code}: {e}")
+            print(f"💥 General error in test for {language_code}: {e}")
             return {
                 "language": language_code,
                 "tutorial": self.tutorial_name,
@@ -72,21 +72,21 @@ class TutorialTestRunner:
     
     def _configure_language(self, language_code):
         """
-        Primeira sessão: Apenas configura a linguagem nas preferências
+        First session: Only configures the language in preferences
         
         Args:
-            language_code (str): Código da linguagem
+            language_code (str): Language code
             
         Returns:
-            bool: True se configuração foi bem-sucedida
+            bool: True if configuration was successful
         """
         config_script = self._create_language_config_script(language_code)
         
         try:
-            # Comando simples para configuração
+            # Simple command for configuration
             cmd = [str(self.slicer_executable), '--no-splash', '--python-script', config_script]
             
-            print(f"Configurando: {' '.join(cmd[:2])} ...")
+            print(f"Configuring: {' '.join(cmd[:2])} ...")
             
             start_time = time.time()
             
@@ -99,7 +99,7 @@ class TutorialTestRunner:
                 universal_newlines=True
             )
             
-            # Timeout curto para configuração (30 segundos)
+            # Short timeout for configuration (30 seconds)
             config_timeout = 30
             output_lines = []
             
@@ -109,7 +109,7 @@ class TutorialTestRunner:
                     
                 elapsed = time.time() - start_time
                 if elapsed > config_timeout:
-                    print(f"⏰ Timeout na configuração após {elapsed:.1f}s")
+                    print(f"⏰ Configuration timeout after {elapsed:.1f}s")
                     process.terminate()
                     time.sleep(2)
                     if process.poll() is None:
@@ -127,7 +127,7 @@ class TutorialTestRunner:
                 except:
                     break
             
-            # Aguardar processo terminar completamente
+            # Wait for process to completely finish
             try:
                 process.wait(timeout=5)
             except subprocess.TimeoutExpired:
@@ -138,25 +138,25 @@ class TutorialTestRunner:
             elapsed = time.time() - start_time
             
             if success:
-                print(f"✅ Linguagem configurada em {elapsed:.1f}s")
+                print(f"✅ Language configured in {elapsed:.1f}s")
             else:
-                print(f"❌ Return code {process.returncode} após {elapsed:.1f}s")
-                # Verificar se a configuração foi salva mesmo assim
+                print(f"❌ Return code {process.returncode} after {elapsed:.1f}s")
+                # Check if configuration was saved anyway
                 config_found = any("pt-BR" in line and "i18n habilitado: True" in line for line in output_lines)
                 success_msg_found = any("✅" in line and "Configuração" in line for line in output_lines)
                 
                 if config_found or success_msg_found:
-                    print("ℹ️ Mas parece que a configuração foi salva corretamente")
-                    success = True  # Considerar sucesso se configuração foi salva
+                    print("ℹ️ But it seems the configuration was saved correctly")
+                    success = True  # Consider success if configuration was saved
                 else:
-                    print("Últimas linhas para debug:")
+                    print("Last lines for debug:")
                     for line in output_lines[-5:]:
                         print(f"  {line}")
                     
             return success
             
         except Exception as e:
-            print(f"Erro na configuração: {e}")
+            print(f"Configuration error: {e}")
             return False
         finally:
             try:
@@ -166,29 +166,29 @@ class TutorialTestRunner:
     
     def _run_tutorial_test(self, language_code):
         """
-        Segunda sessão: Executa o tutorial assumindo que linguagem já está configurada
+        Second session: Executes the tutorial assuming language is already configured
         
         Args:
-            language_code (str): Código da linguagem
+            language_code (str): Language code
             
         Returns:
-            dict: Resultado do teste
+            dict: Test result
         """
         test_script = self._create_tutorial_test_script(language_code)
         
         try:
-            # Montar comando do Slicer
+            # Build Slicer command
             cmd = [str(self.slicer_executable), '--no-splash']
             
-            # Adicionar opções apenas se não for Windows
+            # Add options only if not Windows
             import platform
             if platform.system() != "Windows":
                 cmd.extend(['--no-main-window', '--disable-cli-modules'])
             
             cmd.extend(['--python-script', test_script])
             
-            print(f"Executando tutorial: {' '.join(cmd[:2])} ...")
-            print(f"Aguardando até {SLICER_TIMEOUT} segundos...")
+            print(f"Executing tutorial: {' '.join(cmd[:2])} ...")
+            print(f"Waiting up to {SLICER_TIMEOUT} seconds...")
             
             start_time = time.time()
             
@@ -201,7 +201,7 @@ class TutorialTestRunner:
                 universal_newlines=True
             )
             
-            # Monitorar processo
+            # Monitor process
             output_lines = []
             while True:
                 if process.poll() is not None:
@@ -209,7 +209,7 @@ class TutorialTestRunner:
                 
                 elapsed = time.time() - start_time
                 if elapsed > SLICER_TIMEOUT:
-                    print(f"⏰ Timeout após {elapsed:.1f}s - terminando processo...")
+                    print(f"⏰ Timeout after {elapsed:.1f}s - terminating process...")
                     process.terminate()
                     try:
                         process.wait(timeout=5)
@@ -231,9 +231,9 @@ class TutorialTestRunner:
             return_code = process.returncode
             execution_time = time.time() - start_time
             
-            print(f"Tutorial finalizado - Código: {return_code}, Tempo: {execution_time:.1f}s")
+            print(f"Tutorial finished - Code: {return_code}, Time: {execution_time:.1f}s")
             
-            # Verificar resultado
+            # Check result
             result_file = self.output_dir / f"result_{language_code.replace('-', '_')}.json"
             
             if result_file.exists():
@@ -272,13 +272,13 @@ class TutorialTestRunner:
     
     def _create_language_config_script(self, language_code):
         """
-        Cria script para APENAS configurar a linguagem (primeira sessão)
+        Creates script to ONLY configure the language (first session)
         
         Args:
-            language_code (str): Código da linguagem
+            language_code (str): Language code
             
         Returns:
-            str: Caminho do script temporário
+            str: Path to temporary script
         """
         script_content = f'''
 import slicer
@@ -291,60 +291,60 @@ def log_message(msg):
     print(f"[{{timestamp}}] {{msg}}")
 
 try:
-    log_message("=== Configurando Linguagem ===")
-    log_message(f"Linguagem alvo: {language_code}")
+    log_message("=== Configuring Language ===")
+    log_message(f"Target language: {language_code}")
     
-    # Aguardar inicialização
-    log_message("Aguardando inicialização do Slicer...")
+    # Wait for initialization
+    log_message("Waiting for Slicer initialization...")
     for i in range(3):
         slicer.app.processEvents()
         time.sleep(1)
-        log_message(f"Inicialização {{i+1}}/3...")
+        log_message(f"Initialization {{i+1}}/3...")
     
-    # Configurar linguagem
+    # Configure language
     settings = slicer.app.userSettings()
     original_lang = settings.value('language', 'en-US')
     
-    log_message(f"Linguagem original: {{original_lang}}")
+    log_message(f"Original language: {{original_lang}}")
     
     settings.setValue('Internationalization/Enabled', True)
     settings.setValue('language', '{language_code}')
     
-    log_message("Preferências de linguagem salvas")
+    log_message("Language preferences saved")
     
-    # Tentar LanguageTools se disponível
+    # Try LanguageTools if available
     try:
         from LanguageTools import LanguageToolsLogic
         logic = LanguageToolsLogic()
         logic.enableInternationalization(True)
-        log_message("LanguageTools configurado")
+        log_message("LanguageTools configured")
     except ImportError:
-        log_message("LanguageTools não disponível (OK)")
+        log_message("LanguageTools not available (OK)")
     
-    # Aguardar processamento
-    log_message("Processando configurações...")
+    # Wait for processing
+    log_message("Processing settings...")
     for i in range(5):
         slicer.app.processEvents()
         time.sleep(1)
-        log_message(f"Processamento {{i+1}}/5...")
+        log_message(f"Processing {{i+1}}/5...")
     
-    # Verificar configuração
+    # Verify configuration
     current_lang = settings.value('language')
     i18n_enabled = settings.value('Internationalization/Enabled')
     
-    log_message(f"Resultado final:")
-    log_message(f"  Linguagem: {{current_lang}}")
-    log_message(f"  i18n habilitado: {{i18n_enabled}}")
+    log_message(f"Final result:")
+    log_message(f"  Language: {{current_lang}}")
+    log_message(f"  i18n enabled: {{i18n_enabled}}")
     
     if current_lang == '{language_code}':
-        log_message("✅ Configuração salva com sucesso")
-        log_message("ℹ️  Linguagem será aplicada na próxima sessão")
+        log_message("✅ Configuration saved successfully")
+        log_message("ℹ️  Language will be applied in next session")
     else:
-        log_message("❌ Configuração falhou")
+        log_message("❌ Configuration failed")
         sys.exit(1)
     
-    # Finalizar explicitamente
-    log_message("Finalizando...")
+    # Explicitly finish
+    log_message("Finishing...")
     slicer.app.quit()
     
 except Exception as e:
@@ -360,13 +360,13 @@ except Exception as e:
     
     def _create_tutorial_test_script(self, language_code):
         """
-        Cria script para executar o tutorial (segunda sessão, com linguagem já aplicada)
+        Creates script to execute the tutorial (second session, with language already applied)
         
         Args:
-            language_code (str): Código da linguagem
+            language_code (str): Language code
             
         Returns:
-            str: Caminho do script temporário
+            str: Path to temporary script
         """
         script_content = f'''
 import sys
@@ -375,53 +375,53 @@ import traceback
 import time
 import json
 
-# Configurar saídas para log
+# Configure log outputs
 log_file = r"{self.output_dir / f"test_{language_code.replace('-', '_')}.log"}"
 error_file = r"{self.output_dir / f"error_{language_code.replace('-', '_')}.log"}"
 
 def log_message(message):
-    """Log com timestamp"""
+    """Log with timestamp"""
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(f"[{{timestamp}}] {{message}}\\n")
     print(f"[{{timestamp}}] {{message}}")
 
 def log_error(message):
-    """Log de erro"""
+    """Error log"""
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     with open(error_file, "a", encoding="utf-8") as f:
         f.write(f"[{{timestamp}}] {{message}}\\n")
     print(f"[{{timestamp}}] ERROR: {{message}}")
 
 try:
-    log_message("=== Executando Tutorial ===")
-    log_message(f"Linguagem esperada: {language_code}")
+    log_message("=== Executing Tutorial ===")
+    log_message(f"Expected language: {language_code}")
     log_message(f"Tutorial: {self.tutorial_name}")
     
-    # Importar Slicer
+    # Import Slicer
     import slicer
-    log_message("Slicer importado")
+    log_message("Slicer imported")
     
-    # Aguardar inicialização
+    # Wait for initialization
     for i in range(3):
         slicer.app.processEvents()
         time.sleep(1)
     
-    # Verificar linguagem atual
+    # Check current language
     settings = slicer.app.userSettings()
     current_lang = settings.value('language')
     i18n_enabled = settings.value('Internationalization/Enabled')
     
-    log_message(f"Linguagem atual: {{current_lang}}")
-    log_message(f"i18n habilitado: {{i18n_enabled}}")
+    log_message(f"Current language: {{current_lang}}")
+    log_message(f"i18n enabled: {{i18n_enabled}}")
     
     if current_lang == '{language_code}':
-        log_message("✅ Linguagem aplicada corretamente")
+        log_message("✅ Language applied correctly")
     else:
-        log_message(f"⚠️  Linguagem diferente! Esperada: {language_code}, Atual: {{current_lang}}")
+        log_message(f"⚠️  Different language! Expected: {language_code}, Current: {{current_lang}}")
     
-    # Carregar TutorialMaker
-    log_message("Carregando TutorialMaker...")
+    # Load TutorialMaker
+    log_message("Loading TutorialMaker...")
     
     try:
         from TutorialMaker import TutorialMakerLogic
@@ -433,21 +433,21 @@ try:
         appFont.setPointSize(14)
         slicer.app.setFont(appFont)
         
-        # Configurar arquivos JSON necessários para a linguagem
-        log_message(f"Configurando arquivos JSON para linguagem: {language_code}")
+        # Configure JSON files needed for the language
+        log_message(f"Configuring JSON files for language: {language_code}")
         
-        # Importar bibliotecas necessárias
+        # Import necessary libraries
         import shutil
         from pathlib import Path
         
-        # Encontrar diretório do TutorialMaker
+        # Find TutorialMaker directory
         tutorialmaker_module = slicer.util.getModuleLogic("TutorialMaker")
         if hasattr(tutorialmaker_module, 'resourcePath'):
             tutorialmaker_dir = Path(tutorialmaker_module.resourcePath('.'))
         else:
-            # Fallback: usar localização padrão baseada em slicer
+            # Fallback: use default location based on slicer
             slicer_dir = Path(slicer.app.slicerHome)
-            # Procurar por TutorialMaker nas extensões
+            # Search for TutorialMaker in extensions
             possible_dirs = [
                 slicer_dir / "lib" / "Slicer-*" / "qt-scripted-modules" / "TutorialMaker",
                 slicer_dir / "lib" / "Slicer-*" / "extensions-*" / "TutorialMaker*"
@@ -460,51 +460,51 @@ try:
                     break
             
             if not tutorialmaker_dir:
-                log_message("Criando diretório TutorialMaker padrão...")
+                log_message("Creating default TutorialMaker directory...")
                 tutorialmaker_dir = slicer_dir / "lib" / "Slicer-5.8" / "qt-scripted-modules" / "TutorialMaker"
                 tutorialmaker_dir.mkdir(parents=True, exist_ok=True)
         
         annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations"
         annotations_dir.mkdir(parents=True, exist_ok=True)
-        log_message(f"Diretório de anotações: {{annotations_dir}}")
+        log_message(f"Annotations directory: {{annotations_dir}}")
         
-        # Listar arquivos existentes no diretório para debug
+        # List existing files in directory for debug
         try:
             existing_files = list(annotations_dir.glob("*.json"))
-            log_message(f"Arquivos JSON encontrados em {{annotations_dir}}:")
+            log_message(f"JSON files found in {{annotations_dir}}:")
             for file in existing_files:
                 log_message(f"  - {{file.name}}")
         except Exception as e:
-            log_message(f"Erro ao listar arquivos: {{e}}")
+            log_message(f"Error listing files: {{e}}")
         
-        # Copiar text_dict_default.json específico da linguagem
+        # Copy language-specific text_dict_default.json
         lang_dict_file = annotations_dir / f"text_dict_default_{language_code}.json"
         target_dict_file = annotations_dir / "text_dict_default.json"
         
-        log_message(f"Procurando arquivo: {{lang_dict_file}}")
-        log_message(f"Arquivo existe: {{lang_dict_file.exists()}}")
+        log_message(f"Looking for file: {{lang_dict_file}}")
+        log_message(f"File exists: {{lang_dict_file.exists()}}")
         
         if lang_dict_file.exists():
-            log_message(f"✅ Copiando arquivo de traduções: {{lang_dict_file}} -> {{target_dict_file}}")
+            log_message(f"✅ Copying translation file: {{lang_dict_file}} -> {{target_dict_file}}")
             shutil.copy2(lang_dict_file, target_dict_file)
             
-            # Verificar se a cópia foi bem-sucedida
+            # Verify if copy was successful
             if target_dict_file.exists():
-                log_message(f"✅ Arquivo copiado com sucesso!")
-                # Mostrar primeiras linhas do arquivo para confirmação
+                log_message(f"✅ File copied successfully!")
+                # Show first lines of file for confirmation
                 try:
                     with open(target_dict_file, 'r', encoding='utf-8') as f:
                         content = f.read()[:200]
-                        log_message(f"Primeiros caracteres do arquivo: {{content[:100]}}...")
+                        log_message(f"First characters of file: {{content[:100]}}...")
                 except Exception as e:
-                    log_message(f"Erro ao ler arquivo copiado: {{e}}")
+                    log_message(f"Error reading copied file: {{e}}")
             else:
-                log_message(f"❌ Erro: arquivo não foi copiado!")
+                log_message(f"❌ Error: file was not copied!")
         else:
-            log_message(f"❌ Arquivo de traduções não encontrado: {{lang_dict_file}}")
-            log_message(f"Tentando localizar arquivos similares...")
+            log_message(f"❌ Translation file not found: {{lang_dict_file}}")
+            log_message(f"Trying to locate similar files...")
             
-            # Tentar encontrar arquivos com padrões similares
+            # Try to find files with similar patterns
             similar_patterns = [
                 f"text_dict_default_{language_code.replace('-', '_')}.json",
                 f"text_dict_default_{language_code.replace('-', '')}.json",
@@ -514,28 +514,28 @@ try:
             found_alternative = False
             for pattern in similar_patterns:
                 alt_file = annotations_dir / pattern
-                log_message(f"Testando padrão: {{alt_file}}")
+                log_message(f"Testing pattern: {{alt_file}}")
                 if alt_file.exists():
-                    log_message(f"✅ Encontrado arquivo alternativo: {{alt_file}}")
+                    log_message(f"✅ Found alternative file: {{alt_file}}")
                     shutil.copy2(alt_file, target_dict_file)
                     found_alternative = True
                     break
             
             if not found_alternative:
-                log_message(f"❌ Nenhum arquivo de tradução encontrado")
-                # Criar arquivo vazio como fallback
+                log_message(f"❌ No translation file found")
+                # Create empty file as fallback
                 with open(target_dict_file, 'w', encoding='utf-8') as f:
                     json.dump({{}}, f)
-                log_message("Criado arquivo de traduções vazio como fallback")
+                log_message("Created empty translation file as fallback")
         
-        # Selecionar módulo
+        # Select module
         slicer.util.moduleSelector().selectModule('TutorialMaker')
         time.sleep(2)
         slicer.app.processEvents()
         
-        log_message("TutorialMaker carregado com sucesso")
+        log_message("TutorialMaker loaded successfully")
         
-        # Variáveis globais para controle
+        # Global variables for control
         global test_completed, test_success
         test_completed = False
         test_success = False
@@ -544,14 +544,14 @@ try:
             global test_completed, test_success
             test_completed = True
             test_success = True
-            log_message(f"Tutorial {self.tutorial_name} finalizado com sucesso")
+            log_message(f"Tutorial {self.tutorial_name} finished successfully")
         
-        # Executar tutorial
-        log_message(f"Iniciando tutorial: {self.tutorial_name}")
+        # Execute tutorial
+        log_message(f"Starting tutorial: {self.tutorial_name}")
         
         TutorialMakerLogic.runTutorialTestCases('{self.tutorial_name}', finish_callback)
         
-        # Aguardar conclusão
+        # Wait for completion
         timeout_counter = 0
         max_timeout = {SLICER_TIMEOUT}
         
@@ -560,33 +560,33 @@ try:
             time.sleep(1)
             timeout_counter += 1
             
-            # Log progresso a cada 30 segundos
+            # Log progress every 30 seconds
             if timeout_counter % 30 == 0:
-                log_message(f"Tutorial em execução... {{timeout_counter}}/{{max_timeout}}s")
+                log_message(f"Tutorial running... {{timeout_counter}}/{{max_timeout}}s")
         
         if not test_completed:
-            raise Exception(f"Tutorial não completou em {{max_timeout}} segundos")
+            raise Exception(f"Tutorial did not complete in {{max_timeout}} seconds")
         
         if not test_success:
-            raise Exception("Tutorial falhou durante execução")
+            raise Exception("Tutorial failed during execution")
         
-        # Gerar outputs do tutorial usando TutorialMaker
-        log_message("Gerando outputs do tutorial...")
+        # Generate tutorial outputs using TutorialMaker
+        log_message("Generating tutorial outputs...")
         try:
-            # Obter lógica do TutorialMaker
+            # Get TutorialMaker logic
             logic = slicer.util.getModuleLogic("TutorialMaker")
             if logic and hasattr(logic, 'Generate'):
-                log_message(f"Chamando Generate para tutorial: {self.tutorial_name}")
+                log_message(f"Calling Generate for tutorial: {self.tutorial_name}")
                 logic.Generate('{self.tutorial_name}')
-                log_message("✅ Outputs gerados com sucesso")
+                log_message("✅ Outputs generated successfully")
             else:
-                log_message("⚠️  Método Generate não encontrado na lógica do TutorialMaker")
+                log_message("⚠️  Generate method not found in TutorialMaker logic")
         except Exception as e:
-            log_error(f"Erro ao gerar outputs: {{e}}")
-            # Não falhar o teste por erro na geração - isso é não-crítico para o teste básico
-            log_message("Continuando mesmo com erro na geração de outputs...")
+            log_error(f"Error generating outputs: {{e}}")
+            # Don't fail test for generation error - this is non-critical for basic test
+            log_message("Continuing despite error in output generation...")
         
-        # Salvar resultado de sucesso
+        # Save success result
         result_data = {{
             "language": "{language_code}",
             "tutorial": "{self.tutorial_name}",
@@ -599,20 +599,20 @@ try:
         with open(result_file, "w", encoding="utf-8") as f:
             json.dump(result_data, f, indent=2)
         
-        log_message("✅ TUTORIAL EXECUTADO COM SUCESSO")
+        log_message("✅ TUTORIAL EXECUTED SUCCESSFULLY")
         
     except ImportError as e:
-        log_error(f"TutorialMaker não encontrado: {{e}}")
+        log_error(f"TutorialMaker not found: {{e}}")
         raise
     except Exception as e:
-        log_error(f"Erro no tutorial: {{e}}")
+        log_error(f"Error in tutorial: {{e}}")
         raise
 
 except Exception as e:
-    log_error(f"Erro geral: {{e}}")
+    log_error(f"General error: {{e}}")
     log_error(traceback.format_exc())
     
-    # Salvar resultado de erro
+    # Save error result
     try:
         result_data = {{
             "language": "{language_code}",
@@ -640,21 +640,21 @@ log_message("Script finalizado normalmente")
     
     def run_all_tests(self, language_codes=None):
         """
-        Executa testes para todas as linguagens
+        Runs tests for all languages
         
         Args:
-            language_codes (list): Lista de códigos de linguagem
+            language_codes (list): List of language codes
             
         Returns:
-            dict: Resultados de todos os testes
+            dict: Results of all tests
         """
         if language_codes is None:
             language_codes = DEFAULT_LANGUAGES
         
-        print(f"Executando testes para linguagens: {', '.join(language_codes)}")
+        print(f"Running tests for languages: {', '.join(language_codes)}")
         print(f"Tutorial: {self.tutorial_name}")
         print(f"Slicer: {self.slicer_executable}")
-        print(f"Saída: {self.output_dir}")
+        print(f"Output: {self.output_dir}")
         
         results = {}
         
@@ -663,7 +663,7 @@ log_message("Script finalizado normalmente")
                 result = self.run_test_for_language(lang)
                 results[lang] = result
                 
-                # Log resultado
+                # Log result
                 status = result.get('status', 'unknown')
                 exec_time = result.get('execution_time', 0)
                 
@@ -687,13 +687,13 @@ log_message("Script finalizado normalmente")
     
     def generate_report(self, results):
         """
-        Gera relatório final dos testes
+        Generates final test report
         
         Args:
-            results (dict): Resultados dos testes
+            results (dict): Test results
             
         Returns:
-            dict: Relatório consolidado
+            dict: Consolidated report
         """
         total_tests = len(results)
         successful_tests = sum(1 for r in results.values() if r.get('status') == 'success')
@@ -710,20 +710,20 @@ log_message("Script finalizado normalmente")
             "results": results
         }
         
-        # Salvar relatório
+        # Save report
         report_file = self.output_dir / "test_report.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2)
         
-        # Relatório de console
+        # Console report
         print("\\n" + "="*60)
-        print("RELATÓRIO FINAL")
+        print("FINAL REPORT")
         print("="*60)
         print(f"Tutorial: {self.tutorial_name}")
-        print(f"Total de testes: {total_tests}")
-        print(f"Sucessos: {successful_tests}")
-        print(f"Falhas: {total_tests - successful_tests}")
-        print(f"Taxa de sucesso: {report['summary']['success_rate']:.1f}%")
+        print(f"Total tests: {total_tests}")
+        print(f"Successes: {successful_tests}")
+        print(f"Failures: {total_tests - successful_tests}")
+        print(f"Success rate: {report['summary']['success_rate']:.1f}%")
         print()
         
         for lang, result in results.items():
@@ -742,37 +742,37 @@ log_message("Script finalizado normalmente")
             if status != 'success' and 'error' in result:
                 print(f"    └─ {result['error']}")
         
-        print("\\nRelatório salvo em:", report_file)
+        print("\\nReport saved at:", report_file)
         
         return report
 
 def main():
-    """Função principal para uso via linha de comando"""
+    """Main function for command-line usage"""
     global SLICER_TIMEOUT
     import argparse
     
     parser = argparse.ArgumentParser(
-        description='Executa testes do TutorialMaker em múltiplas linguagens para CI'
+        description='Runs TutorialMaker tests in multiple languages for CI'
     )
-    parser.add_argument('slicer_path', help='Caminho para o executável do Slicer')
-    parser.add_argument('--tutorial', default='TestTutorial', help='Nome do tutorial para testar')
+    parser.add_argument('slicer_path', help='Path to Slicer executable')
+    parser.add_argument('--tutorial', default='TestTutorial', help='Tutorial name to test')
     parser.add_argument('--languages', nargs='+', default=DEFAULT_LANGUAGES, 
-                       help='Lista de linguagens para testar')
-    parser.add_argument('--output', help='Diretório de saída para logs e relatórios')
+                       help='List of languages to test')
+    parser.add_argument('--output', help='Output directory for logs and reports')
     parser.add_argument('--timeout', type=int, default=SLICER_TIMEOUT, 
-                       help='Timeout em segundos por teste')
+                       help='Timeout in seconds per test')
     
     args = parser.parse_args()
     
-    # Validar executável do Slicer
+    # Validate Slicer executable
     if not os.path.exists(args.slicer_path):
-        print(f"ERRO: Executável do Slicer não encontrado: {args.slicer_path}")
+        print(f"ERROR: Slicer executable not found: {args.slicer_path}")
         sys.exit(1)
     
-    # Atualizar timeout global
+    # Update global timeout
     SLICER_TIMEOUT = args.timeout
     
-    # Criar runner
+    # Create runner
     runner = TutorialTestRunner(
         slicer_executable=args.slicer_path,
         tutorial_name=args.tutorial,
@@ -780,27 +780,27 @@ def main():
     )
     
     try:
-        # Executar testes
+        # Run tests
         results = runner.run_all_tests(args.languages)
         
-        # Gerar relatório
+        # Generate report
         report = runner.generate_report(results)
         
-        # Determinar código de saída
+        # Determine exit code
         success_rate = report['summary']['success_rate']
         
         if success_rate == 100:
-            print("\\n🎉 Todos os testes passaram!")
+            print("\\n🎉 All tests passed!")
             sys.exit(0)
         elif success_rate >= 50:
-            print(f"\\n⚠️  Alguns testes falharam ({success_rate:.1f}% sucesso)")
+            print(f"\\n⚠️  Some tests failed ({success_rate:.1f}% success)")
             sys.exit(1)
         else:
-            print(f"\\n💀 Muitos testes falharam ({success_rate:.1f}% sucesso)")
+            print(f"\\n💀 Many tests failed ({success_rate:.1f}% success)")
             sys.exit(2)
             
     except Exception as e:
-        print(f"\\n💥 ERRO FATAL: {e}")
+        print(f"\\n💥 FATAL ERROR: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(3)
