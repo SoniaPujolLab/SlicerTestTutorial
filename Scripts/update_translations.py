@@ -59,10 +59,10 @@ def json_to_temp_cpp(json_path):
     
     lines = []
     lines.append('#include <QObject>\n\n')
-    lines.append('class Dummy : public QObject {\n')
+    lines.append('class Main : public QObject {\n')
     lines.append('    Q_OBJECT\n')
     lines.append('public:\n')
-    lines.append('    void dummy() {\n')
+    lines.append('    void main() {\n')
 
     line_number = 6  # Starting line number for tr() calls
 
@@ -273,8 +273,6 @@ def ts_to_json(ts_path, json_output):
             if extracomment_elem is None or source_elem is None:
                 continue
 
-            json_key = extracomment_elem.text.strip()
-            
             # Get the translation or fall back to source text
             translation_text = ""
             if (translation_elem is not None and 
@@ -292,9 +290,26 @@ def ts_to_json(ts_path, json_output):
                                                  .replace('&gt;', '>')
                                                  .replace('&amp;', '&'))
 
-            # Set the value in the result JSON using the path
-            set_value_by_path(result, json_key, translation_text)
-            processed_count += 1
+            # Handle multiple keys in extracomment (when lupdate merges duplicate strings)
+            # Split by newlines first, then by spaces, and filter out separator lines like "----------"
+            raw_text = extracomment_elem.text
+            # First split by newlines
+            lines = raw_text.split('\n')
+            json_keys = []
+            for line in lines:
+                line = line.strip()
+                # Skip empty lines and separator lines
+                if not line or line.startswith('-'):
+                    continue
+                # Split by spaces to handle cases like "15_ArrowText_0 15_ArrowText_1"
+                parts = line.split()
+                json_keys.extend(parts)
+            
+            # Set the value for each key
+            for json_key in json_keys:
+                if json_key:  # Extra safety check
+                    set_value_by_path(result, json_key, translation_text)
+                    processed_count += 1
 
     with open(json_output, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
