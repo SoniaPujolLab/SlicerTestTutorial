@@ -178,7 +178,8 @@ class TutorialTestRunner:
         
         try:
             # Build Slicer command
-            cmd = [str(self.slicer_executable), '--no-splash']
+            # Note: Don't use --no-splash or --testing as they may prevent extensions from loading
+            cmd = [str(self.slicer_executable)]
                         
             cmd.extend(['--python-script', test_script])
             
