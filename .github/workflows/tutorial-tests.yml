@@ -232,68 +232,17 @@ jobs:
         ls -la /root/.config/NA-MIC/ || echo "Config dir empty"
         ls -la /opt/slicer/slicer.org/ || echo "Extensions dir empty"
     
-    - name: Debug - List TutorialMaker Testing directory
-      shell: bash
-      run: |
-        echo "=== Debugging TutorialMaker installation ==="
-        echo "Looking for TutorialMaker directory..."
-        
-        # Find TutorialMaker directory
-        tutorialmaker_dir=$(find /opt/slicer/slicer.org -type d -name "TutorialMaker" 2>/dev/null | head -1)
-        
-        if [[ -n "$tutorialmaker_dir" ]]; then
-          echo "✅ Found TutorialMaker at: $tutorialmaker_dir"
-          
-          # Find qt-scripted-modules directory
-          scripted_modules=$(find "$tutorialmaker_dir" -type d -path "*/qt-scripted-modules" 2>/dev/null | head -1)
-          
-          if [[ -n "$scripted_modules" ]]; then
-            echo "✅ Found qt-scripted-modules at: $scripted_modules"
-            
-            # List Testing directory
-            testing_dir="$scripted_modules/Testing"
-            if [[ -d "$testing_dir" ]]; then
-              echo ""
-              echo "Testing directory contents:"
-              ls -lah "$testing_dir"
-              echo ""
-              echo "Python files in Testing:"
-              find "$testing_dir" -name "*.py" -type f
-            else
-              echo "❌ Testing directory not found at: $testing_dir"
-            fi
-            
-            # List Outputs/Annotations directory
-            annotations_dir="$scripted_modules/Outputs/Annotations"
-            if [[ -d "$annotations_dir" ]]; then
-              echo ""
-              echo "Annotations directory contents:"
-              ls -lah "$annotations_dir"
-            else
-              echo "⚠️  Annotations directory not found (will be created)"
-            fi
-          else
-            echo "❌ qt-scripted-modules directory not found"
-          fi
-        else
-          echo "❌ TutorialMaker directory not found!"
-          echo "Listing /opt/slicer/slicer.org contents:"
-          ls -lah /opt/slicer/slicer.org/ || echo "Directory doesn't exist"
-        fi
-    
     - name: Setup tutorial files in TutorialMaker
       shell: bash
       run: |
         echo "Setting up tutorial files for: ${{ matrix.tutorial.name }}"
         
-        # Determine languages to test
         if [[ -n "${{ github.event.inputs.languages }}" ]]; then
           test_languages="${{ github.event.inputs.languages }}"
         else
           test_languages="${{ env.DEFAULT_LANGUAGES }}"
         fi
         
-        # Run Python script to setup files
         python3 Scripts/setup_tutorial_files.py \
           "${{ matrix.tutorial.name }}" \
           "Tutorials/${{ matrix.tutorial.name }}" \
