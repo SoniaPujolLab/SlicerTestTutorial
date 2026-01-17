@@ -489,29 +489,16 @@ try:
         import shutil
         from pathlib import Path
         
-        # Find TutorialMaker directory
-        tutorialmaker_module = slicer.util.getModuleLogic("TutorialMaker")
-        if hasattr(tutorialmaker_module, 'resourcePath'):
-            tutorialmaker_dir = Path(tutorialmaker_module.resourcePath('.'))
-        else:
-            # Fallback: use default location based on slicer
-            slicer_dir = Path(slicer.app.slicerHome)
-            # Search for TutorialMaker in extensions
-            possible_dirs = [
-                slicer_dir / "lib" / "Slicer-*" / "qt-scripted-modules" / "TutorialMaker",
-                slicer_dir / "lib" / "Slicer-*" / "extensions-*" / "TutorialMaker*"
-            ]
-            tutorialmaker_dir = None
-            for pattern in possible_dirs:
-                matches = list(slicer_dir.glob(str(pattern.relative_to(slicer_dir))))
-                if matches:
-                    tutorialmaker_dir = matches[0]
-                    break
-            
-            if not tutorialmaker_dir:
-                log_message("Creating default TutorialMaker directory...")
-                tutorialmaker_dir = slicer_dir / "lib" / "Slicer-5.8" / "qt-scripted-modules" / "TutorialMaker"
-                tutorialmaker_dir.mkdir(parents=True, exist_ok=True)
+        # Find TutorialMaker directory using Slicer's API
+        log_message("Locating TutorialMaker extension directory...")
+        try:
+            # Use slicer.util.modulePath to get the actual installed path
+            tutorialmaker_module_path = slicer.util.modulePath("TutorialMaker")
+            tutorialmaker_dir = Path(tutorialmaker_module_path).parent
+            log_message(f"TutorialMaker found at: {{tutorialmaker_dir}}")
+        except Exception as e:
+            log_message(f"Error getting TutorialMaker path: {{e}}")
+            raise Exception("TutorialMaker extension not found. Make sure it's installed.")
         
         annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations"
         annotations_dir.mkdir(parents=True, exist_ok=True)
