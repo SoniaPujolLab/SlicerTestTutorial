@@ -118,7 +118,13 @@ jobs:
         fetch-depth: 1
     
     - name: Install system dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        TZ: America/New_York
       run: |
+        # Configure timezone non-interactively
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+        
         apt-get update -qq
         apt-get install -y \
           wget curl unzip \
