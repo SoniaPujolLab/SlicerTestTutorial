@@ -201,6 +201,7 @@ jobs:
         echo "Slicer extensions installation completed"
     
     - name: Setup TutorialMaker JSON files
+      shell: bash
       run: |
         echo "Setting up TutorialMaker JSON files for tutorial: ${{ matrix.tutorial.name }}"
         
@@ -237,10 +238,7 @@ jobs:
         echo "Created annotations directory: $ANNOTATIONS_DIR"
         
         # Extract tutorial name without ID (part after first underscore)
-        TUTORIAL_NAME_ONLY="${{ matrix.tutorial.name }}"
-        if [[ "$TUTORIAL_NAME_ONLY" =~ ^[^_]+_(.+)$ ]]; then
-          TUTORIAL_NAME_ONLY="${BASH_REMATCH[1]}"
-        fi
+        TUTORIAL_NAME_ONLY=$(echo "${{ matrix.tutorial.name }}" | sed 's/^[^_]*_//')
         echo "Tutorial name without ID: $TUTORIAL_NAME_ONLY"
         
         # Copy tutorial JSON file as annotations.json
@@ -276,6 +274,7 @@ jobs:
         echo "ANNOTATIONS_DIR=$ANNOTATIONS_DIR" >> $GITHUB_ENV
     
     - name: Prepare tutorial test environment
+      shell: bash
       run: |
         echo "Preparing test environment for tutorial: ${{ matrix.tutorial.name }}"
         
@@ -340,6 +339,7 @@ jobs:
     
     - name: Copy generated tutorial outputs
       if: always()
+      shell: bash
       run: |
         echo "Copying generated tutorial outputs..."
         
@@ -405,6 +405,7 @@ jobs:
     
     - name: Process test results
       if: always()
+      shell: bash
       run: |
         echo "Processing test results..."
         
