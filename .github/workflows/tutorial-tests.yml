@@ -244,19 +244,19 @@ jobs:
         # Copy tutorial JSON file as annotations.json
         # Try multiple naming patterns:
         # 1. Full folder name (with ID)
-        TUTORIAL_JSON="Tutorials/${{ matrix.tutorial.name }}/${{ matrix.tutorial.name }}.json"
+        TUTORIAL_JSON="Tutorials/${{ matrix.tutorial.name }}/Translations/${{ matrix.tutorial.name }}.json"
         if [[ -f "$TUTORIAL_JSON" ]]; then
           echo "Copying $TUTORIAL_JSON to $ANNOTATIONS_DIR/annotations.json"
           cp "$TUTORIAL_JSON" "$ANNOTATIONS_DIR/annotations.json"
         else
           # 2. Just the ID
-          TUTORIAL_JSON_ALT="Tutorials/${{ matrix.tutorial.name }}/${{ matrix.tutorial.id }}.json"
+          TUTORIAL_JSON_ALT="Tutorials/${{ matrix.tutorial.name }}/Translations/${{ matrix.tutorial.id }}.json"
           if [[ -f "$TUTORIAL_JSON_ALT" ]]; then
             echo "Copying $TUTORIAL_JSON_ALT to $ANNOTATIONS_DIR/annotations.json"
             cp "$TUTORIAL_JSON_ALT" "$ANNOTATIONS_DIR/annotations.json"
           else
             # 3. Tutorial name without ID
-            TUTORIAL_JSON_NAME="Tutorials/${{ matrix.tutorial.name }}/${TUTORIAL_NAME_ONLY}.json"
+            TUTORIAL_JSON_NAME="Tutorials/${{ matrix.tutorial.name }}/Translations/${TUTORIAL_NAME_ONLY}.json"
             if [[ -f "$TUTORIAL_JSON_NAME" ]]; then
               echo "Copying $TUTORIAL_JSON_NAME to $ANNOTATIONS_DIR/annotations.json"
               cp "$TUTORIAL_JSON_NAME" "$ANNOTATIONS_DIR/annotations.json"
@@ -300,8 +300,8 @@ jobs:
         for language in "${LANG_ARRAY[@]}"; do
           echo "Setting up files for language: $language"
           
-          # Path to language-specific text_dict_default.json
-          LANG_DICT="Tutorials/${{ matrix.tutorial.name }}/Translations/$language/text_dict_default.json"
+          # Path to language-specific text_dict file (new format: text_dict_[language].json)
+          LANG_DICT="Tutorials/${{ matrix.tutorial.name }}/Translations/text_dict_${language}.json"
           
           if [[ -f "$LANG_DICT" ]]; then
             echo "Found translation file: $LANG_DICT"
