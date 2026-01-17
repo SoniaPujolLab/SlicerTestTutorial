@@ -1,5 +1,8 @@
 name: Update All Translations from SlicerLanguageTranslations
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: '* 4 * * *' 
