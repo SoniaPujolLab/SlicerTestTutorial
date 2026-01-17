@@ -420,12 +420,28 @@ try:
     log_message("=== Listing installed Slicer extensions ===")
     try:
         extensionsManagerModel = slicer.app.extensionsManagerModel()
+        extensions_path = extensionsManagerModel.extensionsInstallPath()
+        log_message(f"Extensions install path: {{extensions_path}}")
+        
         installedExtensions = extensionsManagerModel.installedExtensions
         log_message(f"Total installed extensions: {{len(installedExtensions)}}")
         for ext_name in installedExtensions:
             log_message(f"  - {{ext_name}}")
+        
+        # Also check filesystem
+        import os
+        if os.path.exists(extensions_path):
+            subdirs = [d for d in os.listdir(extensions_path) if os.path.isdir(os.path.join(extensions_path, d))]
+            log_message(f"Extension directories found on disk: {{len(subdirs)}}")
+            for subdir in subdirs[:5]:
+                log_message(f"  - {{subdir}}")
+        else:
+            log_message(f"Extensions path does not exist: {{extensions_path}}")
+            
     except Exception as e:
         log_message(f"Could not list extensions: {{e}}")
+        import traceback
+        log_message(traceback.format_exc())
     
     # List available modules for debugging
     log_message("=== Listing available modules ===")
