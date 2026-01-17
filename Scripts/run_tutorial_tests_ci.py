@@ -520,56 +520,8 @@ try:
         except Exception as e:
             log_message(f"Error listing files: {{e}}")
         
-        # Copy language-specific text_dict.json
-        lang_dict_file = annotations_dir / f"text_dict_{language_code}.json"
-        target_dict_file = annotations_dir / "text_dict_default.json"
-        
-        log_message(f"Looking for file: {{lang_dict_file}}")
-        log_message(f"File exists: {{lang_dict_file.exists()}}")
-        
-        if lang_dict_file.exists():
-            log_message(f"✅ Copying translation file: {{lang_dict_file}} -> {{target_dict_file}}")
-            shutil.copy2(lang_dict_file, target_dict_file)
-            
-            # Verify if copy was successful
-            if target_dict_file.exists():
-                log_message(f"✅ File copied successfully!")
-                # Show first lines of file for confirmation
-                try:
-                    with open(target_dict_file, 'r', encoding='utf-8') as f:
-                        content = f.read()[:200]
-                        log_message(f"First characters of file: {{content[:100]}}...")
-                except Exception as e:
-                    log_message(f"Error reading copied file: {{e}}")
-            else:
-                log_message(f"❌ Error: file was not copied!")
-        else:
-            log_message(f"❌ Translation file not found: {{lang_dict_file}}")
-            log_message(f"Trying to locate similar files...")
-            
-            # Try to find files with similar patterns
-            similar_patterns = [
-                f"text_dict_default_{language_code.replace('-', '_')}.json",
-                f"text_dict_default_{language_code.replace('-', '')}.json",
-                f"text_dict_default_{language_code.lower()}.json"
-            ]
-            
-            found_alternative = False
-            for pattern in similar_patterns:
-                alt_file = annotations_dir / pattern
-                log_message(f"Testing pattern: {{alt_file}}")
-                if alt_file.exists():
-                    log_message(f"✅ Found alternative file: {{alt_file}}")
-                    shutil.copy2(alt_file, target_dict_file)
-                    found_alternative = True
-                    break
-            
-            if not found_alternative:
-                log_message(f"❌ No translation file found")
-                # Create empty file as fallback
-                with open(target_dict_file, 'w', encoding='utf-8') as f:
-                    json.dump({{}}, f)
-                log_message("Created empty translation file as fallback")
+        # Note: Translation files are already in place from workflow setup
+        # No need to copy text_dict files here
         
         # Select module
         slicer.util.moduleSelector().selectModule('TutorialMaker')
@@ -590,9 +542,15 @@ try:
             log_message(f"Tutorial {self.tutorial_name} finished successfully")
         
         # Execute tutorial
-        log_message(f"Starting tutorial: {self.tutorial_name}")
+        # Extract tutorial name without ID (part after first underscore)
+        tutorial_name_only = '{self.tutorial_name}'
+        if '_' in tutorial_name_only:
+            # Extract name after ID (e.g., "STC-GEN-101_WelcomeTutorial" -> "WelcomeTutorial")
+            tutorial_name_only = tutorial_name_only.split('_', 1)[1]
         
-        TutorialMakerLogic.runTutorialTestCases('{self.tutorial_name}', finish_callback)
+        log_message(f"Starting tutorial: {{tutorial_name_only}} (Full name: {self.tutorial_name})")
+        
+        TutorialMakerLogic.runTutorialTestCases(tutorial_name_only, finish_callback)
         
         # Wait for completion
         timeout_counter = 0
