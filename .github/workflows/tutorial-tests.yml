@@ -330,7 +330,7 @@ jobs:
         # Run the test script
         python3 Scripts/run_tutorial_tests_ci.py \
           /opt/slicer/Slicer \
-          --tutorial "${{ matrix.tutorial.id }}" \
+          --tutorial "${{ matrix.tutorial.name }}" \
           --languages $TEST_LANGUAGES \
           --output "$TUTORIAL_RESULTS_DIR" \
           --timeout 300
