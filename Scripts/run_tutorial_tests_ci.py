@@ -420,6 +420,37 @@ try:
     else:
         log_message(f"⚠️  Different language! Expected: {language_code}, Current: {{current_lang}}")
     
+    # List all installed extensions for debugging
+    log_message("=== Listing installed Slicer extensions ===")
+    try:
+        extensionsManagerModel = slicer.app.extensionsManagerModel()
+        installedExtensions = extensionsManagerModel.installedExtensions
+        log_message(f"Total installed extensions: {{len(installedExtensions)}}")
+        for ext_name in installedExtensions:
+            log_message(f"  - {{ext_name}}")
+    except Exception as e:
+        log_message(f"Could not list extensions: {{e}}")
+    
+    # List available modules for debugging
+    log_message("=== Listing available modules ===")
+    try:
+        factory = slicer.app.moduleManager().factoryManager()
+        modules = factory.moduleNames()
+        log_message(f"Total modules: {{len(modules)}}")
+        # Filter to show only relevant modules
+        tutorial_modules = [m for m in modules if 'Tutorial' in m or 'Language' in m]
+        if tutorial_modules:
+            log_message("Tutorial/Language-related modules:")
+            for mod in tutorial_modules:
+                log_message(f"  - {{mod}}")
+        else:
+            log_message("No Tutorial/Language modules found")
+            log_message("First 10 modules:")
+            for mod in list(modules)[:10]:
+                log_message(f"  - {{mod}}")
+    except Exception as e:
+        log_message(f"Could not list modules: {{e}}")
+    
     # Load TutorialMaker
     log_message("Loading TutorialMaker...")
     
@@ -477,8 +508,8 @@ try:
         except Exception as e:
             log_message(f"Error listing files: {{e}}")
         
-        # Copy language-specific text_dict_default.json
-        lang_dict_file = annotations_dir / f"text_dict_default_{language_code}.json"
+        # Copy language-specific text_dict.json
+        lang_dict_file = annotations_dir / f"text_dict_{language_code}.json"
         target_dict_file = annotations_dir / "text_dict_default.json"
         
         log_message(f"Looking for file: {{lang_dict_file}}")

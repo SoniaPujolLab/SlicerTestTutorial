@@ -305,13 +305,13 @@ jobs:
           
           if [[ -f "$LANG_DICT" ]]; then
             echo "Found translation file: $LANG_DICT"
-            # Copy it to the annotations directory with language suffix for later use
-            cp "$LANG_DICT" "$ANNOTATIONS_DIR/text_dict_default_${language}.json"
-            echo "Copied $LANG_DICT to $ANNOTATIONS_DIR/text_dict_default_${language}.json"
+            # Copy it to the annotations directory maintaining the same naming pattern
+            cp "$LANG_DICT" "$ANNOTATIONS_DIR/text_dict_${language}.json"
+            echo "Copied $LANG_DICT to $ANNOTATIONS_DIR/text_dict_${language}.json"
           else
             echo "Warning: Translation file not found: $LANG_DICT"
             # Create empty translation file as fallback
-            echo "{}" > "$ANNOTATIONS_DIR/text_dict_default_${language}.json"
+            echo "{}" > "$ANNOTATIONS_DIR/text_dict_${language}.json"
             echo "Created empty translation file for $language"
           fi
         done
