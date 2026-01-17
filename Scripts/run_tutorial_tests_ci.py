@@ -179,12 +179,7 @@ class TutorialTestRunner:
         try:
             # Build Slicer command
             cmd = [str(self.slicer_executable), '--no-splash']
-            
-            # Add options only if not Windows
-            import platform
-            if platform.system() != "Windows":
-                cmd.extend(['--no-main-window', '--disable-cli-modules'])
-            
+                        
             cmd.extend(['--python-script', test_script])
             
             print(f"Executing tutorial: {' '.join(cmd[:2])} ...")
