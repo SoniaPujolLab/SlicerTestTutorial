@@ -152,8 +152,8 @@ jobs:
             
             echo "Found tutorial directory: $tutorial_dir"
             
-            # Create Translations/[Language] directory structure
-            language_translations_dir="${tutorial_dir}Translations/${language}"
+            # Create Translations directory structure
+            language_translations_dir="${tutorial_dir}Translations"
             echo "Creating directory: $language_translations_dir"
             mkdir -p "$language_translations_dir"
             
@@ -172,24 +172,25 @@ jobs:
                 # Copy TS file temporarily for conversion
                 cp "$ts_source_absolute" "./$file"
                 
-                # Convert TS to JSON with custom output name
-                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
-                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "text_dict_default.json"
+                # Convert TS to JSON with language-specific filename
+                output_filename="text_dict_${language}.json"
+                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output $output_filename"
+                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "$output_filename"
                 
                 # Remove the temporary TS file (we don't want to keep it)
                 echo "Removing temporary TS file: $file"
                 rm -f "$file"
                 
                 # Verify final file exists
-                if [[ -f "text_dict_default.json" ]]; then
-                  echo "✅ text_dict_default.json created successfully"
-                  echo "File size: $(wc -c < text_dict_default.json) bytes"
+                if [[ -f "$output_filename" ]]; then
+                  echo "✅ $output_filename created successfully"
+                  echo "File size: $(wc -c < "$output_filename") bytes"
                   
                   # Show first few lines for verification
                   echo "First few lines of generated file:"
-                  head -5 "text_dict_default.json" || echo "Could not preview file"
+                  head -5 "$output_filename" || echo "Could not preview file"
                 else
-                  echo "❌ Failed to create text_dict_default.json"
+                  echo "❌ Failed to create $output_filename"
                   
                   # Debug: List all files in directory
                   echo "Files in directory after conversion:"
