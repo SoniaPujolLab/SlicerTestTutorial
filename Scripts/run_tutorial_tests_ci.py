@@ -364,6 +364,12 @@ except Exception as e:
         Returns:
             str: Path to temporary script
         """
+        # Extract tutorial name without ID (part after first underscore)
+        tutorial_name_only = self.tutorial_name
+        if '_' in tutorial_name_only:
+            # Extract name after ID (e.g., "STC-GEN-101_WelcomeTutorial" -> "WelcomeTutorial")
+            tutorial_name_only = tutorial_name_only.split('_', 1)[1]
+        
         script_content = f'''
 import sys
 import os
@@ -542,15 +548,9 @@ try:
             log_message(f"Tutorial {self.tutorial_name} finished successfully")
         
         # Execute tutorial
-        # Extract tutorial name without ID (part after first underscore)
-        tutorial_name_only = '{self.tutorial_name}'
-        if '_' in tutorial_name_only:
-            # Extract name after ID (e.g., "STC-GEN-101_WelcomeTutorial" -> "WelcomeTutorial")
-            tutorial_name_only = tutorial_name_only.split('_', 1)[1]
+        log_message(f"Starting tutorial: {tutorial_name_only} (Full ID/name: {self.tutorial_name})")
         
-        log_message(f"Starting tutorial: {{tutorial_name_only}} (Full name: {self.tutorial_name})")
-        
-        TutorialMakerLogic.runTutorialTestCases(tutorial_name_only, finish_callback)
+        TutorialMakerLogic.runTutorialTestCases('{tutorial_name_only}', finish_callback)
         
         # Wait for completion
         timeout_counter = 0
