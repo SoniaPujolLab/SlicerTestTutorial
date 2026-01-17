@@ -158,7 +158,15 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install requests
     
+    - name: Cache Slicer installation
+      id: cache-slicer
+      uses: actions/cache@v4
+      with:
+        path: /opt/slicer
+        key: slicer-${{ env.SLICER_VERSION }}-${{ runner.os }}
+    
     - name: Download and install Slicer
+      if: steps.cache-slicer.outputs.cache-hit != 'true'
       run: |
         echo "Downloading Slicer ${{ env.SLICER_VERSION }}..."
         mkdir -p /opt/slicer
@@ -178,6 +186,13 @@ jobs:
         ls -la /opt/slicer/
         echo "Slicer installation completed"
     
+    - name: Verify cached Slicer
+      if: steps.cache-slicer.outputs.cache-hit == 'true'
+      run: |
+        echo "✅ Using cached Slicer installation"
+        ls -la /opt/slicer/
+        chmod +x /opt/slicer/Slicer
+    
     - name: Setup virtual display
       run: |
         echo "Setting up virtual display ${{ env.SCREEN_RESOLUTION }}..."
@@ -190,7 +205,17 @@ jobs:
         # Verify display
         echo "DISPLAY=$DISPLAY" >> $GITHUB_ENV
     
+    - name: Cache Slicer extensions
+      id: cache-extensions
+      uses: actions/cache@v4
+      with:
+        path: |
+          /root/.config/NA-MIC
+          /opt/slicer/slicer.org
+        key: slicer-extensions-${{ env.SLICER_VERSION }}-v2
+    
     - name: Install required Slicer extensions
+      if: steps.cache-extensions.outputs.cache-hit != 'true'
       run: |
         echo "Installing required Slicer extensions..."
         export DISPLAY=:99
@@ -200,78 +225,30 @@ jobs:
         
         echo "Slicer extensions installation completed"
     
-    - name: Setup TutorialMaker JSON files
+    - name: Verify cached extensions
+      if: steps.cache-extensions.outputs.cache-hit == 'true'
+      run: |
+        echo "✅ Using cached Slicer extensions"
+        ls -la /root/.config/NA-MIC/ || echo "Config dir empty"
+        ls -la /opt/slicer/slicer.org/ || echo "Extensions dir empty"
+    
+    - name: Setup tutorial files in TutorialMaker
       shell: bash
       run: |
-        echo "Setting up TutorialMaker JSON files for tutorial: ${{ matrix.tutorial.name }}"
+        echo "Setting up tutorial files for: ${{ matrix.tutorial.name }}"
         
-        # Find TutorialMaker extension directory in Slicer
-        TUTORIALMAKER_DIR=""
-        for ext_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker*; do
-          if [[ -d "$ext_dir" ]]; then
-            TUTORIALMAKER_DIR="$ext_dir"
-            break
-          fi
-        done
-        
-        # If not found in scripted modules, check other common locations
-        if [[ -z "$TUTORIALMAKER_DIR" ]]; then
-          for ext_dir in /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
-            if [[ -d "$ext_dir" ]]; then
-              TUTORIALMAKER_DIR="$ext_dir"
-              break
-            fi
-          done
-        fi
-        
-        if [[ -z "$TUTORIALMAKER_DIR" ]]; then
-          echo "Warning: TutorialMaker extension directory not found. Creating fallback location..."
-          TUTORIALMAKER_DIR="/opt/slicer/lib/Slicer-5.8/qt-scripted-modules/TutorialMaker"
-          mkdir -p "$TUTORIALMAKER_DIR"
-        fi
-        
-        echo "TutorialMaker directory: $TUTORIALMAKER_DIR"
-        
-        # Create Outputs/Annotations directory
-        ANNOTATIONS_DIR="$TUTORIALMAKER_DIR/Outputs/Annotations"
-        mkdir -p "$ANNOTATIONS_DIR"
-        echo "Created annotations directory: $ANNOTATIONS_DIR"
-        
-        # Extract tutorial name without ID (part after first underscore)
-        TUTORIAL_NAME_ONLY=$(echo "${{ matrix.tutorial.name }}" | sed 's/^[^_]*_//')
-        echo "Tutorial name without ID: $TUTORIAL_NAME_ONLY"
-        
-        # Copy tutorial JSON file as annotations.json
-        # Try multiple naming patterns:
-        # 1. Full folder name (with ID)
-        TUTORIAL_JSON="Tutorials/${{ matrix.tutorial.name }}/Translations/${{ matrix.tutorial.name }}.json"
-        if [[ -f "$TUTORIAL_JSON" ]]; then
-          echo "Copying $TUTORIAL_JSON to $ANNOTATIONS_DIR/annotations.json"
-          cp "$TUTORIAL_JSON" "$ANNOTATIONS_DIR/annotations.json"
+        # Determine languages to test
+        if [[ -n "${{ github.event.inputs.languages }}" ]]; then
+          test_languages="${{ github.event.inputs.languages }}"
         else
-          # 2. Just the ID
-          TUTORIAL_JSON_ALT="Tutorials/${{ matrix.tutorial.name }}/Translations/${{ matrix.tutorial.id }}.json"
-          if [[ -f "$TUTORIAL_JSON_ALT" ]]; then
-            echo "Copying $TUTORIAL_JSON_ALT to $ANNOTATIONS_DIR/annotations.json"
-            cp "$TUTORIAL_JSON_ALT" "$ANNOTATIONS_DIR/annotations.json"
-          else
-            # 3. Tutorial name without ID
-            TUTORIAL_JSON_NAME="Tutorials/${{ matrix.tutorial.name }}/Translations/${TUTORIAL_NAME_ONLY}.json"
-            if [[ -f "$TUTORIAL_JSON_NAME" ]]; then
-              echo "Copying $TUTORIAL_JSON_NAME to $ANNOTATIONS_DIR/annotations.json"
-              cp "$TUTORIAL_JSON_NAME" "$ANNOTATIONS_DIR/annotations.json"
-            else
-              echo "Warning: Tutorial JSON file not found at:"
-              echo "  - $TUTORIAL_JSON"
-              echo "  - $TUTORIAL_JSON_ALT"
-              echo "  - $TUTORIAL_JSON_NAME"
-            fi
-          fi
+          test_languages="${{ env.DEFAULT_LANGUAGES }}"
         fi
         
-        # Store variables for later use
-        echo "TUTORIALMAKER_DIR=$TUTORIALMAKER_DIR" >> $GITHUB_ENV
-        echo "ANNOTATIONS_DIR=$ANNOTATIONS_DIR" >> $GITHUB_ENV
+        # Run Python script to setup files
+        python3 Scripts/setup_tutorial_files.py \
+          "${{ matrix.tutorial.name }}" \
+          "Tutorials/${{ matrix.tutorial.name }}" \
+          --languages $test_languages
     
     - name: Prepare tutorial test environment
       shell: bash
@@ -293,28 +270,6 @@ jobs:
         echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
         echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
         echo "Will test languages: $test_languages"
-        
-        # Prepare language-specific JSON files for TutorialMaker
-        echo "Preparing language-specific translation files..."
-        IFS=' ' read -ra LANG_ARRAY <<< "$test_languages"
-        for language in "${LANG_ARRAY[@]}"; do
-          echo "Setting up files for language: $language"
-          
-          # Path to language-specific text_dict file (new format: text_dict_[language].json)
-          LANG_DICT="Tutorials/${{ matrix.tutorial.name }}/Translations/text_dict_${language}.json"
-          
-          if [[ -f "$LANG_DICT" ]]; then
-            echo "Found translation file: $LANG_DICT"
-            # Copy it to the annotations directory maintaining the same naming pattern
-            cp "$LANG_DICT" "$ANNOTATIONS_DIR/text_dict_${language}.json"
-            echo "Copied $LANG_DICT to $ANNOTATIONS_DIR/text_dict_${language}.json"
-          else
-            echo "Warning: Translation file not found: $LANG_DICT"
-            # Create empty translation file as fallback
-            echo "{}" > "$ANNOTATIONS_DIR/text_dict_${language}.json"
-            echo "Created empty translation file for $language"
-          fi
-        done
     
     - name: Run tutorial tests
       run: |
