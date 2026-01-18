@@ -192,9 +192,7 @@ class TutorialTestRunner:
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
+                bufsize=1
             )
             
             # Monitor process
@@ -239,7 +237,17 @@ class TutorialTestRunner:
                 try:
                     line = process.stdout.readline()
                     if line:
-                        line_stripped = line.strip()
+                        # Handle both text and binary output safely
+                        try:
+                            if isinstance(line, bytes):
+                                line_stripped = line.decode('utf-8', errors='replace').strip()
+                            else:
+                                line_stripped = line.strip()
+                        except Exception as decode_error:
+                            # If decoding fails completely, show as hex
+                            line_stripped = f"[Binary data: {line[:50]}...]"
+                            print(f"⚠️ Decode error: {decode_error}")
+                        
                         output_lines.append(line_stripped)
                         print(f"[Tutorial] {line_stripped}")
                         last_output_time = time.time()
@@ -282,11 +290,16 @@ class TutorialTestRunner:
             error_hints = []
             if return_code == -999:
                 error_hints.append("Process crashed or was killed (no return code)")
+            elif return_code == -9:
+                error_hints.append("Process was killed with SIGKILL (code -9)")
+                error_hints.append("Likely OOM (Out of Memory) or system limit reached")
+            elif return_code < 0:
+                error_hints.append(f"Process terminated by signal {abs(return_code)}")
             
             # Check for common issues in output
             output_text = '\n'.join(output_lines[-50:])  # Last 50 lines
             if 'MemoryError' in output_text or 'OutOfMemory' in output_text:
-                error_hints.append("Out of memory error detected")
+                error_hints.append("Out of memory error detected in output")
             if 'No space left' in output_text:
                 error_hints.append("Disk space error detected")
             if 'Downloading' in output_text and not any('Successfully installed' in line for line in output_lines[-10:]):
