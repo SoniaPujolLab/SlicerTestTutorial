@@ -153,7 +153,7 @@ jobs:
           libglib2.0-0 libxrandr2 libxcomposite1 \
           libxdamage1 libxcursor1 libxi6 libxtst6 \
           ca-certificates \
-          git
+          git bc
     
     - name: Setup Python
       run: |
@@ -250,32 +250,18 @@ jobs:
         ls -la /root/.config/NA-MIC/ || echo "Config dir empty"
         ls -la /opt/slicer/slicer.org/ || echo "Extensions dir empty"
     
-    - name: Setup tutorial files in TutorialMaker
+    - name: Prepare tutorial test environment
       shell: bash
       run: |
-        echo "Setting up tutorial files for: ${{ matrix.tutorial.name }}"
+        echo "Preparing test environment for tutorial: ${{ matrix.tutorial.name }}"
         
-        if [[ -n "${{ github.event.inputs.languages }}" ]]; then
-          test_languages="${{ github.event.inputs.languages }}"
-        else
-          test_languages="${{ env.DEFAULT_LANGUAGES }}"
-        fi
+        # Clear pip cache to free up space
+        python3 -m pip cache purge 2>/dev/null || echo "No pip cache to clear"
         
-        python3 Scripts/setup_tutorial_files.py \
-          "${{ matrix.tutorial.name }}" \
-          "Tutorials/${{ matrix.tutorial.name }}" \
-          --languages $test_languages
-    
-    - name: Run all tutorials sequentially
-      shell: bash
-      run: |
-        echo "=== Running tutorials sequentially ==="
-        echo "This prevents resource contention and OOM issues"
-        echo ""
-        
-        # Parse tutorials JSON
-        tutorials='${{ needs.detect-tutorials.outputs.tutorials }}'
-        echo "Tutorials to test: $tutorials"
+        # Create Results directory in tutorial folder
+        tutorial_results_dir="Tutorials/${{ matrix.tutorial.name }}/Results"
+        mkdir -p "$tutorial_results_dir"
+        echo "Created results directory: $tutorial_results_dir"
         
         # Set languages to test
         if [[ -n "${{ github.event.inputs.languages }}" ]]; then
@@ -284,80 +270,19 @@ jobs:
           test_languages="${{ env.DEFAULT_LANGUAGES }}"
         fi
         
-        echo "Languages to test: $test_languages"
-        echo ""
+        echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
+        echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
+        echo "Will test languages: $test_languages"
+    
+    - name: Setup tutorial files in TutorialMaker
+      shell: bash
+      run: |
+        echo "Setting up tutorial files for: ${{ matrix.tutorial.name }}"
         
-        # Extract tutorial count
-        tutorial_count=$(echo "$tutorials" | grep -o '"id"' | wc -l)
-        echo "Total tutorials: $tutorial_count"
-        echo ""
-        
-        # Process each tutorial
-        current=0
-        echo "$tutorials" | grep -oP '"name":"\K[^"]+' | while read tutorial_name; do
-          current=$((current + 1))
-          
-          echo "=========================================="
-          echo "Tutorial $current/$tutorial_count: $tutorial_name"
-          echo "=========================================="
-          
-          # Clear pip cache before each tutorial
-          echo "Clearing pip cache..."
-          python3 -m pip cache purge 2>/dev/null || echo "No cache to clear"
-          
-          # Show available resources
-          echo "Resources before test:"
-          free -h
-          df -h / | grep -E 'Filesystem|/$'
-          echo ""
-          
-          # Setup tutorial files
-          echo "Setting up tutorial files..."
-          python3 Scripts/setup_tutorial_files.py \
-            "$tutorial_name" \
-            "Tutorials/$tutorial_name" \
-            --languages $test_languages
-          
-          # Create results directory
-          tutorial_results_dir="Tutorials/$tutorial_name/Results"
-          mkdir -p "$tutorial_results_dir"
-          
-          # Run tests
-          echo "Running tests..."
-          export DISPLAY=:99
-          
-          python3 Scripts/run_tutorial_tests_ci.py \
-            /opt/slicer/Slicer \
-            --tutorial "$tutorial_name" \
-            --languages $test_languages \
-            --output "$tutorial_results_dir" \
-            --timeout 300 || echo "Tutorial test failed (will continue)"
-          
-          # Show results
-          if [[ -f "$tutorial_results_dir/test_report.json" ]]; then
-            echo "✅ Test completed"
-            cat "$tutorial_results_dir/test_report.json" | grep -E '"success_rate"' || true
-          else
-            echo "❌ No test report generated"
-          fi
-          
-          # Show resources after
-          echo ""
-          echo "Resources after test:"
-          free -h
-          df -h / | grep -E 'Filesystem|/$'
-          
-          echo ""
-          echo "Finished tutorial $current/$tutorial_count"
-          echo ""
-          
-          # Small delay between tutorials
-          sleep 5
-        done
-        
-        echo "=========================================="
-        echo "All tutorials completed!"
-        echo "=========================================="
+        python3 Scripts/setup_tutorial_files.py \
+          "${{ matrix.tutorial.name }}" \
+          "Tutorials/${{ matrix.tutorial.name }}" \
+          --languages $TEST_LANGUAGES
     
     - name: Run tutorial tests
       run: |
@@ -394,35 +319,26 @@ jobs:
       if: always()
       shell: bash
       run: |
-        echo "Copying generated tutorial outputs for all tutorials..."
-        
-        # Set languages
-        if [[ -n "${{ github.event.inputs.languages }}" ]]; then
-          test_languages="${{ github.event.inputs.languages }}"
-        else
-          test_languages="${{ env.DEFAULT_LANGUAGES }}"
-        fi
+        echo "Copying generated tutorial outputs..."
         
         # Find TutorialMaker outputs directory
         for possible_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
           if [[ -d "$possible_dir/Outputs" ]]; then
             echo "Found TutorialMaker outputs in: $possible_dir/Outputs"
             
-            # Copy outputs for each tutorial
-            for tutorial_dir in Tutorials/*/; do
-              tutorial_name=$(basename "$tutorial_dir")
-              echo "Processing outputs for: $tutorial_name"
-              
-              IFS=' ' read -ra LANG_ARRAY <<< "$test_languages"
-              for language in "${LANG_ARRAY[@]}"; do
-                output_pattern="$possible_dir/Outputs/${tutorial_name}_${language}"
-                if [[ -d "$output_pattern" ]]; then
-                  target_dir="Tutorials/$tutorial_name/Translations/$language"
-                  mkdir -p "$target_dir"
-                  cp -r "$output_pattern"/* "$target_dir/" 2>/dev/null || true
-                  echo "  Copied outputs for $language"
-                fi
-              done
+            # Copy outputs for this tutorial
+            tutorial_name="${{ matrix.tutorial.name }}"
+            echo "Processing outputs for: $tutorial_name"
+            
+            IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
+            for language in "${LANG_ARRAY[@]}"; do
+              output_pattern="$possible_dir/Outputs/${tutorial_name}_${language}"
+              if [[ -d "$output_pattern" ]]; then
+                target_dir="Tutorials/$tutorial_name/Translations/$language"
+                mkdir -p "$target_dir"
+                cp -r "$output_pattern"/* "$target_dir/" 2>/dev/null || true
+                echo "  ✅ Copied outputs for $language"
+              fi
             done
             break
           fi
@@ -432,30 +348,28 @@ jobs:
       if: always()
       shell: bash
       run: |
-        echo "Processing test results for all tutorials..."
+        echo "Processing test results for: ${{ matrix.tutorial.name }}"
         echo ""
         
-        for tutorial_dir in Tutorials/*/Results/; do
-          if [[ -d "$tutorial_dir" ]]; then
-            tutorial_name=$(basename $(dirname "$tutorial_dir"))
-            echo "=== Results for: $tutorial_name ==="
-            
-            if [[ -f "${tutorial_dir}test_report.json" ]]; then
-              echo "✅ Test report found"
-              cat "${tutorial_dir}test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || true
-              
-              # Show error hints if available
-              error_hints=$(cat "${tutorial_dir}test_report.json" | grep -A 5 '"error_hints"' || true)
-              if [[ -n "$error_hints" ]]; then
-                echo "Error hints: $error_hints"
-              fi
-            else
-              echo "❌ No test report"
-              ls -la "$tutorial_dir" 2>/dev/null || echo "Directory not accessible"
-            fi
-            echo ""
+        if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
+          echo "✅ Test report found"
+          cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || true
+          
+          # Show error hints if available
+          error_hints=$(cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -A 5 '"error_hints"' || true)
+          if [[ -n "$error_hints" ]]; then
+            echo "⚠️ Error hints: $error_hints"
           fi
-        done
+        else
+          echo "❌ No test report"
+          # Show log files if available
+          for log_file in "$TUTORIAL_RESULTS_DIR"/*.log; do
+            if [[ -f "$log_file" ]]; then
+              echo "Last 10 lines of $(basename "$log_file"):"
+              tail -10 "$log_file"
+            fi
+          done
+        fi
     
     - name: Create Pull Request with test results
       if: always()
@@ -465,27 +379,25 @@ jobs:
         committer: GitHub Action <action@github.com>
         author: GitHub Action <action@github.com>
         commit-message: |
-          Update test results and translations (sequential run)
+          Update test results and translations for ${{ matrix.tutorial.name }}
           
-          - Run: ${{ github.run_number }}
-          - Tested tutorials sequentially to avoid resource issues
-        branch: test-results-sequential-${{ github.run_number }}
+          - Languages tested: ${{ env.TEST_LANGUAGES }}
+          - Tutorial ID: ${{ matrix.tutorial.id }}
+        branch: test-results-${{ matrix.tutorial.id }}-${{ github.run_number }}
         delete-branch: true
         add-paths: |
-          Tutorials/*/Results/
-          Tutorials/*/Translations/
-        title: 'Test Results (Sequential): Run #${{ github.run_number }}'
+          Tutorials/${{ matrix.tutorial.name }}/Results/
+          Tutorials/${{ matrix.tutorial.name }}/Translations/
+        title: 'Test Results: ${{ matrix.tutorial.name }}'
         body: |
-          ## 🧪 Tutorial Test Results (Sequential Execution)
+          ## 🧪 Tutorial Test Results
           
-          **Run:** #${{ github.run_number }}
-          **Execution:** Sequential (one tutorial at a time)
+          **Tutorial:** ${{ matrix.tutorial.name }} (`${{ matrix.tutorial.id }}`)
+          **Languages tested:** ${{ env.TEST_LANGUAGES }}
           
           ### Generated Content
-          - ✅ Test results in each `Tutorials/*/Results/`
-          - ✅ Generated translations for each tutorial and language
-          
-          Check individual tutorial directories for detailed results.
+          - ✅ Test results in `Results/`
+          - ✅ Generated translations for each language
           
           ---
           *Auto-generated by [tutorial-tests.yml workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*
@@ -498,46 +410,29 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results-all-tutorials-${{ github.run_number }}
+        name: test-results-${{ matrix.tutorial.id }}
         path: |
-          Tutorials/*/Results/
-          Tutorials/*/Translations/
+          Tutorials/${{ matrix.tutorial.name }}/Results/
+          Tutorials/${{ matrix.tutorial.name }}/Translations/
         retention-days: 30
     
     - name: Check test success
       if: always()
       run: |
-        echo "Checking overall test success..."
-        
-        total_tutorials=0
-        successful_tutorials=0
-        
-        for tutorial_dir in Tutorials/*/Results/; do
-          if [[ -f "${tutorial_dir}test_report.json" ]]; then
-            total_tutorials=$((total_tutorials + 1))
-            
-            SUCCESS_RATE=$(grep '"success_rate"' "${tutorial_dir}test_report.json" | sed 's/.*: *\([0-9.]*\).*/\1/' || echo "0")
-            tutorial_name=$(basename $(dirname "$tutorial_dir"))
-            
-            echo "$tutorial_name: $SUCCESS_RATE%"
-            
-            # Consider successful if >= 75%
-            if (( $(echo "$SUCCESS_RATE >= 75.0" | bc -l 2>/dev/null) )); then
-              successful_tutorials=$((successful_tutorials + 1))
-            fi
+        if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
+          # Extract success rate using grep and basic text processing
+          SUCCESS_RATE=$(grep '"success_rate"' "$TUTORIAL_RESULTS_DIR/test_report.json" | sed 's/.*: *\([0-9.]*\).*/\1/' || echo "0")
+          
+          echo "Tutorial ${{ matrix.tutorial.name }} success rate: $SUCCESS_RATE%"
+          
+          # Consider test successful if success rate >= 75%
+          if (( $(echo "$SUCCESS_RATE >= 75.0" | bc -l 2>/dev/null) )); then
+            echo "✅ Tutorial tests passed"
+          else
+            echo "❌ Tutorial tests failed - success rate too low"
+            exit 1
           fi
-        done
-        
-        echo ""
-        echo "Summary: $successful_tutorials/$total_tutorials tutorials passed"
-        
-        if [[ $successful_tutorials -eq $total_tutorials && $total_tutorials -gt 0 ]]; then
-          echo "✅ All tutorials passed!"
-          exit 0
-        elif [[ $successful_tutorials -gt 0 ]]; then
-          echo "⚠️ Some tutorials failed"
-          exit 1
         else
-          echo "❌ All tutorials failed or no results"
+          echo "❌ No test results available"
           exit 1
         fi
