@@ -177,12 +177,13 @@ class TutorialTestRunner:
         test_script = self._create_tutorial_test_script(language_code)
         
         try:
-            # Build Slicer command with --testing flag to enable testingEnabled() checks
-            cmd = [str(self.slicer_executable), '--testing']
+            # Build Slicer command WITHOUT --testing to allow extensions to load
+            # We'll set environment variables instead
+            cmd = [str(self.slicer_executable)]
                         
             cmd.extend(['--python-script', test_script])
             
-            print(f"Executing tutorial: {' '.join(cmd[:3])} ...")
+            print(f"Executing tutorial: {' '.join(cmd[:2])} ...")
             print(f"Waiting up to {SLICER_TIMEOUT} seconds...")
             
             start_time = time.time()
@@ -481,9 +482,22 @@ try:
     log_message(f"Expected language: {language_code}")
     log_message(f"Tutorial: {self.tutorial_name}")
     
+    # Set environment variables to indicate CI/testing mode
+    # This will be checked by TutorialMaker to skip modal dialogs
+    import os
+    os.environ['CI'] = 'true'
+    os.environ['GITHUB_ACTIONS'] = 'true'
+    os.environ['SLICER_TESTING'] = 'true'
+    
     # Import Slicer
     import slicer
     log_message("Slicer imported")
+    
+    # Enable testing mode programmatically (after import)
+    # This is safer than using --testing flag which may block extension loading
+    if hasattr(slicer.app, 'setTestingEnabled'):
+        slicer.app.setTestingEnabled(True)
+        log_message("Testing mode enabled programmatically")
     
     # Wait for initialization
     for i in range(3):
