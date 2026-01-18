@@ -177,13 +177,12 @@ class TutorialTestRunner:
         test_script = self._create_tutorial_test_script(language_code)
         
         try:
-            # Build Slicer command
-            # Note: Don't use --no-splash or --testing as they may prevent extensions from loading
-            cmd = [str(self.slicer_executable)]
+            # Build Slicer command with --testing flag to enable testingEnabled() checks
+            cmd = [str(self.slicer_executable), '--testing']
                         
             cmd.extend(['--python-script', test_script])
             
-            print(f"Executing tutorial: {' '.join(cmd[:2])} ...")
+            print(f"Executing tutorial: {' '.join(cmd[:3])} ...")
             print(f"Waiting up to {SLICER_TIMEOUT} seconds...")
             
             start_time = time.time()
@@ -642,19 +641,36 @@ try:
         
         # Generate tutorial outputs using TutorialMaker
         log_message("Generating tutorial outputs...")
+        generation_success = False
+        
         try:
             # Get TutorialMaker logic
             logic = slicer.util.getModuleLogic("TutorialMaker")
             if logic and hasattr(logic, 'Generate'):
                 log_message(f"Calling Generate for tutorial: {self.tutorial_name}")
+                
+                # Set CI environment variable to prevent modal dialogs
+                os.environ['CI'] = 'true'
+                os.environ['GITHUB_ACTIONS'] = 'true'
+                
+                # Call Generate - should not hang anymore with CI detection
                 logic.Generate('{self.tutorial_name}')
+                generation_success = True
                 log_message("✅ Outputs generated successfully")
+                
             else:
                 log_message("⚠️  Generate method not found in TutorialMaker logic")
+                log_message("Skipping output generation")
+                
         except Exception as e:
-            log_error(f"Error generating outputs: {{e}}")
-            # Don't fail test for generation error - this is non-critical for basic test
-            log_message("Continuing despite error in output generation...")
+            log_error(f"Error in generation: {{e}}")
+            import traceback
+            log_error(traceback.format_exc())
+            # Generation error is not fatal
+            log_message("Continuing despite generation error...")
+        
+        # Always save success result (generation is optional)
+        log_message("Saving test results...")
         
         # Save success result
         result_data = {{
@@ -662,7 +678,8 @@ try:
             "tutorial": "{self.tutorial_name}",
             "status": "success",
             "timestamp": time.time(),
-            "final_language": settings.value('language')
+            "final_language": settings.value('language'),
+            "generation_success": generation_success
         }}
         
         result_file = r"{self.output_dir / f"result_{language_code.replace('-', '_')}.json"}"
