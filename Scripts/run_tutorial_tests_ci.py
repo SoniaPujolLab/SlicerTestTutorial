@@ -199,13 +199,35 @@ class TutorialTestRunner:
             
             # Monitor process
             output_lines = []
+            last_output_time = time.time()
+            no_output_timeout = 120  # 2 minutes without output = problem
+            download_detected = False
+            
             while True:
                 if process.poll() is not None:
                     break
                 
                 elapsed = time.time() - start_time
+                time_since_output = time.time() - last_output_time
+                
+                # Overall timeout
                 if elapsed > SLICER_TIMEOUT:
-                    print(f"⏰ Timeout after {elapsed:.1f}s - terminating process...")
+                    print(f"⏰ Overall timeout after {elapsed:.1f}s - terminating process...")
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
+                    break
+                
+                # Timeout for no output (process might be stuck)
+                if time_since_output > no_output_timeout and not download_detected:
+                    print(f"⚠️ No output for {time_since_output:.1f}s - process may be stuck")
+                    print(f"Last output lines:")
+                    for line in output_lines[-5:]:
+                        print(f"  {line}")
+                    print("Terminating stuck process...")
                     process.terminate()
                     try:
                         process.wait(timeout=5)
@@ -217,20 +239,60 @@ class TutorialTestRunner:
                 try:
                     line = process.stdout.readline()
                     if line:
-                        output_lines.append(line.strip())
-                        print(f"[Tutorial] {line.strip()}")
+                        line_stripped = line.strip()
+                        output_lines.append(line_stripped)
+                        print(f"[Tutorial] {line_stripped}")
+                        last_output_time = time.time()
+                        
+                        # Detect downloads (give more time)
+                        if 'Downloading' in line_stripped or '.whl' in line_stripped:
+                            download_detected = True
+                            print(f"📥 Download detected, extending no-output timeout")
+                        elif download_detected and ('Successfully installed' in line_stripped or 'Requirement already satisfied' in line_stripped):
+                            download_detected = False
+                            print(f"✅ Download completed")
                     else:
                         time.sleep(0.1)
-                except:
+                except Exception as e:
+                    print(f"Error reading output: {e}")
                     break
+            
+            # Ensure process is properly terminated
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                print("Process not responding, forcing kill...")
+                process.kill()
+                process.wait()
             
             return_code = process.returncode
             execution_time = time.time() - start_time
             
-            print(f"Tutorial finished - Code: {return_code}, Time: {execution_time:.1f}s")
+            # Better handling of None return code
+            if return_code is None:
+                print(f"⚠️ Tutorial finished with no return code (process may have crashed) - Time: {execution_time:.1f}s")
+                return_code = -999  # Special code for crashed process
+            else:
+                print(f"Tutorial finished - Code: {return_code}, Time: {execution_time:.1f}s")
             
             # Check result
             result_file = self.output_dir / f"result_{language_code.replace('-', '_')}.json"
+            
+            # Analyze output for specific errors
+            error_hints = []
+            if return_code == -999:
+                error_hints.append("Process crashed or was killed (no return code)")
+            
+            # Check for common issues in output
+            output_text = '\n'.join(output_lines[-50:])  # Last 50 lines
+            if 'MemoryError' in output_text or 'OutOfMemory' in output_text:
+                error_hints.append("Out of memory error detected")
+            if 'No space left' in output_text:
+                error_hints.append("Disk space error detected")
+            if 'Downloading' in output_text and not any('Successfully installed' in line for line in output_lines[-10:]):
+                error_hints.append("Download may have failed or was interrupted")
+            if 'Killed' in output_text:
+                error_hints.append("Process was killed by system (possibly OOM killer)")
             
             if result_file.exists():
                 with open(result_file, 'r', encoding='utf-8') as f:
@@ -238,16 +300,23 @@ class TutorialTestRunner:
                 
                 result_data['execution_time'] = execution_time
                 result_data['return_code'] = return_code
-                result_data['slicer_output'] = output_lines
+                result_data['slicer_output'] = output_lines[-100:]  # Last 100 lines only
+                if error_hints:
+                    result_data['error_hints'] = error_hints
                 
                 return result_data
             else:
+                error_msg = f"No result file found. Return code: {return_code}"
+                if error_hints:
+                    error_msg += f". Possible issues: {', '.join(error_hints)}"
+                
                 return {
                     "language": language_code,
                     "tutorial": self.tutorial_name,
                     "status": "error",
-                    "error": f"No result file found. Return code: {return_code}",
-                    "slicer_output": output_lines,
+                    "error": error_msg,
+                    "error_hints": error_hints,
+                    "slicer_output": output_lines[-100:],  # Last 100 lines only
                     "execution_time": execution_time,
                     "return_code": return_code
                 }

@@ -37,6 +37,8 @@ env:
   SLICER_VERSION: '5.10.0'
   DEFAULT_LANGUAGES: 'pt-BR es-419 fr-FR'
   SCREEN_RESOLUTION: '1920x1080'
+  PIP_NO_CACHE_DIR: '1'
+  PYTHONUNBUFFERED: '1'
 
 jobs:
   detect-tutorials:
@@ -104,7 +106,7 @@ jobs:
     if: needs.detect-tutorials.outputs.tutorial-count > 0
     container:
       image: ubuntu:22.04
-      options: --shm-size=2g
+      options: --shm-size=2g --memory=8g --memory-swap=10g
     
     strategy:
       fail-fast: false
@@ -157,6 +159,22 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install requests
+        
+        # Pre-download common packages to avoid issues during test
+        python3 -m pip install --no-cache-dir numpy || echo "numpy install optional"
+    
+    - name: Check available resources
+      run: |
+        echo "=== System Resources ==="
+        echo "Memory:"
+        free -h
+        echo ""
+        echo "Disk space:"
+        df -h
+        echo ""
+        echo "CPU info:"
+        nproc
+        lscpu | grep "Model name" || echo "CPU info not available"
     
     - name: Cache Slicer installation
       id: cache-slicer
@@ -253,6 +271,9 @@ jobs:
       run: |
         echo "Preparing test environment for tutorial: ${{ matrix.tutorial.name }}"
         
+        # Clear pip cache to free up space
+        python3 -m pip cache purge || echo "No pip cache to clear"
+        
         # Create Results directory in tutorial folder
         tutorial_results_dir="Tutorials/${{ matrix.tutorial.name }}/Results"
         mkdir -p "$tutorial_results_dir"
@@ -275,6 +296,11 @@ jobs:
         echo "Languages: $TEST_LANGUAGES"
         echo "Results directory: $TUTORIAL_RESULTS_DIR"
         
+        # Check resources before running
+        echo "=== Resources before test ==="
+        free -h
+        df -h /
+        
         export DISPLAY=:99
         
         # Change to repository root
@@ -289,6 +315,11 @@ jobs:
           --timeout 300
         
         echo "Tutorial tests completed"
+        
+        # Check resources after running
+        echo "=== Resources after test ==="
+        free -h
+        df -h /
     
     - name: Copy generated tutorial outputs
       if: always()
@@ -369,9 +400,20 @@ jobs:
           # Show basic results using a simple approach
           echo "Tutorial: ${{ matrix.tutorial.name }}"
           cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || echo "Results available"
+          
+          # Show error hints if available
+          echo ""
+          echo "=== Checking for error hints ==="
+          cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -A 5 '"error_hints"' || echo "No error hints found"
+          
         else
           echo "❌ No test report found"
           ls -la "$TUTORIAL_RESULTS_DIR" || echo "Results directory not found"
+          
+          # Try to find log files
+          echo ""
+          echo "=== Looking for log files ==="
+          find "$TUTORIAL_RESULTS_DIR" -name "*.log" -type f -exec echo "Found: {}" \; -exec tail -20 {} \; || echo "No log files found"
         fi
     
     - name: Create Pull Request with test results
