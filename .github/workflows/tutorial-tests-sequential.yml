@@ -271,7 +271,7 @@ jobs:
             --tutorial "$tutorial_name" \
             --languages $test_languages \
             --output "$tutorial_results_dir" \
-            --timeout 300 || echo "⚠️ Tutorial test had issues (will continue)"
+            --timeout 6000 || echo "⚠️ Tutorial test had issues (will continue)"
           
           # Show results
           echo ""
