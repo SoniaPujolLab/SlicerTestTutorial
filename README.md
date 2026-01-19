@@ -1,7 +1,7 @@
 # TestSlicerTutorials
-This repository contains test tutorials for the Tutorial Maker extension
+This repository contains test tutorials designed for the Tutorial Maker extension
 
-At the latest version, all the tutorials must use the comments directives.
+In the latest version, all tutorials are require to use comments directives.
 
 ```
 [code before BEGIN will be immediately executed]
