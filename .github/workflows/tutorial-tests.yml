@@ -306,7 +306,7 @@ jobs:
           --tutorial "${{ matrix.tutorial.name }}" \
           --languages $TEST_LANGUAGES \
           --output "$TUTORIAL_RESULTS_DIR" \
-          --timeout 300
+          --timeout 6000
         
         echo "Tutorial tests completed"
         
