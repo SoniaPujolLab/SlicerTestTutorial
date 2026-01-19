@@ -625,6 +625,7 @@ try:
         
         def finish_callback():
             global test_completed, test_success
+            log_message("📞 Finish callback called!")
             test_completed = True
             test_success = True
             log_message(f"Tutorial {self.tutorial_name} finished successfully")
@@ -634,18 +635,20 @@ try:
         
         TutorialMakerLogic.runTutorialTestCases('{tutorial_name_only}', finish_callback)
         
-        # Wait for completion
+        # Wait for completion with more aggressive event processing
         timeout_counter = 0
         max_timeout = {SLICER_TIMEOUT}
         
         while not test_completed and timeout_counter < max_timeout:
-            slicer.app.processEvents()
-            time.sleep(1)
+            # Process events more frequently to ensure Qt timers fire
+            for _ in range(10):
+                slicer.app.processEvents()
+            time.sleep(0.1)
             timeout_counter += 1
             
             # Log progress every 30 seconds
-            if timeout_counter % 30 == 0:
-                log_message(f"Tutorial running... {{timeout_counter}}/{{max_timeout}}s")
+            if timeout_counter % 300 == 0:  # Every 30s (300 * 0.1s)
+                log_message(f"Tutorial running... {{timeout_counter//10}}/{{max_timeout}}s")
         
         if not test_completed:
             raise Exception(f"Tutorial did not complete in {{max_timeout}} seconds")
@@ -733,6 +736,8 @@ except Exception as e:
     sys.exit(1)
 
 log_message("Script finalizado normalmente")
+log_message("Fechando Slicer...")
+sys.exit(0)
 '''
         
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
