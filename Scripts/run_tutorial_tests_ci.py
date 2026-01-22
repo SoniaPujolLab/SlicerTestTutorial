@@ -177,14 +177,10 @@ class TutorialTestRunner:
         test_script = self._create_tutorial_test_script(language_code)
         
         try:
-            # Build Slicer command
-            cmd = [str(self.slicer_executable), '--no-splash']
-            
-            # Add options only if not Windows
-            import platform
-            if platform.system() != "Windows":
-                cmd.extend(['--no-main-window', '--disable-cli-modules'])
-            
+            # Build Slicer command WITHOUT --testing to allow extensions to load
+            # We'll set environment variables instead
+            cmd = [str(self.slicer_executable)]
+                        
             cmd.extend(['--python-script', test_script])
             
             print(f"Executing tutorial: {' '.join(cmd[:2])} ...")
@@ -196,20 +192,40 @@ class TutorialTestRunner:
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
+                bufsize=1
             )
             
             # Monitor process
             output_lines = []
+            last_output_time = time.time()
+            no_output_timeout = 120  # 2 minutes without output = problem
+            download_detected = False
+            
             while True:
                 if process.poll() is not None:
                     break
                 
                 elapsed = time.time() - start_time
+                time_since_output = time.time() - last_output_time
+                
+                # Overall timeout
                 if elapsed > SLICER_TIMEOUT:
-                    print(f"⏰ Timeout after {elapsed:.1f}s - terminating process...")
+                    print(f"⏰ Overall timeout after {elapsed:.1f}s - terminating process...")
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
+                    break
+                
+                # Timeout for no output (process might be stuck)
+                if time_since_output > no_output_timeout and not download_detected:
+                    print(f"⚠️ No output for {time_since_output:.1f}s - process may be stuck")
+                    print(f"Last output lines:")
+                    for line in output_lines[-5:]:
+                        print(f"  {line}")
+                    print("Terminating stuck process...")
                     process.terminate()
                     try:
                         process.wait(timeout=5)
@@ -221,20 +237,75 @@ class TutorialTestRunner:
                 try:
                     line = process.stdout.readline()
                     if line:
-                        output_lines.append(line.strip())
-                        print(f"[Tutorial] {line.strip()}")
+                        # Handle both text and binary output safely
+                        try:
+                            if isinstance(line, bytes):
+                                line_stripped = line.decode('utf-8', errors='replace').strip()
+                            else:
+                                line_stripped = line.strip()
+                        except Exception as decode_error:
+                            # If decoding fails completely, show as hex
+                            line_stripped = f"[Binary data: {line[:50]}...]"
+                            print(f"⚠️ Decode error: {decode_error}")
+                        
+                        output_lines.append(line_stripped)
+                        print(f"[Tutorial] {line_stripped}")
+                        last_output_time = time.time()
+                        
+                        # Detect downloads (give more time)
+                        if 'Downloading' in line_stripped or '.whl' in line_stripped:
+                            download_detected = True
+                            print(f"📥 Download detected, extending no-output timeout")
+                        elif download_detected and ('Successfully installed' in line_stripped or 'Requirement already satisfied' in line_stripped):
+                            download_detected = False
+                            print(f"✅ Download completed")
                     else:
                         time.sleep(0.1)
-                except:
+                except Exception as e:
+                    print(f"Error reading output: {e}")
                     break
+            
+            # Ensure process is properly terminated
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                print("Process not responding, forcing kill...")
+                process.kill()
+                process.wait()
             
             return_code = process.returncode
             execution_time = time.time() - start_time
             
-            print(f"Tutorial finished - Code: {return_code}, Time: {execution_time:.1f}s")
+            # Better handling of None return code
+            if return_code is None:
+                print(f"⚠️ Tutorial finished with no return code (process may have crashed) - Time: {execution_time:.1f}s")
+                return_code = -999  # Special code for crashed process
+            else:
+                print(f"Tutorial finished - Code: {return_code}, Time: {execution_time:.1f}s")
             
             # Check result
             result_file = self.output_dir / f"result_{language_code.replace('-', '_')}.json"
+            
+            # Analyze output for specific errors
+            error_hints = []
+            if return_code == -999:
+                error_hints.append("Process crashed or was killed (no return code)")
+            elif return_code == -9:
+                error_hints.append("Process was killed with SIGKILL (code -9)")
+                error_hints.append("Likely OOM (Out of Memory) or system limit reached")
+            elif return_code < 0:
+                error_hints.append(f"Process terminated by signal {abs(return_code)}")
+            
+            # Check for common issues in output
+            output_text = '\n'.join(output_lines[-50:])  # Last 50 lines
+            if 'MemoryError' in output_text or 'OutOfMemory' in output_text:
+                error_hints.append("Out of memory error detected in output")
+            if 'No space left' in output_text:
+                error_hints.append("Disk space error detected")
+            if 'Downloading' in output_text and not any('Successfully installed' in line for line in output_lines[-10:]):
+                error_hints.append("Download may have failed or was interrupted")
+            if 'Killed' in output_text:
+                error_hints.append("Process was killed by system (possibly OOM killer)")
             
             if result_file.exists():
                 with open(result_file, 'r', encoding='utf-8') as f:
@@ -242,16 +313,23 @@ class TutorialTestRunner:
                 
                 result_data['execution_time'] = execution_time
                 result_data['return_code'] = return_code
-                result_data['slicer_output'] = output_lines
+                result_data['slicer_output'] = output_lines[-100:]  # Last 100 lines only
+                if error_hints:
+                    result_data['error_hints'] = error_hints
                 
                 return result_data
             else:
+                error_msg = f"No result file found. Return code: {return_code}"
+                if error_hints:
+                    error_msg += f". Possible issues: {', '.join(error_hints)}"
+                
                 return {
                     "language": language_code,
                     "tutorial": self.tutorial_name,
                     "status": "error",
-                    "error": f"No result file found. Return code: {return_code}",
-                    "slicer_output": output_lines,
+                    "error": error_msg,
+                    "error_hints": error_hints,
+                    "slicer_output": output_lines[-100:],  # Last 100 lines only
                     "execution_time": execution_time,
                     "return_code": return_code
                 }
@@ -368,6 +446,12 @@ except Exception as e:
         Returns:
             str: Path to temporary script
         """
+        # Extract tutorial name without ID (part after first underscore)
+        tutorial_name_only = self.tutorial_name
+        if '_' in tutorial_name_only:
+            # Extract name after ID (e.g., "STC-GEN-101_WelcomeTutorial" -> "WelcomeTutorial")
+            tutorial_name_only = tutorial_name_only.split('_', 1)[1]
+        
         script_content = f'''
 import sys
 import os
@@ -398,9 +482,22 @@ try:
     log_message(f"Expected language: {language_code}")
     log_message(f"Tutorial: {self.tutorial_name}")
     
+    # Set environment variables to indicate CI/testing mode
+    # This will be checked by TutorialMaker to skip modal dialogs
+    import os
+    os.environ['CI'] = 'true'
+    os.environ['GITHUB_ACTIONS'] = 'true'
+    os.environ['SLICER_TESTING'] = 'true'
+    
     # Import Slicer
     import slicer
     log_message("Slicer imported")
+    
+    # Enable testing mode programmatically (after import)
+    # This is safer than using --testing flag which may block extension loading
+    if hasattr(slicer.app, 'setTestingEnabled'):
+        slicer.app.setTestingEnabled(True)
+        log_message("Testing mode enabled programmatically")
     
     # Wait for initialization
     for i in range(3):
@@ -419,6 +516,53 @@ try:
         log_message("✅ Language applied correctly")
     else:
         log_message(f"⚠️  Different language! Expected: {language_code}, Current: {{current_lang}}")
+    
+    # List all installed extensions for debugging
+    log_message("=== Listing installed Slicer extensions ===")
+    try:
+        extensionsManagerModel = slicer.app.extensionsManagerModel()
+        extensions_path = extensionsManagerModel.extensionsInstallPath()
+        log_message(f"Extensions install path: {{extensions_path}}")
+        
+        installedExtensions = extensionsManagerModel.installedExtensions
+        log_message(f"Total installed extensions: {{len(installedExtensions)}}")
+        for ext_name in installedExtensions:
+            log_message(f"  - {{ext_name}}")
+        
+        # Also check filesystem
+        import os
+        if os.path.exists(extensions_path):
+            subdirs = [d for d in os.listdir(extensions_path) if os.path.isdir(os.path.join(extensions_path, d))]
+            log_message(f"Extension directories found on disk: {{len(subdirs)}}")
+            for subdir in subdirs[:5]:
+                log_message(f"  - {{subdir}}")
+        else:
+            log_message(f"Extensions path does not exist: {{extensions_path}}")
+            
+    except Exception as e:
+        log_message(f"Could not list extensions: {{e}}")
+        import traceback
+        log_message(traceback.format_exc())
+    
+    # List available modules for debugging
+    log_message("=== Listing available modules ===")
+    try:
+        factory = slicer.app.moduleManager().factoryManager()
+        modules = factory.moduleNames()
+        log_message(f"Total modules: {{len(modules)}}")
+        # Filter to show only relevant modules
+        tutorial_modules = [m for m in modules if 'Tutorial' in m or 'Language' in m]
+        if tutorial_modules:
+            log_message("Tutorial/Language-related modules:")
+            for mod in tutorial_modules:
+                log_message(f"  - {{mod}}")
+        else:
+            log_message("No Tutorial/Language modules found")
+            log_message("First 10 modules:")
+            for mod in list(modules)[:10]:
+                log_message(f"  - {{mod}}")
+    except Exception as e:
+        log_message(f"Could not list modules: {{e}}")
     
     # Load TutorialMaker
     log_message("Loading TutorialMaker...")
@@ -440,29 +584,16 @@ try:
         import shutil
         from pathlib import Path
         
-        # Find TutorialMaker directory
-        tutorialmaker_module = slicer.util.getModuleLogic("TutorialMaker")
-        if hasattr(tutorialmaker_module, 'resourcePath'):
-            tutorialmaker_dir = Path(tutorialmaker_module.resourcePath('.'))
-        else:
-            # Fallback: use default location based on slicer
-            slicer_dir = Path(slicer.app.slicerHome)
-            # Search for TutorialMaker in extensions
-            possible_dirs = [
-                slicer_dir / "lib" / "Slicer-*" / "qt-scripted-modules" / "TutorialMaker",
-                slicer_dir / "lib" / "Slicer-*" / "extensions-*" / "TutorialMaker*"
-            ]
-            tutorialmaker_dir = None
-            for pattern in possible_dirs:
-                matches = list(slicer_dir.glob(str(pattern.relative_to(slicer_dir))))
-                if matches:
-                    tutorialmaker_dir = matches[0]
-                    break
-            
-            if not tutorialmaker_dir:
-                log_message("Creating default TutorialMaker directory...")
-                tutorialmaker_dir = slicer_dir / "lib" / "Slicer-5.8" / "qt-scripted-modules" / "TutorialMaker"
-                tutorialmaker_dir.mkdir(parents=True, exist_ok=True)
+        # Find TutorialMaker directory using Slicer's API
+        log_message("Locating TutorialMaker extension directory...")
+        try:
+            # Use slicer.util.modulePath to get the actual installed path
+            tutorialmaker_module_path = slicer.util.modulePath("TutorialMaker")
+            tutorialmaker_dir = Path(tutorialmaker_module_path).parent
+            log_message(f"TutorialMaker found at: {{tutorialmaker_dir}}")
+        except Exception as e:
+            log_message(f"Error getting TutorialMaker path: {{e}}")
+            raise Exception("TutorialMaker extension not found. Make sure it's installed.")
         
         annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations"
         annotations_dir.mkdir(parents=True, exist_ok=True)
@@ -477,56 +608,8 @@ try:
         except Exception as e:
             log_message(f"Error listing files: {{e}}")
         
-        # Copy language-specific text_dict_default.json
-        lang_dict_file = annotations_dir / f"text_dict_default_{language_code}.json"
-        target_dict_file = annotations_dir / "text_dict_default.json"
-        
-        log_message(f"Looking for file: {{lang_dict_file}}")
-        log_message(f"File exists: {{lang_dict_file.exists()}}")
-        
-        if lang_dict_file.exists():
-            log_message(f"✅ Copying translation file: {{lang_dict_file}} -> {{target_dict_file}}")
-            shutil.copy2(lang_dict_file, target_dict_file)
-            
-            # Verify if copy was successful
-            if target_dict_file.exists():
-                log_message(f"✅ File copied successfully!")
-                # Show first lines of file for confirmation
-                try:
-                    with open(target_dict_file, 'r', encoding='utf-8') as f:
-                        content = f.read()[:200]
-                        log_message(f"First characters of file: {{content[:100]}}...")
-                except Exception as e:
-                    log_message(f"Error reading copied file: {{e}}")
-            else:
-                log_message(f"❌ Error: file was not copied!")
-        else:
-            log_message(f"❌ Translation file not found: {{lang_dict_file}}")
-            log_message(f"Trying to locate similar files...")
-            
-            # Try to find files with similar patterns
-            similar_patterns = [
-                f"text_dict_default_{language_code.replace('-', '_')}.json",
-                f"text_dict_default_{language_code.replace('-', '')}.json",
-                f"text_dict_default_{language_code.lower()}.json"
-            ]
-            
-            found_alternative = False
-            for pattern in similar_patterns:
-                alt_file = annotations_dir / pattern
-                log_message(f"Testing pattern: {{alt_file}}")
-                if alt_file.exists():
-                    log_message(f"✅ Found alternative file: {{alt_file}}")
-                    shutil.copy2(alt_file, target_dict_file)
-                    found_alternative = True
-                    break
-            
-            if not found_alternative:
-                log_message(f"❌ No translation file found")
-                # Create empty file as fallback
-                with open(target_dict_file, 'w', encoding='utf-8') as f:
-                    json.dump({{}}, f)
-                log_message("Created empty translation file as fallback")
+        # Note: Translation files are already in place from workflow setup
+        # No need to copy text_dict files here
         
         # Select module
         slicer.util.moduleSelector().selectModule('TutorialMaker')
@@ -542,27 +625,30 @@ try:
         
         def finish_callback():
             global test_completed, test_success
+            log_message("📞 Finish callback called!")
             test_completed = True
             test_success = True
             log_message(f"Tutorial {self.tutorial_name} finished successfully")
         
         # Execute tutorial
-        log_message(f"Starting tutorial: {self.tutorial_name}")
+        log_message(f"Starting tutorial: {tutorial_name_only} (Full ID/name: {self.tutorial_name})")
         
-        TutorialMakerLogic.runTutorialTestCases('{self.tutorial_name}', finish_callback)
+        TutorialMakerLogic.runTutorialTestCases('{tutorial_name_only}', finish_callback)
         
-        # Wait for completion
+        # Wait for completion with more aggressive event processing
         timeout_counter = 0
         max_timeout = {SLICER_TIMEOUT}
         
         while not test_completed and timeout_counter < max_timeout:
-            slicer.app.processEvents()
-            time.sleep(1)
+            # Process events more frequently to ensure Qt timers fire
+            for _ in range(10):
+                slicer.app.processEvents()
+            time.sleep(0.1)
             timeout_counter += 1
             
             # Log progress every 30 seconds
-            if timeout_counter % 30 == 0:
-                log_message(f"Tutorial running... {{timeout_counter}}/{{max_timeout}}s")
+            if timeout_counter % 300 == 0:  # Every 30s (300 * 0.1s)
+                log_message(f"Tutorial running... {{timeout_counter//10}}/{{max_timeout}}s")
         
         if not test_completed:
             raise Exception(f"Tutorial did not complete in {{max_timeout}} seconds")
@@ -572,19 +658,36 @@ try:
         
         # Generate tutorial outputs using TutorialMaker
         log_message("Generating tutorial outputs...")
+        generation_success = False
+        
         try:
             # Get TutorialMaker logic
             logic = slicer.util.getModuleLogic("TutorialMaker")
             if logic and hasattr(logic, 'Generate'):
                 log_message(f"Calling Generate for tutorial: {self.tutorial_name}")
+                
+                # Set CI environment variable to prevent modal dialogs
+                os.environ['CI'] = 'true'
+                os.environ['GITHUB_ACTIONS'] = 'true'
+                
+                # Call Generate - should not hang anymore with CI detection
                 logic.Generate('{self.tutorial_name}')
+                generation_success = True
                 log_message("✅ Outputs generated successfully")
+                
             else:
                 log_message("⚠️  Generate method not found in TutorialMaker logic")
+                log_message("Skipping output generation")
+                
         except Exception as e:
-            log_error(f"Error generating outputs: {{e}}")
-            # Don't fail test for generation error - this is non-critical for basic test
-            log_message("Continuing despite error in output generation...")
+            log_error(f"Error in generation: {{e}}")
+            import traceback
+            log_error(traceback.format_exc())
+            # Generation error is not fatal
+            log_message("Continuing despite generation error...")
+        
+        # Always save success result (generation is optional)
+        log_message("Saving test results...")
         
         # Save success result
         result_data = {{
@@ -592,7 +695,8 @@ try:
             "tutorial": "{self.tutorial_name}",
             "status": "success",
             "timestamp": time.time(),
-            "final_language": settings.value('language')
+            "final_language": settings.value('language'),
+            "generation_success": generation_success
         }}
         
         result_file = r"{self.output_dir / f"result_{language_code.replace('-', '_')}.json"}"
@@ -632,6 +736,8 @@ except Exception as e:
     sys.exit(1)
 
 log_message("Script finalizado normalmente")
+log_message("Fechando Slicer...")
+sys.exit(0)
 '''
         
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:

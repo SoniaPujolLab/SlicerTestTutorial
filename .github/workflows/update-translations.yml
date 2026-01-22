@@ -1,8 +1,12 @@
 name: Update All Translations from SlicerLanguageTranslations
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   schedule:
-    - cron: '* 4 * * *' 
+    - cron: '0 4 * * *' 
   
   # Allow manual triggering for testing
   workflow_dispatch:
@@ -152,8 +156,8 @@ jobs:
             
             echo "Found tutorial directory: $tutorial_dir"
             
-            # Create Translations/[Language] directory structure
-            language_translations_dir="${tutorial_dir}Translations/${language}"
+            # Create Translations directory structure
+            language_translations_dir="${tutorial_dir}Translations"
             echo "Creating directory: $language_translations_dir"
             mkdir -p "$language_translations_dir"
             
@@ -172,24 +176,25 @@ jobs:
                 # Copy TS file temporarily for conversion
                 cp "$ts_source_absolute" "./$file"
                 
-                # Convert TS to JSON with custom output name
-                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output text_dict_default.json"
-                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "text_dict_default.json"
+                # Convert TS to JSON with language-specific filename
+                output_filename="text_dict_${language}.json"
+                echo "Running: python $GITHUB_WORKSPACE/Scripts/update_translations.py ts2json '$file' --output $output_filename"
+                python "$GITHUB_WORKSPACE/Scripts/update_translations.py" ts2json "$file" --output "$output_filename"
                 
                 # Remove the temporary TS file (we don't want to keep it)
                 echo "Removing temporary TS file: $file"
                 rm -f "$file"
                 
                 # Verify final file exists
-                if [[ -f "text_dict_default.json" ]]; then
-                  echo "✅ text_dict_default.json created successfully"
-                  echo "File size: $(wc -c < text_dict_default.json) bytes"
+                if [[ -f "$output_filename" ]]; then
+                  echo "✅ $output_filename created successfully"
+                  echo "File size: $(wc -c < "$output_filename") bytes"
                   
                   # Show first few lines for verification
                   echo "First few lines of generated file:"
-                  head -5 "text_dict_default.json" || echo "Could not preview file"
+                  head -5 "$output_filename" || echo "Could not preview file"
                 else
-                  echo "❌ Failed to create text_dict_default.json"
+                  echo "❌ Failed to create $output_filename"
                   
                   # Debug: List all files in directory
                   echo "Files in directory after conversion:"
@@ -224,53 +229,43 @@ jobs:
         
         echo "PROCESSED_TUTORIALS=$PROCESSED_TUTORIALS" >> $GITHUB_ENV
     
-    - name: Commit and push changes
+    - name: Clean up temp-translations before PR
       if: steps.detect-changes.outputs.has_changes == 'true'
       run: |
-        # Configure git
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        
-        echo "Checking for changes before adding files..."
-        echo "Git status before adding:"
-        git status --porcelain
-        
-        # Add all changes in Tutorials directory first
-        echo "Adding files to git..."
-        git add Tutorials/*/Translations/
-        
-        echo "Git status after adding:"
-        git status --porcelain
-        
-        # Check if there are any staged changes to commit
-        if git diff --staged --quiet; then
-          echo "No staged changes to commit"
-          echo "Checking if there are any untracked files..."
+        # Remove temporary translations directory before creating PR
+        rm -rf temp-translations
+    
+    - name: Create Pull Request
+      if: steps.detect-changes.outputs.has_changes == 'true'
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          Update translations from SlicerLanguageTranslations
           
-          # List what we're trying to add
-          echo "Files in Tutorials/*/Translations/:"
-          find Tutorials -name "Translations" -type d -exec find {} -type f \; 2>/dev/null || echo "No translation files found"
+          Processed tutorials: ${{ env.PROCESSED_TUTORIALS }}
+          Files: ${{ steps.detect-changes.outputs.relevant_files }}
+        branch: update-translations-${{ github.run_number }}
+        delete-branch: true
+        add-paths: |
+          Tutorials/*/Translations/*.json
+        title: 'Update translations from SlicerLanguageTranslations'
+        body: |
+          ## 🌍 Translation Update
           
-          echo "No changes to commit after processing"
-        else
-          echo "Found staged changes, proceeding with commit..."
+          This PR contains updated translations from the SlicerLanguageTranslations repository.
           
-          # Create commit message
-          COMMIT_MSG="Update all translations from SlicerLanguageTranslations main branch"
-          if [[ -n "$PROCESSED_TUTORIALS" ]]; then
-            COMMIT_MSG="$COMMIT_MSG for: $PROCESSED_TUTORIALS"
-          fi
-          COMMIT_MSG="$COMMIT_MSG - Files: ${{ steps.detect-changes.outputs.relevant_files }} - Auto-generated by GitHub Actions workflow."
+          **Processed tutorials:** ${{ env.PROCESSED_TUTORIALS }}
           
-          echo "Committing with message: $COMMIT_MSG"
-          git commit -m "$COMMIT_MSG"
+          **Translation files processed:** ${{ steps.detect-changes.outputs.relevant_files }}
           
-          # Push changes
-          echo "Pushing changes..."
-          git push
-          
-          echo "Changes committed and pushed successfully"
-        fi
+          ---
+          *Auto-generated by [update-translations.yml workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*
+        labels: |
+          translations
+          automated
+        assignees: ${{ github.actor }}
+        draft: false
     
     - name: Clean up
       if: always()

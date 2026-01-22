@@ -1,5 +1,9 @@
 name: Tutorial Tests Automation
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches: [ main, develop ]
@@ -14,7 +18,7 @@ on:
       - 'Scripts/**'
   
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 6 * * *'
   
   # Allow manual triggering
   workflow_dispatch:
@@ -30,9 +34,11 @@ on:
         type: string
 
 env:
-  SLICER_VERSION: '5.8.1'
+  SLICER_VERSION: '5.10.0'
   DEFAULT_LANGUAGES: 'pt-BR es-419 fr-FR'
   SCREEN_RESOLUTION: '1920x1080'
+  PIP_NO_CACHE_DIR: '1'
+  PYTHONUNBUFFERED: '1'
 
 jobs:
   detect-tutorials:
@@ -100,7 +106,7 @@ jobs:
     if: needs.detect-tutorials.outputs.tutorial-count > 0
     container:
       image: ubuntu:22.04
-      options: --shm-size=2g
+      options: --shm-size=4g
     
     strategy:
       fail-fast: false
@@ -114,34 +120,78 @@ jobs:
         fetch-depth: 1
     
     - name: Install system dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        TZ: America/New_York
       run: |
+        # Configure timezone non-interactively
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+        
         apt-get update -qq
+        
+        # Install Slicer prerequisites
+        apt-get install -y \
+          libglu1-mesa \
+          libpulse-mainloop-glib0 \
+          libnss3 \
+          libasound2 \
+          qt5dxcb-plugin \
+          libsm6 \
+          libxcb-icccm4 \
+          libxcb-image0 \
+          libxcb-keysyms1 \
+          libxcb-render-util0
+        
+        # Install additional dependencies
         apt-get install -y \
           wget curl unzip \
-          xvfb x11vnc \
+          xvfb x11vnc x11-xserver-utils \
           python3 python3-pip \
           libgl1-mesa-glx \
-          libxrender1 libxext6 libsm6 libice6 \
-          libfontconfig1 libxss1 libasound2 \
+          libxrender1 libxext6 libice6 \
+          libfontconfig1 libxss1 \
           libglib2.0-0 libxrandr2 libxcomposite1 \
           libxdamage1 libxcursor1 libxi6 libxtst6 \
-          libglu1-mesa \
           ca-certificates \
-          git
+          git bc
     
     - name: Setup Python
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install requests
+        
+        # Pre-download common packages to avoid issues during test
+        python3 -m pip install --no-cache-dir numpy || echo "numpy install optional"
+    
+    - name: Check available resources
+      run: |
+        echo "=== System Resources ==="
+        echo "Memory:"
+        free -h
+        echo ""
+        echo "Disk space:"
+        df -h
+        echo ""
+        echo "CPU info:"
+        nproc
+        lscpu | grep "Model name" || echo "CPU info not available"
+    
+    - name: Cache Slicer installation
+      id: cache-slicer
+      uses: actions/cache@v4
+      with:
+        path: /opt/slicer
+        key: slicer-${{ env.SLICER_VERSION }}-${{ runner.os }}
     
     - name: Download and install Slicer
+      if: steps.cache-slicer.outputs.cache-hit != 'true'
       run: |
         echo "Downloading Slicer ${{ env.SLICER_VERSION }}..."
         mkdir -p /opt/slicer
         cd /opt/slicer
         
-        # Download Slicer 5.8.1
-        wget -O slicer.tar.gz "https://download.slicer.org/bitstream/66ec4de29b1e4f4dbb050b0a"
+        # Download Slicer 5.10.0
+        wget -O slicer.tar.gz "https://download.slicer.org/bitstream/6911b598ac7b1c95e7934427"
         
         # Extract
         tar -xzf slicer.tar.gz --strip-components=1
@@ -153,6 +203,13 @@ jobs:
         # Verify installation
         ls -la /opt/slicer/
         echo "Slicer installation completed"
+    
+    - name: Verify cached Slicer
+      if: steps.cache-slicer.outputs.cache-hit == 'true'
+      run: |
+        echo "✅ Using cached Slicer installation"
+        ls -la /opt/slicer/
+        chmod +x /opt/slicer/Slicer
     
     - name: Setup virtual display
       run: |
@@ -166,7 +223,17 @@ jobs:
         # Verify display
         echo "DISPLAY=$DISPLAY" >> $GITHUB_ENV
     
+    - name: Cache Slicer extensions
+      id: cache-extensions
+      uses: actions/cache@v4
+      with:
+        path: |
+          /root/.config/NA-MIC
+          /opt/slicer/slicer.org
+        key: slicer-extensions-${{ env.SLICER_VERSION }}-v2
+    
     - name: Install required Slicer extensions
+      if: steps.cache-extensions.outputs.cache-hit != 'true'
       run: |
         echo "Installing required Slicer extensions..."
         export DISPLAY=:99
@@ -176,65 +243,20 @@ jobs:
         
         echo "Slicer extensions installation completed"
     
-    - name: Setup TutorialMaker JSON files
+    - name: Verify cached extensions
+      if: steps.cache-extensions.outputs.cache-hit == 'true'
       run: |
-        echo "Setting up TutorialMaker JSON files for tutorial: ${{ matrix.tutorial.name }}"
-        
-        # Find TutorialMaker extension directory in Slicer
-        TUTORIALMAKER_DIR=""
-        for ext_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker*; do
-          if [[ -d "$ext_dir" ]]; then
-            TUTORIALMAKER_DIR="$ext_dir"
-            break
-          fi
-        done
-        
-        # If not found in scripted modules, check other common locations
-        if [[ -z "$TUTORIALMAKER_DIR" ]]; then
-          for ext_dir in /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
-            if [[ -d "$ext_dir" ]]; then
-              TUTORIALMAKER_DIR="$ext_dir"
-              break
-            fi
-          done
-        fi
-        
-        if [[ -z "$TUTORIALMAKER_DIR" ]]; then
-          echo "Warning: TutorialMaker extension directory not found. Creating fallback location..."
-          TUTORIALMAKER_DIR="/opt/slicer/lib/Slicer-5.8/qt-scripted-modules/TutorialMaker"
-          mkdir -p "$TUTORIALMAKER_DIR"
-        fi
-        
-        echo "TutorialMaker directory: $TUTORIALMAKER_DIR"
-        
-        # Create Outputs/Annotations directory
-        ANNOTATIONS_DIR="$TUTORIALMAKER_DIR/Outputs/Annotations"
-        mkdir -p "$ANNOTATIONS_DIR"
-        echo "Created annotations directory: $ANNOTATIONS_DIR"
-        
-        # Copy tutorial JSON file as annotations.json
-        TUTORIAL_JSON="Tutorials/${{ matrix.tutorial.name }}/${{ matrix.tutorial.name }}.json"
-        if [[ -f "$TUTORIAL_JSON" ]]; then
-          echo "Copying $TUTORIAL_JSON to $ANNOTATIONS_DIR/annotations.json"
-          cp "$TUTORIAL_JSON" "$ANNOTATIONS_DIR/annotations.json"
-        else
-          # Try alternative naming pattern (ID.json)
-          TUTORIAL_JSON_ALT="Tutorials/${{ matrix.tutorial.name }}/${{ matrix.tutorial.id }}.json"
-          if [[ -f "$TUTORIAL_JSON_ALT" ]]; then
-            echo "Copying $TUTORIAL_JSON_ALT to $ANNOTATIONS_DIR/annotations.json"
-            cp "$TUTORIAL_JSON_ALT" "$ANNOTATIONS_DIR/annotations.json"
-          else
-            echo "Warning: Tutorial JSON file not found at $TUTORIAL_JSON or $TUTORIAL_JSON_ALT"
-          fi
-        fi
-        
-        # Store variables for later use
-        echo "TUTORIALMAKER_DIR=$TUTORIALMAKER_DIR" >> $GITHUB_ENV
-        echo "ANNOTATIONS_DIR=$ANNOTATIONS_DIR" >> $GITHUB_ENV
+        echo "✅ Using cached Slicer extensions"
+        ls -la /root/.config/NA-MIC/ || echo "Config dir empty"
+        ls -la /opt/slicer/slicer.org/ || echo "Extensions dir empty"
     
     - name: Prepare tutorial test environment
+      shell: bash
       run: |
         echo "Preparing test environment for tutorial: ${{ matrix.tutorial.name }}"
+        
+        # Clear pip cache to free up space
+        python3 -m pip cache purge 2>/dev/null || echo "No pip cache to clear"
         
         # Create Results directory in tutorial folder
         tutorial_results_dir="Tutorials/${{ matrix.tutorial.name }}/Results"
@@ -251,34 +273,27 @@ jobs:
         echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
         echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
         echo "Will test languages: $test_languages"
+    
+    - name: Setup tutorial files in TutorialMaker
+      shell: bash
+      run: |
+        echo "Setting up tutorial files for: ${{ matrix.tutorial.name }}"
         
-        # Prepare language-specific JSON files for TutorialMaker
-        echo "Preparing language-specific translation files..."
-        IFS=' ' read -ra LANG_ARRAY <<< "$test_languages"
-        for language in "${LANG_ARRAY[@]}"; do
-          echo "Setting up files for language: $language"
-          
-          # Path to language-specific text_dict_default.json
-          LANG_DICT="Tutorials/${{ matrix.tutorial.name }}/Translations/$language/text_dict_default.json"
-          
-          if [[ -f "$LANG_DICT" ]]; then
-            echo "Found translation file: $LANG_DICT"
-            # Copy it to the annotations directory with language suffix for later use
-            cp "$LANG_DICT" "$ANNOTATIONS_DIR/text_dict_default_${language}.json"
-            echo "Copied $LANG_DICT to $ANNOTATIONS_DIR/text_dict_default_${language}.json"
-          else
-            echo "Warning: Translation file not found: $LANG_DICT"
-            # Create empty translation file as fallback
-            echo "{}" > "$ANNOTATIONS_DIR/text_dict_default_${language}.json"
-            echo "Created empty translation file for $language"
-          fi
-        done
+        python3 Scripts/setup_tutorial_files.py \
+          "${{ matrix.tutorial.name }}" \
+          "Tutorials/${{ matrix.tutorial.name }}" \
+          --languages $TEST_LANGUAGES
     
     - name: Run tutorial tests
       run: |
         echo "Running tests for tutorial: ${{ matrix.tutorial.name }} (ID: ${{ matrix.tutorial.id }})"
         echo "Languages: $TEST_LANGUAGES"
         echo "Results directory: $TUTORIAL_RESULTS_DIR"
+        
+        # Check resources before running
+        echo "=== Resources before test ==="
+        free -h
+        df -h /
         
         export DISPLAY=:99
         
@@ -288,129 +303,108 @@ jobs:
         # Run the test script
         python3 Scripts/run_tutorial_tests_ci.py \
           /opt/slicer/Slicer \
-          --tutorial "${{ matrix.tutorial.id }}" \
+          --tutorial "${{ matrix.tutorial.name }}" \
           --languages $TEST_LANGUAGES \
           --output "$TUTORIAL_RESULTS_DIR" \
-          --timeout 300
+          --timeout 6000
         
         echo "Tutorial tests completed"
+        
+        # Check resources after running
+        echo "=== Resources after test ==="
+        free -h
+        df -h /
     
     - name: Copy generated tutorial outputs
       if: always()
+      shell: bash
       run: |
         echo "Copying generated tutorial outputs..."
         
-        # Check if TutorialMaker outputs exist
-        if [[ -n "$TUTORIALMAKER_DIR" && -d "$TUTORIALMAKER_DIR/Outputs" ]]; then
-          echo "Found TutorialMaker outputs directory: $TUTORIALMAKER_DIR/Outputs"
-          
-          # Process each language
-          IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
-          for language in "${LANG_ARRAY[@]}"; do
-            echo "Processing outputs for language: $language"
+        # Find TutorialMaker outputs directory
+        for possible_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
+          if [[ -d "$possible_dir/Outputs" ]]; then
+            echo "Found TutorialMaker outputs in: $possible_dir/Outputs"
             
-            # Look for generated output directory with language suffix
-            output_pattern="$TUTORIALMAKER_DIR/Outputs/${{ matrix.tutorial.name }}_${language}"
-            if [[ -d "$output_pattern" ]]; then
-              echo "Found output directory: $output_pattern"
-              
-              # Create target directory structure
-              target_dir="Tutorials/${{ matrix.tutorial.name }}/Translations/$language"
-              mkdir -p "$target_dir"
-              
-              # Copy all contents from output directory to translations directory
-              echo "Copying from $output_pattern to $target_dir/"
-              cp -r "$output_pattern"/* "$target_dir/" 2>/dev/null || echo "No files to copy or copy failed"
-              
-              # List what was copied
-              if [[ -d "$target_dir" ]]; then
-                echo "Files copied to $target_dir:"
-                ls -la "$target_dir/" || echo "Directory empty or listing failed"
+            # Copy outputs for this tutorial
+            tutorial_name="${{ matrix.tutorial.name }}"
+            echo "Processing outputs for: $tutorial_name"
+            
+            IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
+            for language in "${LANG_ARRAY[@]}"; do
+              output_pattern="$possible_dir/Outputs/${tutorial_name}_${language}"
+              if [[ -d "$output_pattern" ]]; then
+                target_dir="Tutorials/$tutorial_name/Translations/$language"
+                mkdir -p "$target_dir"
+                cp -r "$output_pattern"/* "$target_dir/" 2>/dev/null || true
+                echo "  ✅ Copied outputs for $language"
               fi
-              
-            else
-              echo "Warning: No output directory found for pattern: $output_pattern"
-              # Try alternative patterns
-              for alt_pattern in "$TUTORIALMAKER_DIR/Outputs/${{ matrix.tutorial.id }}_${language}" "$TUTORIALMAKER_DIR/Outputs/*_${language}"; do
-                if [[ -d $alt_pattern ]]; then
-                  echo "Found alternative output directory: $alt_pattern"
-                  target_dir="Tutorials/${{ matrix.tutorial.name }}/Translations/$language"
-                  mkdir -p "$target_dir"
-                  cp -r $alt_pattern/* "$target_dir/" 2>/dev/null || echo "Copy failed"
-                  break
-                fi
-              done
-            fi
-          done
-          
-          # Also list all output directories for debugging
-          echo "All output directories found:"
-          find "$TUTORIALMAKER_DIR/Outputs" -maxdepth 1 -type d -name "*_*" 2>/dev/null || echo "No pattern directories found"
-          
-        else
-          echo "Warning: TutorialMaker outputs directory not found or TUTORIALMAKER_DIR not set"
-          echo "TUTORIALMAKER_DIR: $TUTORIALMAKER_DIR"
-          
-          # Try to find it in common locations
-          for possible_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
-            if [[ -d "$possible_dir/Outputs" ]]; then
-              echo "Found TutorialMaker outputs in: $possible_dir/Outputs"
-              ls -la "$possible_dir/Outputs/" || echo "Listing failed"
-            fi
-          done
-        fi
+            done
+            break
+          fi
+        done
     
     - name: Process test results
       if: always()
+      shell: bash
       run: |
-        echo "Processing test results..."
+        echo "Processing test results for: ${{ matrix.tutorial.name }}"
+        echo ""
         
-        # Check if results exist
         if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
           echo "✅ Test report found"
+          cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || true
           
-          # Show basic results using a simple approach
-          echo "Tutorial: ${{ matrix.tutorial.name }}"
-          cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -E '"total_tests"|"successful_tests"|"failed_tests"|"success_rate"' || echo "Results available"
+          # Show error hints if available
+          error_hints=$(cat "$TUTORIAL_RESULTS_DIR/test_report.json" | grep -A 5 '"error_hints"' || true)
+          if [[ -n "$error_hints" ]]; then
+            echo "⚠️ Error hints: $error_hints"
+          fi
         else
-          echo "❌ No test report found"
-          ls -la "$TUTORIAL_RESULTS_DIR" || echo "Results directory not found"
+          echo "❌ No test report"
+          # Show log files if available
+          for log_file in "$TUTORIAL_RESULTS_DIR"/*.log; do
+            if [[ -f "$log_file" ]]; then
+              echo "Last 10 lines of $(basename "$log_file"):"
+              tail -10 "$log_file"
+            fi
+          done
         fi
     
-    - name: Commit test results
+    - name: Create Pull Request with test results
       if: always()
-      run: |
-        # Configure git
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Actions Tutorial Tests"
-        
-        # Add results and translations to git
-        git add "Tutorials/${{ matrix.tutorial.name }}/Results/"
-        git add "Tutorials/${{ matrix.tutorial.name }}/Translations/"
-        
-        # Check if there are any changes to commit
-        if git diff --staged --quiet; then
-          echo "No new results to commit"
-        else
-          # Create commit message
-          COMMIT_MSG="Update test results and translations for tutorial ${{ matrix.tutorial.name }}"
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        committer: GitHub Action <action@github.com>
+        author: GitHub Action <action@github.com>
+        commit-message: |
+          Update test results and translations for ${{ matrix.tutorial.name }}
           
-          # Add details about what was updated
-          if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Results" ]]; then
-            COMMIT_MSG="$COMMIT_MSG - Test results updated"
-          fi
+          - Languages tested: ${{ env.TEST_LANGUAGES }}
+          - Tutorial ID: ${{ matrix.tutorial.id }}
+        branch: test-results-${{ matrix.tutorial.id }}-${{ github.run_number }}
+        delete-branch: true
+        add-paths: |
+          Tutorials/${{ matrix.tutorial.name }}/Results/
+          Tutorials/${{ matrix.tutorial.name }}/Translations/
+        title: 'Test Results: ${{ matrix.tutorial.name }}'
+        body: |
+          ## 🧪 Tutorial Test Results
           
-          if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Translations" ]]; then
-            COMMIT_MSG="$COMMIT_MSG - Generated translations for languages: $TEST_LANGUAGES"
-          fi
+          **Tutorial:** ${{ matrix.tutorial.name }} (`${{ matrix.tutorial.id }}`)
+          **Languages tested:** ${{ env.TEST_LANGUAGES }}
           
-          COMMIT_MSG="$COMMIT_MSG - Auto-generated by GitHub Actions"
+          ### Generated Content
+          - ✅ Test results in `Results/`
+          - ✅ Generated translations for each language
           
-          git commit -m "$COMMIT_MSG"
-          git push
-          
-          echo "Test results committed and pushed"
-        fi
+          ---
+          *Auto-generated by [tutorial-tests.yml workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*
+        labels: |
+          tutorial-tests
+          automated
+        draft: false
     
     - name: Upload test artifacts
       uses: actions/upload-artifact@v4
