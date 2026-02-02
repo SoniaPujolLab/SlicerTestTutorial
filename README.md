@@ -1,5 +1,5 @@
-# TestSlicerTutorials
-This repository contains test tutorials designed for the Tutorial Maker extension
+# SlicerTutorialMakerCollection
+This repository contains tutorials designed for the Tutorial Maker extension
 
 In the latest version, all tutorials are require to use comments directives.
 
