@@ -198,7 +198,6 @@ class TutorialTestRunner:
             # Monitor process
             output_lines = []
             last_output_time = time.time()
-            no_output_timeout = 120  # 2 minutes without output = problem
             download_detected = False
             
             while True:
@@ -211,21 +210,6 @@ class TutorialTestRunner:
                 # Overall timeout
                 if elapsed > SLICER_TIMEOUT:
                     print(f"⏰ Overall timeout after {elapsed:.1f}s - terminating process...")
-                    process.terminate()
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        process.wait()
-                    break
-                
-                # Timeout for no output (process might be stuck)
-                if time_since_output > no_output_timeout and not download_detected:
-                    print(f"⚠️ No output for {time_since_output:.1f}s - process may be stuck")
-                    print(f"Last output lines:")
-                    for line in output_lines[-5:]:
-                        print(f"  {line}")
-                    print("Terminating stuck process...")
                     process.terminate()
                     try:
                         process.wait(timeout=5)
@@ -577,11 +561,10 @@ try:
         appFont.setPointSize(14)
         slicer.app.setFont(appFont)
         
-        # Configure JSON files needed for the language
-        log_message(f"Configuring JSON files for language: {language_code}")
+        # Verify tutorial files are in place
+        log_message(f"Checking tutorial setup for: {tutorial_name_only}")
         
         # Import necessary libraries
-        import shutil
         from pathlib import Path
         
         # Find TutorialMaker directory using Slicer's API
@@ -595,21 +578,27 @@ try:
             log_message(f"Error getting TutorialMaker path: {{e}}")
             raise Exception("TutorialMaker extension not found. Make sure it's installed.")
         
-        annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations"
-        annotations_dir.mkdir(parents=True, exist_ok=True)
+        # Check annotations directory for this tutorial
+        annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations" / "{tutorial_name_only}"
         log_message(f"Annotations directory: {{annotations_dir}}")
+        log_message(f"Annotations directory exists: {{annotations_dir.exists()}}")
         
         # List existing files in directory for debug
-        try:
+        if annotations_dir.exists():
             existing_files = list(annotations_dir.glob("*.json"))
-            log_message(f"JSON files found in {{annotations_dir}}:")
+            log_message(f"JSON files found in annotations directory: {{len(existing_files)}}")
             for file in existing_files:
                 log_message(f"  - {{file.name}}")
-        except Exception as e:
-            log_message(f"Error listing files: {{e}}")
+        else:
+            log_message(f"⚠️ WARNING: Annotations directory does not exist!")
         
-        # Note: Translation files are already in place from workflow setup
-        # No need to copy text_dict files here
+        # Check Testing directory
+        testing_dir = tutorialmaker_dir / "Testing"
+        if testing_dir.exists():
+            py_files = list(testing_dir.glob("{tutorial_name_only}.py"))
+            log_message(f"Tutorial Python file in Testing: {{'Found' if py_files else 'NOT FOUND'}}")
+        else:
+            log_message(f"⚠️ WARNING: Testing directory does not exist!")
         
         # Select module
         slicer.util.moduleSelector().selectModule('TutorialMaker')
@@ -664,14 +653,14 @@ try:
             # Get TutorialMaker logic
             logic = slicer.util.getModuleLogic("TutorialMaker")
             if logic and hasattr(logic, 'Generate'):
-                log_message(f"Calling Generate for tutorial: {self.tutorial_name}")
+                log_message(f"Calling Generate for tutorial: {tutorial_name_only} (Full name: {self.tutorial_name})")
                 
                 # Set CI environment variable to prevent modal dialogs
                 os.environ['CI'] = 'true'
                 os.environ['GITHUB_ACTIONS'] = 'true'
                 
-                # Call Generate - should not hang anymore with CI detection
-                logic.Generate('{self.tutorial_name}')
+                # Call Generate with tutorial name WITHOUT ID prefix
+                logic.Generate('{tutorial_name_only}')
                 generation_success = True
                 log_message("✅ Outputs generated successfully")
                 
@@ -733,11 +722,29 @@ except Exception as e:
         pass
     
     log_error("❌ TUTORIAL FALHOU")
-    sys.exit(1)
+    
+    # Exit with error code using Slicer's proper exit
+    try:
+        slicer.util.exit(1)
+    except:
+        sys.exit(1)
 
+# Success - exit gracefully
 log_message("Script finalizado normalmente")
 log_message("Fechando Slicer...")
-sys.exit(0)
+
+# Use Slicer's proper exit method to avoid "exit abnormally" messages
+try:
+    # Process any remaining events
+    for _ in range(10):
+        slicer.app.processEvents()
+    time.sleep(0.5)
+    
+    # Exit cleanly using Slicer's method
+    slicer.util.exit(0)
+except:
+    # Fallback to normal exit
+    sys.exit(0)
 '''
         
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:

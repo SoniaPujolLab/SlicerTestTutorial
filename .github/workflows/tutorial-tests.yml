@@ -106,7 +106,6 @@ jobs:
     if: needs.detect-tutorials.outputs.tutorial-count > 0
     container:
       image: ubuntu:22.04
-      options: --shm-size=4g
     
     strategy:
       fail-fast: false

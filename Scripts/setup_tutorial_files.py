@@ -43,14 +43,15 @@ def setup_tutorial_files(tutorial_name, tutorial_dir, languages):
     
     tutorialmaker_dir = find_tutorialmaker_dir()
     
-    annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations"
+    # Create annotations directory for THIS specific tutorial
+    tutorial_name_only = tutorial_name.split('_', 1)[1] if '_' in tutorial_name else tutorial_name
+    print(f"Tutorial name (without ID): {tutorial_name_only}")
+    
+    annotations_dir = tutorialmaker_dir / "Outputs" / "Annotations" / tutorial_name_only
     annotations_dir.mkdir(parents=True, exist_ok=True)
     
     testing_dir = tutorialmaker_dir / "Testing"
     testing_dir.mkdir(parents=True, exist_ok=True)
-    
-    tutorial_name_only = tutorial_name.split('_', 1)[1] if '_' in tutorial_name else tutorial_name
-    print(f"Tutorial name (without ID): {tutorial_name_only}")
     
     # Copy tutorial Python file to Testing directory
     tutorial_py = Path(tutorial_dir) / f"{tutorial_name_only}.py"
@@ -83,6 +84,13 @@ def setup_tutorial_files(tutorial_name, tutorial_dir, languages):
     if not copied:
         print(f"⚠️  Warning: Tutorial JSON not found")
     
+    # Copy default text_dict (base translation)
+    default_dict = translations_dir / "text_dict_default.json"
+    if default_dict.exists():
+        target_default = annotations_dir / "text_dict_default.json"
+        print(f"✅ Copying text_dict_default.json")
+        shutil.copy2(default_dict, target_default)
+    
     # Copy translation files
     for language in languages:
         lang_file = translations_dir / f"text_dict_{language}.json"
@@ -96,8 +104,15 @@ def setup_tutorial_files(tutorial_name, tutorial_dir, languages):
             with open(target_file, 'w', encoding='utf-8') as f:
                 json.dump({}, f)
     
-    print(f"\n✅ Setup completed - {len(list(annotations_dir.glob('*.json')))} JSON files in Annotations")
-    print(f"✅ Setup completed - {len(list(testing_dir.glob('*.py')))} Python files in Testing")
+    print(f"\n✅ Setup completed for: {tutorial_name_only}")
+    print(f"   Annotations directory: {annotations_dir}")
+    print(f"   JSON files: {len(list(annotations_dir.glob('*.json')))}")
+    print(f"   Python files in Testing: {len(list(testing_dir.glob('*.py')))}")
+    
+    # List all copied files for verification
+    print(f"\nCopied files:")
+    for json_file in sorted(annotations_dir.glob('*.json')):
+        print(f"   - {json_file.name}")
 
 def main():
     import argparse
