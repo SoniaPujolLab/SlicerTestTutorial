@@ -328,7 +328,12 @@ jobs:
         echo "Tutorial name (without ID): $tutorial_name_only"
         
         # Find TutorialMaker outputs directory
-        for possible_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
+        # Try multiple possible locations
+        for possible_dir in \
+          /opt/slicer/slicer.org/Extensions-*/TutorialMaker/lib/Slicer-*/qt-scripted-modules \
+          /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker \
+          /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
+          
           if [[ -d "$possible_dir/Outputs" ]]; then
             echo "Found TutorialMaker outputs in: $possible_dir/Outputs"
             
@@ -486,6 +491,7 @@ jobs:
     
     - name: Check test success
       if: always()
+      shell: bash
       run: |
         if [[ -f "$TUTORIAL_RESULTS_DIR/test_report.json" ]]; then
           # Extract success rate using grep and basic text processing
