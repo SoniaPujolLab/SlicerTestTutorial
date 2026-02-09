@@ -305,7 +305,7 @@ jobs:
           --tutorial "${{ matrix.tutorial.name }}" \
           --languages $TEST_LANGUAGES \
           --output "$TUTORIAL_RESULTS_DIR" \
-          --timeout 6000
+          --timeout 900
         
         echo "Tutorial tests completed"
         
@@ -318,30 +318,71 @@ jobs:
       if: always()
       shell: bash
       run: |
-        echo "Copying generated tutorial outputs..."
+        echo "Copying generated tutorial outputs (HTML/MD)..."
+        
+        # Extract tutorial name without ID prefix
+        tutorial_full_name="${{ matrix.tutorial.name }}"
+        tutorial_name_only="${tutorial_full_name#*_}"
+        
+        echo "Full tutorial name: $tutorial_full_name"
+        echo "Tutorial name (without ID): $tutorial_name_only"
         
         # Find TutorialMaker outputs directory
         for possible_dir in /opt/slicer/lib/Slicer-*/qt-scripted-modules/TutorialMaker /opt/slicer/lib/Slicer-*/extensions-*/TutorialMaker*; do
           if [[ -d "$possible_dir/Outputs" ]]; then
             echo "Found TutorialMaker outputs in: $possible_dir/Outputs"
             
-            # Copy outputs for this tutorial
-            tutorial_name="${{ matrix.tutorial.name }}"
-            echo "Processing outputs for: $tutorial_name"
+            # List all outputs for debugging
+            echo "Available output directories:"
+            ls -la "$possible_dir/Outputs/" | grep "^d" || echo "  (none)"
             
+            # Copy outputs for this tutorial
             IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
             for language in "${LANG_ARRAY[@]}"; do
-              output_pattern="$possible_dir/Outputs/${tutorial_name}_${language}"
-              if [[ -d "$output_pattern" ]]; then
-                target_dir="Tutorials/$tutorial_name/Translations/$language"
-                mkdir -p "$target_dir"
-                cp -r "$output_pattern"/* "$target_dir/" 2>/dev/null || true
-                echo "  ✅ Copied outputs for $language"
-              fi
+              # Convert language format if needed (pt-BR -> pt_BR for directory names)
+              lang_dir=$(echo "$language" | tr '-' '_')
+              
+              # Try both formats: language_code and language-code
+              for lang_variant in "$language" "$lang_dir"; do
+                output_dir="$possible_dir/Outputs/${tutorial_name_only}_${lang_variant}"
+                
+                if [[ -d "$output_dir" ]]; then
+                  echo "  Found outputs: $output_dir"
+                  
+                  # Create target directory in Files folder
+                  target_dir="Tutorials/$tutorial_full_name/Files/$language"
+                  mkdir -p "$target_dir"
+                  
+                  # Copy HTML and MD files only (not JSON)
+                  if ls "$output_dir"/*.html >/dev/null 2>&1; then
+                    cp "$output_dir"/*.html "$target_dir/" 2>/dev/null || true
+                    echo "    ✅ Copied HTML files for $language"
+                  fi
+                  
+                  if ls "$output_dir"/*.md >/dev/null 2>&1; then
+                    cp "$output_dir"/*.md "$target_dir/" 2>/dev/null || true
+                    echo "    ✅ Copied MD files for $language"
+                  fi
+                  
+                  # List what was copied
+                  echo "    Files in target:"
+                  ls -lh "$target_dir/" 2>/dev/null || echo "    (empty)"
+                  
+                  break
+                fi
+              done
             done
             break
           fi
         done
+        
+        echo ""
+        echo "Generated files summary:"
+        if [[ -d "Tutorials/$tutorial_full_name/Files" ]]; then
+          find "Tutorials/$tutorial_full_name/Files" -type f
+        else
+          echo "  No files generated"
+        fi
     
     - name: Process test results
       if: always()
@@ -378,15 +419,16 @@ jobs:
         committer: GitHub Action <action@github.com>
         author: GitHub Action <action@github.com>
         commit-message: |
-          Update test results and translations for ${{ matrix.tutorial.name }}
+          Update test results and generated outputs for ${{ matrix.tutorial.name }}
           
           - Languages tested: ${{ env.TEST_LANGUAGES }}
           - Tutorial ID: ${{ matrix.tutorial.id }}
+          - Generated HTML/MD files included
         branch: test-results-${{ matrix.tutorial.id }}-${{ github.run_number }}
         delete-branch: true
         add-paths: |
           Tutorials/${{ matrix.tutorial.name }}/Results/
-          Tutorials/${{ matrix.tutorial.name }}/Translations/
+          Tutorials/${{ matrix.tutorial.name }}/Files/
         title: 'Test Results: ${{ matrix.tutorial.name }}'
         body: |
           ## 🧪 Tutorial Test Results
@@ -396,7 +438,12 @@ jobs:
           
           ### Generated Content
           - ✅ Test results in `Results/`
-          - ✅ Generated translations for each language
+          - ✅ Generated HTML/MD files in `Files/` (one folder per language)
+          
+          ### Files Included
+          - Test reports (JSON) in `Results/`
+          - Tutorial HTML files (localized) in `Files/{language}/`
+          - Tutorial Markdown files (localized) in `Files/{language}/`
           
           ---
           *Auto-generated by [tutorial-tests.yml workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*
@@ -405,6 +452,27 @@ jobs:
           automated
         draft: false
     
+    - name: List files to upload
+      if: always()
+      shell: bash
+      run: |
+        echo "=== Files prepared for upload ==="
+        echo ""
+        echo "Results directory:"
+        if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Results" ]]; then
+          ls -lh "Tutorials/${{ matrix.tutorial.name }}/Results/"
+        else
+          echo "  (not found)"
+        fi
+        
+        echo ""
+        echo "Files directory (HTML/MD):"
+        if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Files" ]]; then
+          find "Tutorials/${{ matrix.tutorial.name }}/Files" -type f -exec ls -lh {} \;
+        else
+          echo "  (not found)"
+        fi
+    
     - name: Upload test artifacts
       uses: actions/upload-artifact@v4
       if: always()
@@ -412,8 +480,9 @@ jobs:
         name: test-results-${{ matrix.tutorial.id }}
         path: |
           Tutorials/${{ matrix.tutorial.name }}/Results/
-          Tutorials/${{ matrix.tutorial.name }}/Translations/
+          Tutorials/${{ matrix.tutorial.name }}/Files/
         retention-days: 30
+        compression-level: 6
     
     - name: Check test success
       if: always()
