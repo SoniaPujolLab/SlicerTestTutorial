@@ -114,6 +114,7 @@ jobs:
     
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         tutorial: ${{ fromJson(needs.detect-tutorials.outputs.tutorials) }}
     
