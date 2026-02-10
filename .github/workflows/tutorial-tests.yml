@@ -113,6 +113,11 @@ jobs:
         tutorial: ${{ fromJson(needs.detect-tutorials.outputs.tutorials) }}
     
     steps:
+    - name: Install git for checkout
+      run: |
+        apt-get update -qq
+        apt-get install -y git
+    
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
