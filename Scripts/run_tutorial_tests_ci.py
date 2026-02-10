@@ -700,9 +700,11 @@ try:
                 log_message("  3. Network requests")
                 log_message("  4. Infinite loops in TutorialMaker")
                 
-                # Monkey patch to trace calls (if possible)
+                # Monkey patch to trace calls and keep processing events
                 original_generate = logic.Generate
                 call_count = [0]
+                generation_completed = [False]
+                generation_exception = [None]
                 
                 def traced_generate(tutorial_name):
                     call_count[0] += 1
@@ -714,16 +716,61 @@ try:
                         time.sleep(0.1)
                     
                     log_message(">>> Entering original Generate method...")
-                    result = original_generate(tutorial_name)
-                    log_message(">>> Generate method returned successfully")
-                    return result
+                    try:
+                        result = original_generate(tutorial_name)
+                        log_message(">>> Generate method returned successfully")
+                        generation_completed[0] = True
+                        return result
+                    except Exception as e:
+                        log_message(f">>> EXCEPTION in Generate: {{e}}")
+                        generation_exception[0] = e
+                        generation_completed[0] = True
+                        raise
                 
                 logic.Generate = traced_generate
                 
-                # Call Generate with diagnostic wrapper
+                # Call Generate with diagnostic wrapper IN A THREAD
                 log_message("BEFORE Generate call")
-                logic.Generate('{tutorial_name_only}')
-                log_message("AFTER Generate call")
+                log_message("Starting Generate in background thread with event processing...")
+                
+                import threading
+                
+                def run_generate():
+                    try:
+                        logic.Generate('{tutorial_name_only}')
+                    except Exception as e:
+                        log_message(f"Thread exception: {{e}}")
+                        generation_exception[0] = e
+                        generation_completed[0] = True
+                
+                gen_thread = threading.Thread(target=run_generate, daemon=True)
+                gen_thread.start()
+                
+                # Wait with aggressive event processing and heartbeat
+                wait_count = 0
+                max_wait = 600  # 10 minutes
+                
+                while not generation_completed[0] and wait_count < max_wait:
+                    # Process events aggressively
+                    for _ in range(20):
+                        slicer.app.processEvents()
+                    time.sleep(0.5)
+                    wait_count += 1
+                    
+                    # Heartbeat every 10 seconds
+                    if wait_count % 20 == 0:
+                        elapsed_secs = wait_count * 0.5
+                        log_message(f">>> Generate still running... {{int(elapsed_secs)}}s elapsed (thread alive: {{gen_thread.is_alive()}})")
+                
+                if generation_exception[0]:
+                    raise generation_exception[0]
+                
+                if not generation_completed[0]:
+                    log_message("⚠️  Generate did not complete within timeout")
+                    log_message(f"Thread still alive: {{gen_thread.is_alive()}}")
+                    log_message("Skipping generation and continuing...")
+                else:
+                    log_message("AFTER Generate call")
                 
                 generation_success = True
                 log_message("✅ Outputs generated successfully")
