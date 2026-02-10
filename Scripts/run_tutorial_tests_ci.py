@@ -659,8 +659,72 @@ try:
                 os.environ['CI'] = 'true'
                 os.environ['GITHUB_ACTIONS'] = 'true'
                 
-                # Call Generate with tutorial name WITHOUT ID prefix
+                # Add diagnostic information
+                log_message("=== Pre-Generation Diagnostics ===")
+                
+                # Check active windows
+                try:
+                    import qt
+                    active_windows = qt.QApplication.topLevelWidgets()
+                    log_message(f"Active windows: {{len(active_windows)}}")
+                    for w in active_windows:
+                        if w.isVisible():
+                            log_message(f"  - {{w.windowTitle()}} ({{w.__class__.__name__}})")
+                except Exception as e:
+                    log_message(f"Could not check windows: {{e}}")
+                
+                # Check logic state
+                log_message(f"Logic object: {{logic}}")
+                log_message(f"Logic class: {{logic.__class__.__name__}}")
+                
+                # List all methods in logic
+                try:
+                    methods = [m for m in dir(logic) if not m.startswith('_')]
+                    log_message(f"Available logic methods: {{', '.join(methods[:10])}}")
+                except:
+                    pass
+                
+                # Check if there are attributes that might indicate state
+                try:
+                    if hasattr(logic, 'currentTutorial'):
+                        log_message(f"Current tutorial: {{logic.currentTutorial}}")
+                    if hasattr(logic, 'outputPath'):
+                        log_message(f"Output path: {{logic.outputPath}}")
+                except:
+                    pass
+                
+                log_message("=== Calling Generate ===")
+                log_message("If this hangs, check for:")
+                log_message("  1. Modal dialogs waiting for input")
+                log_message("  2. File I/O blocking")
+                log_message("  3. Network requests")
+                log_message("  4. Infinite loops in TutorialMaker")
+                
+                # Monkey patch to trace calls (if possible)
+                original_generate = logic.Generate
+                call_count = [0]
+                
+                def traced_generate(tutorial_name):
+                    call_count[0] += 1
+                    log_message(f">>> Generate called ({{call_count[0]}}) with: {{tutorial_name}}")
+                    
+                    # Process events before
+                    for i in range(5):
+                        slicer.app.processEvents()
+                        time.sleep(0.1)
+                    
+                    log_message(">>> Entering original Generate method...")
+                    result = original_generate(tutorial_name)
+                    log_message(">>> Generate method returned successfully")
+                    return result
+                
+                logic.Generate = traced_generate
+                
+                # Call Generate with diagnostic wrapper
+                log_message("BEFORE Generate call")
                 logic.Generate('{tutorial_name_only}')
+                log_message("AFTER Generate call")
+                
                 generation_success = True
                 log_message("✅ Outputs generated successfully")
                 
