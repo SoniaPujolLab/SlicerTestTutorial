@@ -79,11 +79,52 @@ jobs:
               
               echo "  Found valid tutorial: $tutorial_id -> $tutorial_name"
               
+              # Detect available languages for this tutorial
+              translations_dir="${tutorial_dir}Translations"
+              available_languages=""
+              
+              if [[ -d "$translations_dir" ]]; then
+                echo "  Checking translations in: $translations_dir"
+                
+                # Find all text_dict_*.json files except default
+                for dict_file in "$translations_dir"/text_dict_*.json; do
+                  if [[ -f "$dict_file" ]]; then
+                    filename=$(basename "$dict_file")
+                    # Extract language code (between text_dict_ and .json)
+                    if [[ "$filename" =~ ^text_dict_(.+)\.json$ ]]; then
+                      lang_code="${BASH_REMATCH[1]}"
+                      # Skip default
+                      if [[ "$lang_code" != "default" ]]; then
+                        # Convert underscores to hyphens for consistency (pt_BR -> pt-BR)
+                        lang_code=$(echo "$lang_code" | tr '_' '-')
+                        
+                        if [[ -z "$available_languages" ]]; then
+                          available_languages="$lang_code"
+                        else
+                          # Check if not already added (avoid duplicates)
+                          if [[ ! " $available_languages " =~ " $lang_code " ]]; then
+                            available_languages="$available_languages $lang_code"
+                          fi
+                        fi
+                      fi
+                    fi
+                  fi
+                done
+              fi
+              
+              # If no languages found, use defaults
+              if [[ -z "$available_languages" ]]; then
+                available_languages="${{ env.DEFAULT_LANGUAGES }}"
+                echo "  No translations found, using defaults: $available_languages"
+              else
+                echo "  Available languages: $available_languages"
+              fi
+              
               if [[ $tutorial_count -gt 0 ]]; then
                 tutorials_json="$tutorials_json,"
               fi
               
-              tutorials_json="$tutorials_json{\"id\":\"$tutorial_id\",\"name\":\"$tutorial_name\",\"path\":\"$tutorial_dir\"}"
+              tutorials_json="$tutorials_json{\"id\":\"$tutorial_id\",\"name\":\"$tutorial_name\",\"path\":\"$tutorial_dir\",\"languages\":\"$available_languages\"}"
               tutorial_count=$((tutorial_count + 1))
             else
               echo "  Skipping $tutorial_name (no valid ID pattern)"
@@ -275,9 +316,13 @@ jobs:
         
         # Set languages to test
         if [[ -n "${{ github.event.inputs.languages }}" ]]; then
+          # Manual override via workflow_dispatch
           test_languages="${{ github.event.inputs.languages }}"
+          echo "Using manually specified languages: $test_languages"
         else
-          test_languages="${{ env.DEFAULT_LANGUAGES }}"
+          # Use languages detected for this specific tutorial
+          test_languages="${{ matrix.tutorial.languages }}"
+          echo "Using tutorial-specific languages: $test_languages"
         fi
         
         echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
