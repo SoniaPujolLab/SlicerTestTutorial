@@ -103,7 +103,12 @@ jobs:
     name: Test Tutorial
     runs-on: ubuntu-latest
     needs: detect-tutorials
-    if: needs.detect-tutorials.outputs.tutorial-count > 0
+    # Skip if triggered by our own commits or if no tutorials found
+    if: |
+      needs.detect-tutorials.outputs.tutorial-count > 0 &&
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, 'Update test results and generated outputs') &&
+      github.event.head_commit.author.name != 'GitHub Action'
     container:
       image: ubuntu:22.04
     
@@ -458,7 +463,7 @@ jobs:
         committer: GitHub Action <action@github.com>
         author: GitHub Action <action@github.com>
         commit-message: |
-          Update test results and generated outputs for ${{ matrix.tutorial.name }}
+          Update test results and generated outputs for ${{ matrix.tutorial.name }} [skip ci]
           
           - Languages tested: ${{ env.TEST_LANGUAGES }}
           - Tutorial ID: ${{ matrix.tutorial.id }}
