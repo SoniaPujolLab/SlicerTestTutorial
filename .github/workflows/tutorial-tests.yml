@@ -358,16 +358,10 @@ jobs:
                   target_dir="Tutorials/$tutorial_full_name/Files/$language"
                   mkdir -p "$target_dir"
                   
-                  # Copy HTML and MD files only (not JSON)
-                  if ls "$output_dir"/*.html >/dev/null 2>&1; then
-                    cp "$output_dir"/*.html "$target_dir/" 2>/dev/null || true
-                    echo "    ✅ Copied HTML files for $language"
-                  fi
-                  
-                  if ls "$output_dir"/*.md >/dev/null 2>&1; then
-                    cp "$output_dir"/*.md "$target_dir/" 2>/dev/null || true
-                    echo "    ✅ Copied MD files for $language"
-                  fi
+                  # Copy entire output directory (HTML, MD, images, etc.)
+                  echo "    Copying all files from output directory..."
+                  cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
+                  echo "    ✅ Copied all files for $language"
                   
                   # List what was copied
                   echo "    Files in target:"
@@ -416,8 +410,43 @@ jobs:
           done
         fi
     
-    - name: Create Pull Request with test results
+    - name: Verify generated files
       if: always()
+      shell: bash
+      run: |
+        echo "=== Checking generated files ==="
+        echo "Current directory: $(pwd)"
+        echo ""
+        
+        # Check if we have files to commit
+        has_results=false
+        has_files=false
+        
+        if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Results" ]]; then
+          echo "✅ Results directory exists"
+          ls -lh "Tutorials/${{ matrix.tutorial.name }}/Results/" | head -n 10
+          has_results=true
+        fi
+        
+        if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Files" ]]; then
+          echo "✅ Files directory exists"
+          echo "Languages found:"
+          ls -d "Tutorials/${{ matrix.tutorial.name }}/Files/"*/ 2>/dev/null || echo "  No language folders"
+          echo ""
+          echo "Total files:"
+          find "Tutorials/${{ matrix.tutorial.name }}/Files" -type f | wc -l
+          has_files=true
+        fi
+        
+        # Set environment variable for PR step
+        if [[ "$has_results" == "true" ]] || [[ "$has_files" == "true" ]]; then
+          echo "HAS_FILES=true" >> $GITHUB_ENV
+        else
+          echo "HAS_FILES=false" >> $GITHUB_ENV
+        fi
+    
+    - name: Create Pull Request with test results
+      if: always() && env.HAS_FILES == 'true'
       uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
