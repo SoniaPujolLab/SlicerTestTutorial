@@ -659,121 +659,18 @@ try:
                 os.environ['CI'] = 'true'
                 os.environ['GITHUB_ACTIONS'] = 'true'
                 
-                # Add diagnostic information
-                log_message("=== Pre-Generation Diagnostics ===")
-                
-                # Check active windows
-                try:
-                    import qt
-                    active_windows = qt.QApplication.topLevelWidgets()
-                    log_message(f"Active windows: {{len(active_windows)}}")
-                    for w in active_windows:
-                        if w.isVisible():
-                            log_message(f"  - {{w.windowTitle()}} ({{w.__class__.__name__}})")
-                except Exception as e:
-                    log_message(f"Could not check windows: {{e}}")
-                
-                # Check logic state
-                log_message(f"Logic object: {{logic}}")
-                log_message(f"Logic class: {{logic.__class__.__name__}}")
-                
-                # List all methods in logic
-                try:
-                    methods = [m for m in dir(logic) if not m.startswith('_')]
-                    log_message(f"Available logic methods: {{', '.join(methods[:10])}}")
-                except:
-                    pass
-                
-                # Check if there are attributes that might indicate state
-                try:
-                    if hasattr(logic, 'currentTutorial'):
-                        log_message(f"Current tutorial: {{logic.currentTutorial}}")
-                    if hasattr(logic, 'outputPath'):
-                        log_message(f"Output path: {{logic.outputPath}}")
-                except:
-                    pass
-                
                 log_message("=== Calling Generate ===")
-                log_message("If this hangs, check for:")
-                log_message("  1. Modal dialogs waiting for input")
-                log_message("  2. File I/O blocking")
-                log_message("  3. Network requests")
-                log_message("  4. Infinite loops in TutorialMaker")
                 
-                # Monkey patch to trace calls and keep processing events
-                original_generate = logic.Generate
-                call_count = [0]
-                generation_completed = [False]
-                generation_exception = [None]
-                
-                def traced_generate(tutorial_name):
-                    call_count[0] += 1
-                    log_message(f">>> Generate called ({{call_count[0]}}) with: {{tutorial_name}}")
-                    
-                    # Process events before
-                    for i in range(5):
-                        slicer.app.processEvents()
-                        time.sleep(0.1)
-                    
-                    log_message(">>> Entering original Generate method...")
-                    try:
-                        result = original_generate(tutorial_name)
-                        log_message(">>> Generate method returned successfully")
-                        generation_completed[0] = True
-                        return result
-                    except Exception as e:
-                        log_message(f">>> EXCEPTION in Generate: {{e}}")
-                        generation_exception[0] = e
-                        generation_completed[0] = True
-                        raise
-                
-                logic.Generate = traced_generate
-                
-                # Call Generate with diagnostic wrapper IN A THREAD
-                log_message("BEFORE Generate call")
-                log_message("Starting Generate in background thread with event processing...")
-                
-                import threading
-                
-                def run_generate():
-                    try:
-                        logic.Generate('{tutorial_name_only}')
-                    except Exception as e:
-                        log_message(f"Thread exception: {{e}}")
-                        generation_exception[0] = e
-                        generation_completed[0] = True
-                
-                gen_thread = threading.Thread(target=run_generate, daemon=True)
-                gen_thread.start()
-                
-                # Wait with aggressive event processing and heartbeat
-                wait_count = 0
-                max_wait = 600  # 10 minutes
-                
-                while not generation_completed[0] and wait_count < max_wait:
-                    # Process events aggressively
-                    for _ in range(20):
-                        slicer.app.processEvents()
-                    time.sleep(0.5)
-                    wait_count += 1
-                    
-                    # Heartbeat every 10 seconds
-                    if wait_count % 20 == 0:
-                        elapsed_secs = wait_count * 0.5
-                        log_message(f">>> Generate still running... {{int(elapsed_secs)}}s elapsed (thread alive: {{gen_thread.is_alive()}})")
-                
-                if generation_exception[0]:
-                    raise generation_exception[0]
-                
-                if not generation_completed[0]:
-                    log_message("⚠️  Generate did not complete within timeout")
-                    log_message(f"Thread still alive: {{gen_thread.is_alive()}}")
-                    log_message("Skipping generation and continuing...")
-                else:
-                    log_message("AFTER Generate call")
-                
-                generation_success = True
-                log_message("✅ Outputs generated successfully")
+                # Call Generate directly (no threading - Qt doesn't allow UI operations in threads)
+                try:
+                    logic.Generate('{tutorial_name_only}')
+                    generation_success = True
+                    log_message("✅ Outputs generated successfully")
+                except Exception as e:
+                    log_message(f"❌ Error during Generate: {{e}}")
+                    import traceback
+                    log_message(traceback.format_exc())
+                    generation_success = False
                 
             else:
                 log_message("⚠️  Generate method not found in TutorialMaker logic")

@@ -26,10 +26,7 @@
                         1116,
                         274
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#FFFFFF"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#a8d0e6",
                         "thickness": 14,
@@ -48,10 +45,7 @@
                         1116,
                         365
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#ffffff",
                         "thickness": 14,
@@ -70,10 +64,7 @@
                         1116,
                         420
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#ffffff",
                         "thickness": 14,
@@ -92,10 +83,7 @@
                         1116,
                         600
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#ffffff",
                         "thickness": 14,
@@ -801,10 +789,7 @@
                         985,
                         327
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#FFFFFF"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#a8d0e6",
                         "thickness": 14,
@@ -823,10 +808,7 @@
                         985,
                         610
                     ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
+                    "custom": "",
                     "penSettings": {
                         "color": "#ffffff",
                         "thickness": 14,
