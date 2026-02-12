@@ -6,7 +6,10 @@ permissions:
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: 
+      - main
+      - develop
+      - '!test-results-**'
     paths:
       - 'Tutorials/**'
       - 'Scripts/**'
@@ -154,7 +157,10 @@ jobs:
       needs.detect-tutorials.outputs.tutorial-count > 0 &&
       !contains(github.event.head_commit.message, '[skip ci]') &&
       !contains(github.event.head_commit.message, 'Update test results and generated outputs') &&
-      github.event.head_commit.author.name != 'GitHub Action'
+      github.event.head_commit.author.name != 'GitHub Action' &&
+      github.event.head_commit.committer.name != 'GitHub Action' &&
+      !startsWith(github.ref, 'refs/heads/test-results-') &&
+      github.actor != 'github-actions[bot]'
     container:
       image: ubuntu:22.04
     
