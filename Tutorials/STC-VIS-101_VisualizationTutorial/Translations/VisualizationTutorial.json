@@ -2,7 +2,7 @@
     "title": "Slicer Visualization Tutorial",
     "author": "Sonia Pujol, Ph.D.",
     "date": "24/11/2024",
-    "desc": "This tutorial guides users through 3D SlicerGÇÖs advanced visualization features, including DICOM data import, volume rendering, slice manipulation, and model clipping techniques.",
+    "desc": "This tutorial guides users through 3D Slicer's advanced visualization features, including DICOM data import, volume rendering, slice manipulation, and model clipping techniques.",
     "TMversion": "1.0",
     "TutorialMaker_version": "1.0",
     "slides": [
@@ -110,7 +110,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "1_slide_title",
             "SlideDesc": "1_slide_body",
             "Annotations": [
@@ -165,7 +165,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "2_slide_title",
             "SlideDesc": "2_slide_body",
             "Annotations": [
@@ -220,7 +220,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "3_slide_title",
             "SlideDesc": "3_slide_body",
             "Annotations": [
@@ -275,7 +275,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "4_slide_title",
             "SlideDesc": "4_slide_body",
             "Annotations": [
@@ -330,7 +330,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "5_slide_title",
             "SlideDesc": "5_slide_body",
             "Annotations": [
@@ -385,7 +385,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "6_slide_title",
             "SlideDesc": "6_slide_body",
             "Annotations": [
@@ -440,7 +440,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "7_slide_title",
             "SlideDesc": "7_slide_body",
             "Annotations": [
@@ -1042,7 +1042,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "21_slide_title",
             "SlideDesc": "21_slide_body",
             "Annotations": [
@@ -1097,7 +1097,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "22_slide_title",
             "SlideDesc": "22_slide_body",
             "Annotations": [
@@ -1481,7 +1481,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "32_slide_title",
             "SlideDesc": "32_slide_body",
             "Annotations": [
@@ -1536,7 +1536,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "33_slide_title",
             "SlideDesc": "33_slide_body",
             "Annotations": [
@@ -1591,7 +1591,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "34_slide_title",
             "SlideDesc": "34_slide_body",
             "Annotations": [
@@ -2066,7 +2066,7 @@
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Blank",
+            "SlideLayout": "Text",
             "SlideTitle": "45_slide_title",
             "SlideDesc": "45_slide_body",
             "Annotations": [
