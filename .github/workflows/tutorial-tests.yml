@@ -473,35 +473,41 @@ jobs:
           "/var/tmp/Slicer*"
         )
         
-        files_found=0
+        # Get today's date for filtering
+        today=$(date +%Y-%m-%d)
+        
         for pattern in "${log_locations[@]}"; do
           for log_path in $pattern; do
             if [[ -e "$log_path" ]]; then
               echo "Found log location: $log_path"
               
-              # Get today's date for filtering
-              today=$(date +%Y-%m-%d)
-              
               if [[ -d "$log_path" ]]; then
                 # If it's a directory, copy recent log files
                 echo "  Copying recent logs from directory..."
-                find "$log_path" -type f -name "*.log" -o -name "*.txt" -o -name "Slicer-*" 2>/dev/null | while read log_file; do
+                find "$log_path" -type f \( -name "*.log" -o -name "*.txt" -o -name "Slicer-*" \) 2>/dev/null | while IFS= read -r log_file; do
                   # Check if file was modified today
                   file_date=$(stat -c %y "$log_file" 2>/dev/null | cut -d' ' -f1)
                   if [[ "$file_date" == "$today" ]] || [[ -z "$file_date" ]]; then
-                    cp "$log_file" "$slicer_logs_dir/" 2>/dev/null && echo "    ✅ Copied: $(basename "$log_file")" && ((files_found++))
+                    if cp "$log_file" "$slicer_logs_dir/" 2>/dev/null; then
+                      echo "    ✅ Copied: $(basename "$log_file")"
+                    fi
                   fi
                 done
               elif [[ -f "$log_path" ]]; then
                 # If it's a file, check if it's from today
                 file_date=$(stat -c %y "$log_path" 2>/dev/null | cut -d' ' -f1)
                 if [[ "$file_date" == "$today" ]] || [[ -z "$file_date" ]]; then
-                  cp "$log_path" "$slicer_logs_dir/" 2>/dev/null && echo "  ✅ Copied: $(basename "$log_path")" && ((files_found++))
+                  if cp "$log_path" "$slicer_logs_dir/" 2>/dev/null; then
+                    echo "  ✅ Copied: $(basename "$log_path")"
+                  fi
                 fi
               fi
             fi
           done
         done
+        
+        # Count collected files
+        files_found=$(find "$slicer_logs_dir" -type f 2>/dev/null | wc -l)
         
         if [[ $files_found -eq 0 ]]; then
           echo "⚠️  No Slicer logs found"
