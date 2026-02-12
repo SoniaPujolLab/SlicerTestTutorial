@@ -1,5 +1,5 @@
 {
-    "title": "Slicer Visualization Tutorial",
+    "title": "VisualizationTutorial",
     "author": "Sonia Pujol, Ph.D.",
     "date": "24/11/2024",
     "desc": "This tutorial guides users through 3D Slicer's advanced visualization features, including DICOM data import, volume rendering, slice manipulation, and model clipping techniques.",
