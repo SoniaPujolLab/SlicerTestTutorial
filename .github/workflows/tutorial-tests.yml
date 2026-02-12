@@ -311,28 +311,27 @@ jobs:
       run: |
         echo "🔄 Replacing TutorialMaker extension with GitHub version..."
         
-        # Find TutorialMaker extension directory
-        EXTENSION_DIR=$(find /opt/slicer/slicer.org/Extensions-* -type d -name "TutorialMaker" | head -n 1)
+        # Find TutorialMaker qt-scripted-modules directory (where the actual module code is)
+        QT_MODULES_DIR=$(find /opt/slicer/slicer.org/Extensions-*/TutorialMaker/lib/Slicer-*/qt-scripted-modules -type d | head -n 1)
         
-        if [ -z "$EXTENSION_DIR" ]; then
-          echo "❌ TutorialMaker extension not found in Extension Manager directory"
+        if [ -z "$QT_MODULES_DIR" ]; then
+          echo "❌ TutorialMaker qt-scripted-modules directory not found"
           exit 1
         fi
         
-        echo "Found TutorialMaker at: $EXTENSION_DIR"
-        
-        # Backup original (optional)
-        mv "$EXTENSION_DIR" "${EXTENSION_DIR}.backup"
+        echo "Found TutorialMaker qt-scripted-modules at: $QT_MODULES_DIR"
         
         # Clone GitHub repository
         echo "Cloning TutorialMaker from GitHub..."
         git clone https://github.com/SoniaPujolLab/SlicerTutorialMaker.git /tmp/SlicerTutorialMaker
         
-        # Copy TutorialMaker directory to extension location
-        cp -r /tmp/SlicerTutorialMaker/TutorialMaker "$EXTENSION_DIR"
+        # Copy TutorialMaker module files to qt-scripted-modules (overwrite)
+        echo "Copying TutorialMaker module to qt-scripted-modules..."
+        cp -rf /tmp/SlicerTutorialMaker/TutorialMaker/* "$QT_MODULES_DIR/"
         
         echo "✅ TutorialMaker replaced with GitHub version"
-        ls -la "$EXTENSION_DIR"
+        echo "Contents of qt-scripted-modules:"
+        ls -la "$QT_MODULES_DIR"
     
     - name: Prepare tutorial test environment
       shell: bash
