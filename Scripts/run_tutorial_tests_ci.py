@@ -99,8 +99,8 @@ class TutorialTestRunner:
                 universal_newlines=True
             )
             
-            # Short timeout for configuration (30 seconds)
-            config_timeout = 30
+            # Longer timeout for configuration (120 seconds) to allow for translation downloads
+            config_timeout = 120
             output_lines = []
             
             while True:
@@ -363,7 +363,60 @@ try:
         time.sleep(1)
         log_message(f"Initialization {{i+1}}/3...")
     
-    # Configure language
+    # Step 1: Download and install translation files using LanguageTools
+    log_message("=== Installing Translation Files ===")
+    try:
+        from LanguageTools import LanguageToolsLogic
+        
+        logic = LanguageToolsLogic()
+        log_message("LanguageTools loaded successfully")
+        
+        # Check if lrelease is available
+        if not logic.lreleasePath:
+            log_message("⚠️  WARNING: lrelease tool not found!")
+            log_message("   Translation files may not be properly compiled")
+        else:
+            log_message(f"lrelease found at: {{logic.lreleasePath}}")
+        
+        # Download translation files from GitHub (fastest and most reliable)
+        log_message("Downloading translation files from GitHub...")
+        github_url = "https://github.com/Slicer/SlicerLanguageTranslations"
+        logic.downloadTsFilesFromGithub(github_url)
+        log_message("✅ Translation files downloaded")
+        
+        # Convert .ts to .qm files
+        if logic.lreleasePath:
+            log_message("Converting .ts files to .qm files...")
+            logic.convertTsFilesToQmFiles()
+            log_message("✅ Translation files converted")
+        else:
+            log_message("⚠️  Skipping conversion (lrelease not available)")
+        
+        # Install .qm files
+        log_message("Installing .qm files...")
+        logic.installQmFiles()
+        log_message("✅ Translation files installed")
+        
+        # Install font files (for international characters)
+        log_message("Installing font files...")
+        logic.installFontFiles()
+        log_message("✅ Font files installed")
+        
+        # Enable internationalization
+        logic.enableInternationalization(True)
+        log_message("✅ Internationalization enabled")
+        
+    except ImportError as e:
+        log_message(f"⚠️  WARNING: LanguageTools not available: {{e}}")
+        log_message("   Continuing with basic language configuration...")
+    except Exception as e:
+        log_message(f"⚠️  WARNING: Error installing translation files: {{e}}")
+        import traceback
+        traceback.print_exc()
+        log_message("   Continuing with basic language configuration...")
+    
+    # Step 2: Configure language in settings
+    log_message("=== Configuring Language Settings ===")
     settings = slicer.app.userSettings()
     original_lang = settings.value('language', 'en-US')
     
@@ -373,15 +426,6 @@ try:
     settings.setValue('language', '{language_code}')
     
     log_message("Language preferences saved")
-    
-    # Try LanguageTools if available
-    try:
-        from LanguageTools import LanguageToolsLogic
-        logic = LanguageToolsLogic()
-        logic.enableInternationalization(True)
-        log_message("LanguageTools configured")
-    except ImportError:
-        log_message("LanguageTools not available (OK)")
     
     # Wait for processing
     log_message("Processing settings...")
@@ -397,6 +441,18 @@ try:
     log_message(f"Final result:")
     log_message(f"  Language: {{current_lang}}")
     log_message(f"  i18n enabled: {{i18n_enabled}}")
+    
+    # Verify translation files are available
+    translation_folders = slicer.app.translationFolders()
+    log_message(f"Translation folders: {{translation_folders}}")
+    if translation_folders:
+        import os
+        from pathlib import Path
+        qm_files = list(Path(translation_folders[0]).glob('*.qm'))
+        log_message(f"Found {{len(qm_files)}} .qm files in translation folder")
+        # Show first few files as examples
+        for qm_file in list(qm_files)[:5]:
+            log_message(f"  - {{qm_file.name}}")
     
     if current_lang == '{language_code}':
         log_message("✅ Configuration saved successfully")
