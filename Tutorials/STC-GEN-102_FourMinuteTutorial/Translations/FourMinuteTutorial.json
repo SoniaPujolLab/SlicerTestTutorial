@@ -223,7 +223,7 @@
             "SlideDesc": "6_3DVisualization_body",
             "Annotations": [
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget/LabelMapOpacitySlider/SpinBox/ctkQDoubleSpinBox:0",
+                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget/SliceFrame/SliceVisibilityButton",
                     "type": "ArrowText",
                     "offset": [
                         -1.232127838519773,
@@ -275,12 +275,12 @@
                     "widgetPath": "qSlicerMainWindow/CaptureToolBar",
                     "type": "TextBox",
                     "offset": [
-                        806.0555088309504,
-                        -3.833700440528638
+                        -66.88057190916732,
+                        139.73237885462555
                     ],
                     "optional": [
-                        877.3759461732549,
-                        222.21145374449338
+                        0.832632464255677,
+                        0.6776008299438184
                     ],
                     "custom": {},
                     "penSettings": {
@@ -421,7 +421,7 @@
                     "text": "10_TextBox_0"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/SliceController/qMRMLSliceControllerWidget/LabelMapVisibilityButton",
+                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/SliceController/qMRMLSliceControllerWidget/SliceFrame/SliceLinkButton",
                     "type": "Arrow",
                     "offset": [
                         -1.3305298570226114,
@@ -440,7 +440,7 @@
                     "text": "10_Arrow_1"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/SliceController/qMRMLSliceControllerWidget/LabelMapVisibilityButton",
+                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/SliceController/qMRMLSliceControllerWidget/SliceFrame/SliceLinkButton",
                     "type": "Arrow",
                     "offset": [
                         -1.3305298570226114,
