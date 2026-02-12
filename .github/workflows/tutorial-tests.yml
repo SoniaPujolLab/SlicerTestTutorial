@@ -32,6 +32,11 @@ on:
         default: 'pt-BR es-419 fr-FR'
         required: false
         type: string
+      use_github_tutorialmaker:
+        description: 'Use TutorialMaker from GitHub instead of Extension Manager'
+        required: false
+        type: boolean
+        default: false
 
 env:
   SLICER_VERSION: '5.10.0'
@@ -300,6 +305,34 @@ jobs:
         echo "✅ Using cached Slicer extensions"
         ls -la /root/.config/NA-MIC/ || echo "Config dir empty"
         ls -la /opt/slicer/slicer.org/ || echo "Extensions dir empty"
+    
+    - name: Override TutorialMaker with GitHub version
+      if: github.event.inputs.use_github_tutorialmaker == 'true'
+      run: |
+        echo "🔄 Replacing TutorialMaker extension with GitHub version..."
+        
+        # Find TutorialMaker extension directory
+        EXTENSION_DIR=$(find /opt/slicer/slicer.org/Extensions-* -type d -name "TutorialMaker" | head -n 1)
+        
+        if [ -z "$EXTENSION_DIR" ]; then
+          echo "❌ TutorialMaker extension not found in Extension Manager directory"
+          exit 1
+        fi
+        
+        echo "Found TutorialMaker at: $EXTENSION_DIR"
+        
+        # Backup original (optional)
+        mv "$EXTENSION_DIR" "${EXTENSION_DIR}.backup"
+        
+        # Clone GitHub repository
+        echo "Cloning TutorialMaker from GitHub..."
+        git clone https://github.com/SoniaPujolLab/SlicerTutorialMaker.git /tmp/SlicerTutorialMaker
+        
+        # Copy TutorialMaker directory to extension location
+        cp -r /tmp/SlicerTutorialMaker/TutorialMaker "$EXTENSION_DIR"
+        
+        echo "✅ TutorialMaker replaced with GitHub version"
+        ls -la "$EXTENSION_DIR"
     
     - name: Prepare tutorial test environment
       shell: bash
