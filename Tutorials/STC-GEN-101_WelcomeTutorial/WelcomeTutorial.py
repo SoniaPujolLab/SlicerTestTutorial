@@ -45,7 +45,7 @@ class SlicerWelcomeTest(ScriptedLoadableModuleTest):
         self.delayDisplay("Starting the test")
         # TUTORIALMAKER BEGIN
 
-        # TUTORIALMAKER INFO TITLE SlicerWelcomeTutorial
+        # TUTORIALMAKER INFO TITLE WelcomeTutorial
         # TUTORIALMAKER INFO AUTHOR Sonia Pujol, Ph.D.
         # TUTORIALMAKER INFO DATE 28/08/2024
         # TUTORIALMAKER INFO DESC This tutorial introduces new users to the Slicer Welcome module, demonstrating basic navigation, sample data loading, and slice view interaction.
@@ -110,20 +110,15 @@ class SlicerWelcomeTest(ScriptedLoadableModuleTest):
             slicer.vtkMRMLLayoutNode.SlicerLayoutConventionalView
         )
 
-        download_button = util.getNamedWidget(
-            f"{WELCOME_BUTTONS_PATH}/ButtonsFrame/LoadSampleDataButton"
-        ).inner()
-        download_button.click()
+        mainWindow.moduleSelector().selectModule("SampleData")
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay(
             'Screenshot #5: In the Sample Data screen after pressing the "Download Sample Data" button.'
         )
 
         # 6 shot:
-        mrh_head_button = util.getNamedWidget(
-            f"{SAMPLE_DATA_PATH}/MRHeadPushButton"
-        ).inner()
-        mrh_head_button.click()
+        # Download MRHead sample data
+        SampleData.downloadSample("MRHead")
         # TUTORIALMAKER SCREENSHOT
         self.delayDisplay(
             'Screenshot #6: MRHead sample data loading after pressing the "MRHead" button.'
