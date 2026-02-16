@@ -77,16 +77,15 @@ class VisualizationTutorialTest(ScriptedLoadableModuleTest):
             self.delayDisplay("Extraction complete.")
 
         # Setup DICOM Database
+        # Use DICOMUtils.openTemporaryDatabase to properly setup database
+        dicomDatabasePath = os.path.join(slicer.app.temporaryPath, "DICOMDatabase")
+        
+        # Save original database settings and open temporary database
+        originalDatabaseDir = DICOMUtils.openTemporaryDatabase(dicomDatabasePath)
+        
+        # Now switch to DICOM module
         mainWindow.moduleSelector().selectModule("DICOM")
         slicer.app.processEvents()
-
-        if not slicer.dicomDatabase:
-            dicomDatabasePath = os.path.join(slicer.app.temporaryPath, "DICOMDatabase")
-            if not os.path.exists(dicomDatabasePath):
-                os.makedirs(dicomDatabasePath)
-            dicomWidget = slicer.modules.dicom.widgetRepresentation()
-            if hasattr(dicomWidget, "onDatabaseDirectoryChanged"):
-                dicomWidget.onDatabaseDirectoryChanged(dicomDatabasePath)
 
         dicom_data_path = os.path.join(slicer.app.temporaryPath, extraction_subfolder)
         
@@ -220,6 +219,8 @@ class VisualizationTutorialTest(ScriptedLoadableModuleTest):
             if collection.GetNumberOfItems() > 0:
                 volumeNode = collection.GetItemAsObject(0)
 
+        volumePropertyNode = None
+        displayNode = None
         if volumeNode:
             volRenLogic = slicer.modules.volumerendering.logic()
             displayNode = volRenLogic.CreateDefaultVolumeRenderingNodes(volumeNode)
