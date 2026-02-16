@@ -1,5 +1,4 @@
 {
-  "4_TextBox_1": "Select the model Prostate - Multisequence",
   "0_TextBox_0": "AIBasedSegmentationIn3DSlicer",
   "0_TextBox_1": "Sonia Pujol, Ph.D.",
   "0_TextBox_2": "30/06/2025",
@@ -8,6 +7,7 @@
   "2_TextBox_0": "Slicer loads the prostate MRI dataset",
   "3_ArrowText_0": "Click on Welcome to Slicer in the\nModules’ menu and browse to\n the category Segmentation.",
   "4_ArrowText_0": "Enter the model’s name Prostate in\nthe Segmentation model menu",
+  "4_TextBox_1": "Select the model Prostate - Multisequence",
   "5_ArrowText_0": "Enter the Input T2 volume msdprostate-01-adc",
   "6_ArrowText_0": "And the Input ADC volume msd-prostate-01-adc",
   "6_TextBox_1": "Click on Create new segmentation on\nApply",
