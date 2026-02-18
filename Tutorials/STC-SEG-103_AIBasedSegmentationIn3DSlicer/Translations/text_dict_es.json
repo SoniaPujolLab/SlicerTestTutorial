@@ -30,7 +30,7 @@
   "10_TextBox_1": "Selecciona el modelo Segmentación de Tumor Cerebral\n(BRATS) GLI",
   "11_TextBox_0": "Ingrese los volúmenes de entrada de la siguiente manera:\nVolumen de entrada T2F: BraTS-GLI_00005-000-t12f\nVolumen de entrada T1C: BraTS-GLI_00005-000-t1c\nVolumen de entrada T1N: BraTS-GLI_00005-000-t1n\nVolumen de entrada T2W: BraTS-GLI_00005-000-t2w\nClic en Crear nueva segmentación al Aplicar\nClic en Aplicar para iniciar la segmentación",
   "12_TextBox_0": "Slicer comienza a ejecutar la tarea de inferencia",
-  "13_ArrowText_1": "Once the segmentation is done, ‘Processing finished’\nappears in the Slicer GUI",
+  "13_ArrowText_1": "Una vez que la segmentación esté hecha, 'Procesamiento terminado'\naparece en el IGU Slicer",
   "14_TextBox_0": "En el añadir módulo de datos DICOM\nseleccione al Paciente paciente1 y\ndoble clic en la imagen\nCT_Torax_Abdomen para cargarlo en\nSlicer",
   "15_ArrowText_0": "Seleccionar el módulo MONAIAAuto3DSeg y entrar el\nnombre del modelo Segmentación de Cuerpo Completo en el\nmenú de modelo de Segmentación);",
   "15_ArrowText_1": "Seleccionar el módulo MONAIAAuto3DSeg y entrar el\nnombre del modelo Segmentación de Cuerpo Completo en el\nmenú de modelo de Segmentación);",
