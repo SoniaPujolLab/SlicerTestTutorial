@@ -445,32 +445,27 @@ jobs:
             # Copy outputs for this tutorial
             IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
             for language in "${LANG_ARRAY[@]}"; do
-              # Convert language format if needed (pt-BR -> pt_BR for directory names)
-              lang_dir=$(echo "$language" | tr '-' '_')
+              # TutorialMaker uses the same format as our language codes (pt-BR, en-US, etc.)
+              output_dir="$possible_dir/Outputs/${tutorial_name_only}_${language}"
               
-              # Try both formats: language_code and language-code
-              for lang_variant in "$language" "$lang_dir"; do
-                output_dir="$possible_dir/Outputs/${tutorial_name_only}_${lang_variant}"
+              if [[ -d "$output_dir" ]]; then
+                echo "  Found outputs: $output_dir"
                 
-                if [[ -d "$output_dir" ]]; then
-                  echo "  Found outputs: $output_dir"
-                  
-                  # Create target directory in Files folder
-                  target_dir="Tutorials/$tutorial_full_name/Files/$language"
-                  mkdir -p "$target_dir"
-                  
-                  # Copy entire output directory (HTML, MD, images, etc.)
-                  echo "    Copying all files from output directory..."
-                  cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
-                  echo "    ✅ Copied all files for $language"
-                  
-                  # List what was copied
-                  echo "    Files in target:"
-                  ls -lh "$target_dir/" 2>/dev/null || echo "    (empty)"
-                  
-                  break
-                fi
-              done
+                # Create target directory in Files folder (using same format: pt-BR)
+                target_dir="Tutorials/$tutorial_full_name/Files/$language"
+                mkdir -p "$target_dir"
+                
+                # Copy entire output directory (HTML, MD, images, etc.)
+                echo "    Copying all files from output directory..."
+                cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
+                echo "    ✅ Copied all files for $language"
+                
+                # List what was copied
+                echo "    Files in target:"
+                ls -lh "$target_dir/" 2>/dev/null || echo "    (empty)"
+              else
+                echo "  ⚠️  Output directory not found: $output_dir"
+              fi
             done
             break
           fi
