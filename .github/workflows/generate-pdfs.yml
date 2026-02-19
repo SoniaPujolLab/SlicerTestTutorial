@@ -72,7 +72,7 @@ jobs:
     - name: Install Puppeteer
       if: steps.changed-files.outputs.has_html == 'true'
       run: |
-        npm install -g puppeteer
+        npm install puppeteer
         
         # Verify installation
         node --version
