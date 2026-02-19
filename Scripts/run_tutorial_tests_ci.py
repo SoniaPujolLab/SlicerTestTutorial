@@ -701,6 +701,12 @@ try:
         if not test_success:
             raise Exception("Tutorial failed during execution")
         
+        # Wait a bit to ensure all files are written to disk
+        log_message("Waiting for files to be written to disk...")
+        for _ in range(10):
+            slicer.app.processEvents()
+        time.sleep(2)
+        
         # Generate tutorial outputs using TutorialMaker
         log_message("Generating tutorial outputs...")
         generation_success = False
@@ -715,6 +721,62 @@ try:
                 os.environ['CI'] = 'true'
                 os.environ['GITHUB_ACTIONS'] = 'true'
                 
+                # === DIAGNOSTIC: Check Raw folder structure ===
+                log_message("=== DIAGNOSTIC: Checking Raw folder structure ===")
+                try:
+                    raw_dir = tutorialmaker_dir / "Outputs" / "Raw" / "{tutorial_name_only}"
+                    log_message(f"Expected Raw directory: {{raw_dir}}")
+                    log_message(f"Raw directory exists: {{raw_dir.exists()}}")
+                    
+                    if raw_dir.exists():
+                        # List all subdirectories and files
+                        log_message("Contents of Raw directory:")
+                        for item in sorted(raw_dir.iterdir()):
+                            if item.is_dir():
+                                # List files in subdirectory
+                                files_in_subdir = list(item.glob("*.json"))
+                                log_message(f"  {{item.name}}/: {{len(files_in_subdir)}} JSON files")
+                                for json_file in files_in_subdir:
+                                    log_message(f"    - {{json_file.name}}")
+                            else:
+                                log_message(f"  {{item.name}} (file)")
+                    else:
+                        # Try to find where Raw files might be
+                        log_message("Raw directory not found! Searching for Raw folders...")
+                        outputs_dir = tutorialmaker_dir / "Outputs"
+                        if outputs_dir.exists():
+                            log_message(f"Outputs directory exists: {{outputs_dir}}")
+                            log_message("Contents of Outputs directory:")
+                            for item in sorted(outputs_dir.iterdir()):
+                                log_message(f"  {{item.name}}")
+                                if item.name == "Raw" and item.is_dir():
+                                    log_message("    Contents of Raw:")
+                                    for subitem in sorted(item.iterdir()):
+                                        log_message(f"      {{subitem.name}}")
+                        else:
+                            log_message(f"Outputs directory does not exist: {{outputs_dir}}")
+                        
+                        # Also check user home directory (Slicer settings location)
+                        log_message("Checking for Raw files in user directory...")
+                        import pathlib
+                        user_home = pathlib.Path.home()
+                        slicer_settings_dirs = list(user_home.glob(".slicer*"))
+                        log_message(f"Slicer settings directories found: {{len(slicer_settings_dirs)}}")
+                        for slicer_dir in slicer_settings_dirs:
+                            log_message(f"  Checking: {{slicer_dir}}")
+                            raw_in_home = list(slicer_dir.rglob("Raw/{tutorial_name_only}"))
+                            if raw_in_home:
+                                log_message(f"    Found Raw folder: {{raw_in_home[0]}}")
+                                log_message(f"    Contents:")
+                                for item in sorted(raw_in_home[0].iterdir()):
+                                    log_message(f"      {{item.name}}")
+                                    
+                except Exception as diag_error:
+                    log_message(f"Error during diagnostic: {{diag_error}}")
+                    import traceback
+                    log_message(traceback.format_exc())
+                
+                log_message("=== End of diagnostic ===")
                 log_message("=== Calling Generate ===")
                 
                 # Call Generate directly (no threading - Qt doesn't allow UI operations in threads)
@@ -727,6 +789,28 @@ try:
                     import traceback
                     log_message(traceback.format_exc())
                     generation_success = False
+                    
+                    # === Copy Raw folder for debugging on error ===
+                    log_message("=== Copying Raw folder for debugging ===")
+                    try:
+                        import shutil
+                        raw_backup_dir = Path(r"{self.output_dir}") / "raw_backup_{language_code.replace('-', '_')}"
+                        
+                        # Try to find and copy Raw folder
+                        if raw_dir.exists():
+                            log_message(f"Copying Raw folder from: {{raw_dir}}")
+                            shutil.copytree(raw_dir, raw_backup_dir, dirs_exist_ok=True)
+                            log_message(f"✅ Raw folder saved to: {{raw_backup_dir}}")
+                        else:
+                            # Try to find it in alternative locations
+                            log_message("Raw folder not found at expected location, searching...")
+                            outputs_dir = tutorialmaker_dir / "Outputs" / "Raw"
+                            if outputs_dir.exists():
+                                # Copy entire Raw folder 
+                                shutil.copytree(outputs_dir, raw_backup_dir / "Raw", dirs_exist_ok=True)
+                                log_message(f"✅ Entire Raw folder saved to: {{raw_backup_dir}}")
+                    except Exception as copy_error:
+                        log_message(f"Could not copy Raw folder: {{copy_error}}")
                 
             else:
                 log_message("⚠️  Generate method not found in TutorialMaker logic")

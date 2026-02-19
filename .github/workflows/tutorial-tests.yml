@@ -420,6 +420,28 @@ jobs:
             echo "Available output directories:"
             ls -la "$possible_dir/Outputs/" | grep "^d" || echo "  (none)"
             
+            # === DIAGNOSTIC: Copy Raw folder for debugging ===
+            echo ""
+            echo "=== DIAGNOSTIC: Checking Raw folder ==="
+            raw_dir="$possible_dir/Outputs/Raw/$tutorial_name_only"
+            echo "Expected Raw directory: $raw_dir"
+            if [[ -d "$raw_dir" ]]; then
+              echo "✅ Raw directory exists!"
+              echo "Contents:"
+              find "$raw_dir" -type f -name "*.json" | head -20
+              
+              # Copy Raw folder to artifacts for analysis
+              mkdir -p "debug_artifacts/Raw"
+              cp -r "$raw_dir" "debug_artifacts/Raw/" 2>/dev/null || true
+              echo "Raw folder copied to debug_artifacts for inspection"
+            else
+              echo "❌ Raw directory NOT found at expected location"
+              echo "Searching for any Raw folders..."
+              find "$possible_dir/Outputs" -type d -name "Raw" -o -name "$tutorial_name_only" 2>/dev/null | head -10
+            fi
+            echo "=== End of diagnostic ==="
+            echo ""
+            
             # Copy outputs for this tutorial
             IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
             for language in "${LANG_ARRAY[@]}"; do
@@ -666,6 +688,14 @@ jobs:
         else
           echo "  (not found)"
         fi
+        
+        echo ""
+        echo "Debug artifacts (Raw folder):"
+        if [[ -d "debug_artifacts" ]]; then
+          find "debug_artifacts" -type f | head -20
+        else
+          echo "  (not found)"
+        fi
     
     - name: Upload test artifacts
       uses: actions/upload-artifact@v4
@@ -675,6 +705,7 @@ jobs:
         path: |
           Tutorials/${{ matrix.tutorial.name }}/Results/
           Tutorials/${{ matrix.tutorial.name }}/Files/
+          debug_artifacts/
         retention-days: 30
         compression-level: 6
     

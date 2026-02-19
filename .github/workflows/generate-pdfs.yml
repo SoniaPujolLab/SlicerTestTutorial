@@ -99,8 +99,12 @@ jobs:
             const htmlDir = path.dirname(path.resolve(htmlPath));
             
             await page.setContent(htmlContent, {
-              waitUntil: 'networkidle0'
+              waitUntil: 'load',
+              timeout: 60000
             });
+            
+            // Wait a bit for any remaining resources
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             await page.pdf({
               path: pdfPath,
