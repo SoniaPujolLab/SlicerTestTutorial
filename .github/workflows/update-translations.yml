@@ -132,10 +132,10 @@ jobs:
             tutorial_id="${BASH_REMATCH[1]}"
             language_raw="${BASH_REMATCH[2]}"
             
-            # Normalize language format: convert underscores to hyphens
-            language=$(echo "$language_raw" | sed 's/_/-/g')
+            # Keep language format as-is (Qt uses underscores: pt_BR, en_US, es_419)
+            language="$language_raw"
             
-            echo "Tutorial ID: $tutorial_id, Language: $language (from $language_raw)"
+            echo "Tutorial ID: $tutorial_id, Language: $language"
             
             # Find matching tutorial directory
             tutorial_dir=""

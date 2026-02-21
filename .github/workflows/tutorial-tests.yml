@@ -32,7 +32,7 @@ on:
         type: string
       languages:
         description: 'Languages to test (space-separated)'
-        default: 'pt-BR es-419 fr-FR'
+        default: 'pt_BR es_419 fr_FR'
         required: false
         type: string
       use_github_tutorialmaker:
@@ -43,7 +43,7 @@ on:
 
 env:
   SLICER_VERSION: '5.10.0'
-  DEFAULT_LANGUAGES: 'pt-BR es-419 fr-FR'
+  DEFAULT_LANGUAGES: 'pt_BR es_419 fr_FR'
   SCREEN_RESOLUTION: '1920x1080'
   PIP_NO_CACHE_DIR: '1'
   PYTHONUNBUFFERED: '1'
@@ -103,8 +103,7 @@ jobs:
                       lang_code="${BASH_REMATCH[1]}"
                       # Skip default
                       if [[ "$lang_code" != "default" ]]; then
-                        # Convert underscores to hyphens for consistency (pt_BR -> pt-BR)
-                        lang_code=$(echo "$lang_code" | tr '_' '-')
+                        # Keep language code as-is (Qt uses underscores: pt_BR, en_US, es_419)
                         
                         if [[ -z "$available_languages" ]]; then
                           available_languages="$lang_code"
