@@ -1,8 +1,8 @@
 {
-  "0_TextBox_0": "Slicer Welcome",
+  "0_TextBox_0": "Bem-vindo ao Slicer",
   "0_TextBox_1": "Sonia Pujol, Ph.D.",
   "0_TextBox_2": "28/08/2024",
-  "0_TextBox_3": null,
+  "0_TextBox_3": "\n            ",
   "1_Goal_title": "Goal",
   "1_Goal_body": "This tutorial is a short introduction to the Welcome module of the Slicer open-source software. ",
   "2_3DSlicerversion48_title": "3D Slicer version 4.8",
