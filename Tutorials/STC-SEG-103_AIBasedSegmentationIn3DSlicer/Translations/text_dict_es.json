@@ -35,7 +35,7 @@
   "15_ArrowText_0": "Seleccionar el módulo MONAIAAuto3DSeg y entrar el\nnombre del modelo Segmentación de Cuerpo Completo en el\nmenú de modelo de Segmentación);",
   "15_ArrowText_1": "Seleccionar el módulo MONAIAAuto3DSeg y entrar el\nnombre del modelo Segmentación de Cuerpo Completo en el\nmenú de modelo de Segmentación);",
   "16_TextBox_0": "Seleccionar el input Volumen 6: CT_Torax_Abdomen\nClic en Crear nueva Segmentación en Aplicar\nClic en Aplicar para iniciar la segmentación",
-  "18_TextBox_0": "Slicer displays the result of the AI-based segmentation\nusing the Whole Body Segmentation TS1- quick",
+  "18_TextBox_0": "Slicer exhibe los resultados de la segmentación basada en IA\nusando la Segmentación de Cuerpo Completo TS1- rápida",
   "19_TextBox_0": "Agradecimientos",
   "13_0_TextBox_0": "Introduzca los volúmenes de entrada como sigue:",
   "16_2_TextBox_0": "En el módulo Añadir Datos DICOM,\nselecciona el Paciente paciente1 y\npulsa en Cargar para cargarlo en el\nRebanador",
