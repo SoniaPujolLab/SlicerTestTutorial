@@ -32,7 +32,7 @@ on:
         type: string
       languages:
         description: 'Languages to test (space-separated)'
-        default: 'pt_BR es_419 fr_FR'
+        default: 'pt_BR es_419'
         required: false
         type: string
       use_github_tutorialmaker:
@@ -43,7 +43,7 @@ on:
 
 env:
   SLICER_VERSION: '5.10.0'
-  DEFAULT_LANGUAGES: 'pt_BR es_419 fr_FR'
+  DEFAULT_LANGUAGES: 'pt_BR es_419'
   SCREEN_RESOLUTION: '1920x1080'
   PIP_NO_CACHE_DIR: '1'
   PYTHONUNBUFFERED: '1'
