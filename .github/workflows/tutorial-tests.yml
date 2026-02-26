@@ -421,54 +421,65 @@ jobs:
             # List all outputs for debugging
             echo "Available output directories:"
             ls -la "$possible_dir/Outputs/" | grep "^d" || echo "  (none)"
-            
-            # === DIAGNOSTIC: Copy Raw folder for debugging ===
-            echo ""
-            echo "=== DIAGNOSTIC: Checking Raw folder ==="
-            raw_dir="$possible_dir/Outputs/Raw/$tutorial_name_only"
-            echo "Expected Raw directory: $raw_dir"
-            if [[ -d "$raw_dir" ]]; then
-              echo "✅ Raw directory exists!"
-              echo "Contents:"
-              find "$raw_dir" -type f -name "*.json" | head -20
-              
-              # Copy Raw folder to artifacts for analysis
-              mkdir -p "debug_artifacts/Raw"
-              cp -r "$raw_dir" "debug_artifacts/Raw/" 2>/dev/null || true
-              echo "Raw folder copied to debug_artifacts for inspection"
-            else
-              echo "❌ Raw directory NOT found at expected location"
-              echo "Searching for any Raw folders..."
-              find "$possible_dir/Outputs" -type d -name "Raw" -o -name "$tutorial_name_only" 2>/dev/null | head -10
-            fi
-            echo "=== End of diagnostic ==="
             echo ""
             
             # Copy outputs for this tutorial
+            # Since TutorialMaker uses tutorial title (not filename) for folder names,
+            # we search for any folder ending with the language code
             IFS=' ' read -ra LANG_ARRAY <<< "$TEST_LANGUAGES"
             for language in "${LANG_ARRAY[@]}"; do
-              # TutorialMaker uses the same format as our language codes (pt-BR, en-US, etc.)
-              output_dir="$possible_dir/Outputs/${tutorial_name_only}_${language}"
+              echo "Searching for outputs with language: $language"
               
-              if [[ -d "$output_dir" ]]; then
-                echo "  Found outputs: $output_dir"
-                
-                # Create target directory in Files folder (using same format: pt-BR)
-                target_dir="Tutorials/$tutorial_full_name/Files/$language"
-                mkdir -p "$target_dir"
-                
-                # Copy entire output directory (HTML, MD, images, etc.)
-                echo "    Copying all files from output directory..."
-                cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
-                echo "    ✅ Copied all files for $language"
-                
-                # List what was copied
-                echo "    Files in target:"
-                ls -lh "$target_dir/" 2>/dev/null || echo "    (empty)"
-              else
-                echo "  ⚠️  Output directory not found: $output_dir"
+              # Find all directories ending with _${language}
+              found_output=false
+              for output_dir in "$possible_dir/Outputs"/*_${language}; do
+                if [[ -d "$output_dir" ]] && [[ ! "$output_dir" =~ __pycache__ ]]; then
+                  echo "  ✅ Found: $output_dir"
+                  found_output=true
+                  
+                  # Create target directory in Files folder
+                  target_dir="Tutorials/$tutorial_full_name/Files/$language"
+                  mkdir -p "$target_dir"
+                  
+                  # Copy entire output directory (HTML, MD, images, etc.)
+                  echo "    Copying all files..."
+                  cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
+                  echo "    ✅ Copied all files for $language"
+                  
+                  # List what was copied
+                  echo "    Files copied:"
+                  ls -lh "$target_dir/" 2>/dev/null || echo "    (empty)"
+                  
+                  # Only process the first match per language
+                  break
+                fi
+              done
+              
+              if [[ "$found_output" == "false" ]]; then
+                echo "  ⚠️  No output directory found ending with: _${language}"
               fi
             done
+            
+            # Clean up Outputs folder to prevent accumulation for next tutorial
+            echo ""
+            echo "🧹 Cleaning Outputs folder for next tutorial..."
+            
+            # Keep only essential folders (Raw, Annotations) and remove generated outputs
+            for dir in "$possible_dir/Outputs"/*; do
+              if [[ -d "$dir" ]]; then
+                dir_name=$(basename "$dir")
+                # Keep Raw, Annotations, __pycache__ folders
+                if [[ "$dir_name" != "Raw" ]] && [[ "$dir_name" != "Annotations" ]] && [[ "$dir_name" != "__pycache__" ]]; then
+                  echo "  Removing: $dir_name"
+                  rm -rf "$dir" 2>/dev/null || true
+                fi
+              fi
+            done
+            
+            echo "✅ Cleanup completed"
+            echo "Remaining directories:"
+            ls -la "$possible_dir/Outputs/" | grep "^d" || echo "  (none)"
+            
             break
           fi
         done
