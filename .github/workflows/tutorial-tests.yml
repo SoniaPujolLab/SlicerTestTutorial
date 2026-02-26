@@ -20,7 +20,7 @@ on:
         type: string
       languages:
         description: 'Languages to test (space-separated)'
-        default: 'pt_BR es_419'
+        default: 'pt-BR es-419'
         required: false
         type: string
       use_github_tutorialmaker:
