@@ -136,7 +136,8 @@ def create_ts_manually(temp_cpp, ts_output, language="en-US", context_name="Tuto
                     line_number += 1
     
     # Create TS XML content
-    lang_code = language.replace('-', '_')
+    # Keep the language code as-is (use hyphen, don't convert to underscore)
+    lang_code = language
     ts_content = f'''<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="{lang_code}">
@@ -197,12 +198,20 @@ def create_ts_manually(temp_cpp, ts_output, language="en-US", context_name="Tuto
 # Run lupdate
 # ------------------------
 def run_lupdate(temp_cpp, ts_output, lupdate_path="lupdate"):
+    """Run lupdate and return True if successful, False if language not recognized"""
     cmd = [lupdate_path, temp_cpp, "-ts", ts_output]
-    subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    
+    # Check if lupdate warned about unrecognized language
+    if "target language is not recognized" in result.stderr or "won't be updated" in result.stderr:
+        print(f"[WARNING] lupdate did not recognize the language code. Will use manual generation to preserve translations.")
+        return False
+    
     print(f"[OK] TS file generated: {ts_output}")
+    return True
 
-def post_process_ts_file(ts_path, original_json_path):
-    """Post-process TS file to replace temporary filename with original JSON filename"""
+def post_process_ts_file(ts_path, original_json_path, target_language=None):
+    """Post-process TS file to replace temporary filename with original JSON filename and fix language code"""
     json_filename = os.path.basename(original_json_path)
     
     try:
@@ -220,10 +229,32 @@ def post_process_ts_file(ts_path, original_json_path):
         pattern2 = r'filename="[^"]*[/\\][^/\\]*temp\.cpp"'
         content = re.sub(pattern2, replacement, content)
         
+        # Fix language code format: use hyphen instead of underscore, and don't add region if not needed
+        if target_language:
+            # Extract the base filename to get the intended language code
+            # The target_language parameter should be the actual language we want (e.g., "en", "pt-BR")
+            lang_code_to_use = target_language
+        else:
+            # Try to extract from filename
+            match = re.search(r'_([a-z]{2}(?:-[A-Z0-9]{2,})?)\.ts$', os.path.basename(ts_path))
+            if match:
+                lang_code_to_use = match.group(1)
+            else:
+                lang_code_to_use = None
+        
+        if lang_code_to_use:
+            # Replace language attribute in TS file
+            # lupdate converts "en" to "en_US" and "pt-BR" to "pt_BR", we want to fix this
+            pattern_lang = r'<TS version="[^"]*" language="[^"]*">'
+            replacement_lang = f'<TS version="2.1" language="{lang_code_to_use}">'
+            content = re.sub(pattern_lang, replacement_lang, content)
+        
         with open(ts_path, 'w', encoding='utf-8') as f:
             f.write(content)
             
         print(f"[INFO] Updated TS file to reference {json_filename}")
+        if lang_code_to_use:
+            print(f"[INFO] Set language code to: {lang_code_to_use}")
     except Exception as e:
         print(f"[WARNING] Could not post-process TS file: {e}")
 
@@ -351,6 +382,7 @@ Examples:
     parser.add_argument("--context", help="Translation context name (default: TutorialMaker)", default="TutorialMaker")
     parser.add_argument("--languages", help="List of languages to generate TS files for (e.g., pt-BR,es-419,fr-FR)", type=str)
     parser.add_argument("--name", help="Base name for output files when using --languages (e.g., 'monai' generates monai_pt-BR.ts)")
+    parser.add_argument("--output-dir", help="Directory where TS files should be generated (default: same as input file)")
     args = parser.parse_args()
 
     # Validate arguments for multiple languages
@@ -371,19 +403,29 @@ Examples:
             languages = [lang.strip() for lang in args.languages.split(',')]
             print(f"Generating TS files for languages: {', '.join(languages)}")
             
+            # Determine output directory
+            output_dir = args.output_dir if args.output_dir else input_dir
+            output_dir = os.path.abspath(output_dir)
+            
             temp_cpp = json_to_temp_cpp(args.input)
             
             for target_lang in languages:
                 # Generate output filename for each language
                 output_filename = f"{args.name}_{target_lang}.ts"
-                output_path = os.path.join(input_dir, output_filename)
+                output_path = os.path.join(output_dir, output_filename)
                 
                 print(f"\n--- Generating {output_filename} ---")
                 
                 try:
-                    run_lupdate(temp_cpp, output_path, args.lupdate)
-                    # Post-process the TS file to replace temp filename with JSON filename
-                    post_process_ts_file(output_path, args.input)
+                    lupdate_success = run_lupdate(temp_cpp, output_path, args.lupdate)
+                    
+                    if lupdate_success:
+                        # Post-process the TS file to replace temp filename with JSON filename
+                        post_process_ts_file(output_path, args.input, target_lang)
+                    else:
+                        # lupdate didn't recognize the language, use manual generation
+                        print(f"Using manual TS generation to preserve existing translations...")
+                        create_ts_manually(temp_cpp, output_path, target_lang, args.context, args.input)
                 except FileNotFoundError:
                     print(f"Warning: {args.lupdate} not found. Using manual TS generation as fallback.")
                     create_ts_manually(temp_cpp, output_path, target_lang, args.context, args.input)
@@ -408,9 +450,15 @@ Examples:
             temp_cpp = json_to_temp_cpp(args.input)
             
             try:
-                run_lupdate(temp_cpp, args.output, args.lupdate)
-                # Post-process the TS file to replace temp filename with JSON filename
-                post_process_ts_file(args.output, args.input)
+                lupdate_success = run_lupdate(temp_cpp, args.output, args.lupdate)
+                
+                if lupdate_success:
+                    # Post-process the TS file to replace temp filename with JSON filename
+                    post_process_ts_file(args.output, args.input, lang)
+                else:
+                    # lupdate didn't recognize the language, use manual generation
+                    print(f"Using manual TS generation to preserve existing translations...")
+                    create_ts_manually(temp_cpp, args.output, lang, args.context, args.input)
             except FileNotFoundError:
                 print(f"Warning: {args.lupdate} not found. Using manual TS generation as fallback.")
                 create_ts_manually(temp_cpp, args.output, lang, args.context, args.input)
