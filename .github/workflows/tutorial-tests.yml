@@ -260,6 +260,23 @@ jobs:
         ls -la /opt/slicer/
         chmod +x /opt/slicer/Slicer
     
+    - name: Clean cached extensions (force fresh install)
+      run: |
+        echo "Removing cached Slicer extensions to ensure fresh installation..."
+        
+        # Remove extensions directories
+        if [[ -d "/opt/slicer/slicer.org" ]]; then
+          echo "Found extensions directory: /opt/slicer/slicer.org"
+          rm -rf /opt/slicer/slicer.org
+          echo "✅ Removed cached extensions"
+        else
+          echo "No cached extensions found (this is fine)"
+        fi
+        
+        # List remaining directories
+        echo "Slicer directory after cleanup:"
+        ls -la /opt/slicer/ | head -20
+    
     - name: Setup virtual display
       run: |
         echo "Setting up virtual display ${{ env.SCREEN_RESOLUTION }}..."
