@@ -5,23 +5,11 @@ permissions:
   pull-requests: write
 
 on:
-  push:
-    branches: 
-      - main
-      - develop
-      - '!test-results-**'
-    paths:
-      - 'Tutorials/**'
-      - 'Scripts/**'
-  
+  # Trigger when translation PRs are merged
   pull_request:
-    branches: [ main, develop ]
-    paths:
-      - 'Tutorials/**'
-      - 'Scripts/**'
+    types: [ closed ]
+    branches: [ main ]
   
-  schedule:
-    - cron: '0 6 * * *'
   
   # Allow manual triggering
   workflow_dispatch:
@@ -151,17 +139,15 @@ jobs:
     name: Test Tutorial
     runs-on: ubuntu-latest
     needs: detect-tutorials
-    # Skip if triggered by our own commits or if no tutorials found
     if: |
       needs.detect-tutorials.outputs.tutorial-count > 0 &&
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      !contains(github.event.head_commit.message, 'Update test results and generated outputs') &&
-      !contains(github.event.head_commit.message, 'Test Results:') &&
-      github.event.head_commit.author.name != 'GitHub Action' &&
-      github.event.head_commit.committer.name != 'GitHub Action' &&
-      !startsWith(github.ref, 'refs/heads/test-results-') &&
-      github.actor != 'github-actions[bot]' &&
-      (github.event_name != 'push' || !contains(github.event.commits[0].message, 'Test Results:'))
+      (
+        github.event_name == 'workflow_dispatch' ||
+        github.event_name == 'schedule' ||
+        (github.event_name == 'pull_request' && 
+         github.event.pull_request.merged == true && 
+         contains(github.event.pull_request.labels.*.name, 'translations'))
+      )
     container:
       image: ubuntu:22.04
     
