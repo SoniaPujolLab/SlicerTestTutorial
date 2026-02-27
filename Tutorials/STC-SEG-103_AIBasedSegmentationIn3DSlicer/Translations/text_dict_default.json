@@ -74,8 +74,7 @@
     "19_slide_title": "",
     "19_slide_body": "",
     "19_Rectangle_0": "",
-    "19_TextBox_1": "Click on Add Data in the Welcome to Slicer module\n\nClick on Choose File(s) to Add and browse to the location of the Slicer datasets\n\nIn the subdirectory dataset4_BrainMRI_Glioma, select the four datasets 
-BraTS-GLI-00006-t1c.nii.gz, BraTS-GLI-00006-t1n.nii.gz, BraTS-GLI-00006-t2f.nii.gz, BraTS-GLI-00006-t2w.nii.gz\n\n\Click on Open",
+    "19_TextBox_1": "Click on Add Data in the Welcome to Slicer module\n\nClick on Choose File(s) to Add and browse to the location of the Slicer datasets\n\nIn the subdirectory dataset4_BrainMRI_Glioma, select the four datasets BraTS-GLI-00006-t1c.nii.gz, BraTS-GLI-00006-t1n.nii.gz, BraTS-GLI-00006-t2f.nii.gz, BraTS-GLI-00006-t2w.nii.gz\n\nClick on Open",
     "20_slide_title": "",
     "20_slide_body": "",
     "20_TextBox_0": "Select the module MONAIAuto3DSeg and enter the model's name Brain Tumor Segmentation in the Segmentation model menu",
