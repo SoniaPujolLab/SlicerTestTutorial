@@ -96,11 +96,15 @@ jobs:
           try {
             const page = await browser.newPage();
             
-            const htmlContent = fs.readFileSync(htmlPath, 'utf8');
-            const htmlDir = path.dirname(path.resolve(htmlPath));
+            // Resolve absolute path and convert to file:// URL
+            const absolutePath = path.resolve(htmlPath);
+            const fileUrl = `file://${absolutePath}`;
             
-            await page.setContent(htmlContent, {
-              waitUntil: 'load',
+            console.log(`Loading HTML from: ${fileUrl}`);
+            
+            // Use goto instead of setContent to properly load local resources (images, etc.)
+            await page.goto(fileUrl, {
+              waitUntil: 'networkidle0',
               timeout: 60000
             });
             
