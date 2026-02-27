@@ -82,6 +82,21 @@ jobs:
               if [[ -d "$translations_dir" ]]; then
                 echo "  Checking translations in: $translations_dir"
                 
+                # First, check if default translation file exists
+                default_file="${translations_dir}/text_dict_default.json"
+                if [[ ! -f "$default_file" ]]; then
+                  echo "  ⚠️  No default translation file found, skipping translation check"
+                else
+                  # Count keys in default file with non-empty values (baseline for 100%)
+                  # This filters out keys with empty strings ("key": "") or whitespace-only values
+                  default_keys_count=$(grep -oP '"[^"]+"\s*:\s*"[^\s"].*?"' "$default_file" | wc -l)
+                  echo "  Default translation has $default_keys_count keys (with non-empty values)"
+                  
+                  # Calculate minimum required keys (90% threshold)
+                  min_required_keys=$(echo "$default_keys_count * 0.9" | bc | cut -d. -f1)
+                  echo "  Minimum required keys for 90%: $min_required_keys"
+                fi
+                
                 # Find all text_dict_*.json files except default
                 for dict_file in "$translations_dir"/text_dict_*.json; do
                   if [[ -f "$dict_file" ]]; then
@@ -91,14 +106,40 @@ jobs:
                       lang_code="${BASH_REMATCH[1]}"
                       # Skip default
                       if [[ "$lang_code" != "default" ]]; then
-                        # Keep language code as-is (Qt uses underscores: pt_BR, en_US, es_419)
-                        
-                        if [[ -z "$available_languages" ]]; then
-                          available_languages="$lang_code"
+                        # Check if translation is at least 90% complete
+                        if [[ -f "$default_file" ]]; then
+                          # Count keys with non-empty values in the language file
+                          lang_keys_count=$(grep -oP '"[^"]+"\s*:\s*"[^\s"].*?"' "$dict_file" | wc -l)
+                          
+                          # Calculate completion percentage
+                          if [[ $default_keys_count -gt 0 ]]; then
+                            completion_pct=$(echo "scale=1; $lang_keys_count * 100 / $default_keys_count" | bc)
+                            echo "  $lang_code: $lang_keys_count/$default_keys_count keys ($completion_pct%)"  
+                            
+                            # Only include if >= 90% complete
+                            if [[ $lang_keys_count -ge $min_required_keys ]]; then
+                              echo "    ✅ $lang_code is sufficiently translated (>= 90%)"  
+                              
+                              if [[ -z "$available_languages" ]]; then
+                                available_languages="$lang_code"
+                              else
+                                # Check if not already added (avoid duplicates)
+                                if [[ ! " $available_languages " =~ " $lang_code " ]]; then
+                                  available_languages="$available_languages $lang_code"
+                                fi
+                              fi
+                            else
+                              echo "    ⚠️  $lang_code skipped (< 90% translated)"
+                            fi
+                          fi
                         else
-                          # Check if not already added (avoid duplicates)
-                          if [[ ! " $available_languages " =~ " $lang_code " ]]; then
-                            available_languages="$available_languages $lang_code"
+                          # No default file, include all languages (fallback behavior)
+                          if [[ -z "$available_languages" ]]; then
+                            available_languages="$lang_code"
+                          else
+                            if [[ ! " $available_languages " =~ " $lang_code " ]]; then
+                              available_languages="$available_languages $lang_code"
+                            fi
                           fi
                         fi
                       fi
@@ -353,6 +394,25 @@ jobs:
         echo "TEST_LANGUAGES=$test_languages" >> $GITHUB_ENV
         echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
         echo "Will test languages: $test_languages"
+    
+    - name: Clean previous Files directory
+      shell: bash
+      run: |
+        echo "Cleaning previous Files directory for: ${{ matrix.tutorial.name }}"
+        
+        files_dir="Tutorials/${{ matrix.tutorial.name }}/Files"
+        
+        if [[ -d "$files_dir" ]]; then
+          echo "Found existing Files directory, removing..."
+          rm -rf "$files_dir"
+          echo "✅ Removed old Files directory"
+        else
+          echo "No existing Files directory found (this is fine for first run)"
+        fi
+        
+        # Recreate empty Files directory
+        mkdir -p "$files_dir"
+        echo "✅ Created fresh Files directory"
     
     - name: Setup tutorial files in TutorialMaker
       shell: bash
