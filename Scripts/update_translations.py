@@ -38,9 +38,11 @@ def load_existing_translations(ts_path):
                     key = extracomment_elem.text
                     source_text = source_elem.text
                     
-                    if translation_elem is not None and translation_elem.get("type") != "unfinished":
+                    # Preserve translation if it has content, regardless of type (finished or unfinished)
+                    if translation_elem is not None:
                         translation_text = translation_elem.text or ""
-                        translations[key] = (source_text, translation_text)
+                        if translation_text.strip():  # Only preserve if there's actual content
+                            translations[key] = (source_text, translation_text)
         
         return translations
     except Exception as e:
@@ -197,15 +199,29 @@ def create_ts_manually(temp_cpp, ts_output, language="en-US", context_name="Tuto
 # ------------------------
 # Run lupdate
 # ------------------------
-def run_lupdate(temp_cpp, ts_output, lupdate_path="lupdate"):
-    """Run lupdate and return True if successful, False if language not recognized"""
-    cmd = [lupdate_path, temp_cpp, "-ts", ts_output]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+def run_lupdate(temp_cpp, ts_output, lupdate_path="lupdate", target_language=None):
+    """Run lupdate to generate/update TS file. Converts hyphen to underscore for lupdate compatibility."""
     
-    # Check if lupdate warned about unrecognized language
-    if "target language is not recognized" in result.stderr or "won't be updated" in result.stderr:
-        print(f"[WARNING] lupdate did not recognize the language code. Will use manual generation to preserve translations.")
-        return False
+    # If we have a target language with hyphen (e.g., pt-BR, es-419), convert to underscore for lupdate
+    # lupdate expects underscore format (pt_BR, es_419), we'll fix it back to hyphen in post_process
+    lupdate_lang = target_language.replace('-', '_') if target_language else None
+    
+    if lupdate_lang and lupdate_lang != target_language:
+        temp_ts_output = ts_output.replace(f"_{target_language}.ts", f"_{lupdate_lang}.ts")
+        
+        original_exists = os.path.exists(ts_output)
+        if original_exists:
+            os.replace(ts_output, temp_ts_output)
+        
+        cmd = [lupdate_path, temp_cpp, "-ts", temp_ts_output]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        
+        # Rename back to hyphen format
+        if os.path.exists(temp_ts_output):
+            os.replace(temp_ts_output, ts_output)
+    else:
+        cmd = [lupdate_path, temp_cpp, "-ts", ts_output]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     
     print(f"[OK] TS file generated: {ts_output}")
     return True
@@ -378,7 +394,7 @@ Examples:
     parser.add_argument("input", help="Input file (JSON or TS)")
     parser.add_argument("--output", help="Output file (TS or JSON). If not specified, will be auto-generated based on input filename")
     parser.add_argument("--lupdate", help="Path to lupdate executable (only for json2ts)", 
-                        default=r"D:\ArquivosProgramas\Slicer 5.8.1\bin\lupdate.exe")
+                        default=r"D:\Projetos\3D Slicer\Translaction\bin\lupdate.exe")
     parser.add_argument("--context", help="Translation context name (default: TutorialMaker)", default="TutorialMaker")
     parser.add_argument("--languages", help="List of languages to generate TS files for (e.g., pt-BR,es-419,fr-FR)", type=str)
     parser.add_argument("--name", help="Base name for output files when using --languages (e.g., 'monai' generates monai_pt-BR.ts)")
@@ -417,7 +433,7 @@ Examples:
                 print(f"\n--- Generating {output_filename} ---")
                 
                 try:
-                    lupdate_success = run_lupdate(temp_cpp, output_path, args.lupdate)
+                    lupdate_success = run_lupdate(temp_cpp, output_path, args.lupdate, target_lang)
                     
                     if lupdate_success:
                         # Post-process the TS file to replace temp filename with JSON filename
@@ -450,7 +466,7 @@ Examples:
             temp_cpp = json_to_temp_cpp(args.input)
             
             try:
-                lupdate_success = run_lupdate(temp_cpp, args.output, args.lupdate)
+                lupdate_success = run_lupdate(temp_cpp, args.output, args.lupdate, lang)
                 
                 if lupdate_success:
                     # Post-process the TS file to replace temp filename with JSON filename
