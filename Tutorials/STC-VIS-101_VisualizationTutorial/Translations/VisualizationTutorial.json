@@ -3,7 +3,7 @@
     "author": "Sonia Pujol, Ph.D.",
     "date": "24/11/2024",
     "desc": "This tutorial guides users through 3D Slicer s advanced visualization features, including DICOM data import, volume rendering, slice manipulation, and model clipping techniques.",
-    "dependencies": [],
+    "TMversion": "1.1",
     "TutorialMaker_version": "1.1",
     "slides": [
         {
@@ -360,12 +360,12 @@
                     "widgetPath": "TutorialAnnotator/BlankPage",
                     "type": "TextBox",
                     "offset": [
-                        293.4960767218832,
+                        292.90412876137157,
                         360.0
                     ],
                     "optional": [
-                        0.7689625108979947,
-                        0.8463687150837989
+                        0.768369489153254,
+                        0.8453038674033149
                     ],
                     "custom": {
                         "textAlign": "center",
@@ -1758,11 +1758,60 @@
         {
             "ImagePath": "38_Viewing3Dmodels.png",
             "SlideCode": [
-                "19/0"
+                "18/0"
             ],
             "SlideLayout": "Screenshot",
             "SlideTitle": "38_Viewing3Dmodels_title",
             "SlideDesc": "38_Viewing3Dmodels_body",
+            "Annotations": [
+                {
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView/XtreeViewWidget_24",
+                    "type": "ArrowText",
+                    "offset": [
+                        -1.8404533565823904,
+                        -1.4594972067039294
+                    ],
+                    "optional": [
+                        0.14559721011333915,
+                        0.44273743016759776
+                    ],
+                    "custom": {},
+                    "penSettings": {
+                        "color": "#fe9800",
+                        "thickness": 4,
+                        "fontSize": 24
+                    },
+                    "text": "38_ArrowText_0"
+                },
+                {
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView/XtreeViewWidget_24",
+                    "type": "Rectangle",
+                    "offset": [
+                        -1.8404533565823904,
+                        -1.4594972067039294
+                    ],
+                    "optional": [
+                        0.10810810810810811,
+                        0.44553072625698326
+                    ],
+                    "custom": {},
+                    "penSettings": {
+                        "color": "#fe9800",
+                        "thickness": 4,
+                        "fontSize": 24
+                    },
+                    "text": "38_Rectangle_1"
+                }
+            ]
+        },
+        {
+            "ImagePath": "39_Viewing3Dmodels.png",
+            "SlideCode": [
+                "19/0"
+            ],
+            "SlideLayout": "Screenshot",
+            "SlideTitle": "39_Viewing3Dmodels_title",
+            "SlideDesc": "39_Viewing3Dmodels_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/DisplayButton/ModelDisplayWidget/SliceDisplayCollapsibleGroupBox/SliceIntersectionOpacitySlider/Slider/QSlider:0",
@@ -1781,7 +1830,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "38_ArrowText_0"
+                    "text": "39_ArrowText_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -1804,56 +1853,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "38_TextBox_1"
-                }
-            ]
-        },
-        {
-            "ImagePath": "39_Viewing3Dmodels.png",
-            "SlideCode": [
-                "18/0"
-            ],
-            "SlideLayout": "Screenshot",
-            "SlideTitle": "39_Viewing3Dmodels_title",
-            "SlideDesc": "39_Viewing3Dmodels_body",
-            "Annotations": [
-                {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView/XtreeViewWidget_24",
-                    "type": "ArrowText",
-                    "offset": [
-                        -1.8404533565823904,
-                        -1.4594972067039294
-                    ],
-                    "optional": [
-                        0.14559721011333915,
-                        0.44273743016759776
-                    ],
-                    "custom": {},
-                    "penSettings": {
-                        "color": "#fe9800",
-                        "thickness": 4,
-                        "fontSize": 24
-                    },
-                    "text": "39_ArrowText_0"
-                },
-                {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ResizableFrame/SubjectHierarchyTreeView/XtreeViewWidget_24",
-                    "type": "Rectangle",
-                    "offset": [
-                        -1.8404533565823904,
-                        -1.4594972067039294
-                    ],
-                    "optional": [
-                        0.10810810810810811,
-                        0.44553072625698326
-                    ],
-                    "custom": {},
-                    "penSettings": {
-                        "color": "#fe9800",
-                        "thickness": 4,
-                        "fontSize": 24
-                    },
-                    "text": "39_Rectangle_1"
+                    "text": "39_TextBox_1"
                 }
             ]
         },
@@ -2010,12 +2010,12 @@
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ClippingButton/MRMLClipNodeDisplayWidget/checkBox_Clipping",
                     "type": "ArrowText",
                     "offset": [
-                        -0.1429816913687887,
-                        -0.09916201117312085
+                        -1.811056682995087,
+                        -0.5966850828729093
                     ],
                     "optional": [
-                        0.12118570183086312,
-                        0.835195530726257
+                        0.20293911826452066,
+                        0.6450276243093923
                     ],
                     "custom": {},
                     "penSettings": {
@@ -2130,12 +2130,12 @@
                     "widgetPath": "TutorialAnnotator/BlankPage",
                     "type": "TextBox",
                     "offset": [
-                        292.9264909847434,
+                        292.90412876137157,
                         360.0
                     ],
                     "optional": [
-                        0.768377253814147,
-                        0.8463687150837989
+                        0.768369489153254,
+                        0.8453038674033149
                     ],
                     "custom": {
                         "textAlign": "center",
