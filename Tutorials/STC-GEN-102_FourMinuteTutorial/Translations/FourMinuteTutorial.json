@@ -322,7 +322,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -356,7 +356,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#aaffff",
@@ -379,7 +379,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#d3fff2",
@@ -413,7 +413,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffee90",
@@ -448,7 +448,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -501,7 +501,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffdf9e",
@@ -524,7 +524,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -577,7 +577,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -600,7 +600,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#d3fff2",
@@ -653,7 +653,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -689,7 +689,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -761,7 +761,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
@@ -814,7 +814,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#d3fff2",
@@ -848,7 +848,7 @@
                     "custom": {
                         "textColor": "#000000",
                         "textAlign": "right",
-                        "textFit": false
+                        "textFit": true
                     },
                     "penSettings": {
                         "color": "#ffe98f",
