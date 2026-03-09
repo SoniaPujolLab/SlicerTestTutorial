@@ -106,24 +106,34 @@
             ]
         },
         {
-            "ImagePath": "1_slide.png",
+            "ImagePath": "1_Goal.png",
             "SlideCode": [
                 "0/0"
             ],
-            "SlideLayout": "Cover",
-            "SlideTitle": "1_slide_title",
-            "SlideDesc": "1_slide_body",
+            "SlideLayout": "Screenshot",
+            "SlideTitle": "1_Goal_title",
+            "SlideDesc": "1_Goal_body",
+            "Annotations": []
+        },
+        {
+            "ImagePath": "2_slide.png",
+            "SlideCode": [
+                "0/0"
+            ],
+            "SlideLayout": "Text",
+            "SlideTitle": "2_slide_title",
+            "SlideDesc": "2_slide_body",
             "Annotations": [
                 {
                     "widgetPath": "TutorialAnnotator/BlankPage",
                     "type": "TextBox",
                     "offset": [
-                        133,
-                        150
+                        292.68703898840886,
+                        176.27118644067798
                     ],
                     "optional": [
-                        0.871875,
-                        0.38055555555555554
+                        0.7692307692307693,
+                        0.4538606403013183
                     ],
                     "custom": {
                         "textAlign": "center",
@@ -134,18 +144,18 @@
                         "thickness": 14,
                         "fontSize": 26
                     },
-                    "text": "1_TextBox_0"
+                    "text": "2_TextBox_0"
                 },
                 {
                     "widgetPath": "TutorialAnnotator/BlankPage",
                     "type": "TextBox",
                     "offset": [
-                        133,
-                        285
+                        292.68703898840886,
+                        357.96610169491527
                     ],
                     "optional": [
-                        0.871875,
-                        0.5069444444444444
+                        0.7692307692307693,
+                        0.8455743879472694
                     ],
                     "custom": {
                         "textAlign": "center",
@@ -156,63 +166,9 @@
                         "thickness": 14,
                         "fontSize": 20
                     },
-                    "text": "1_TextBox_1"
-                },
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        132.18124341412013,
-                        367.45762711864404
-                    ],
-                    "optional": [
-                        0.8714436248682824,
-                        0.5819209039548022
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
-                    "penSettings": {
-                        "color": "#ffffff",
-                        "thickness": 14,
-                        "fontSize": 18
-                    },
-                    "text": "1_TextBox_2"
-                },
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        132.18124341412013,
-                        423.0508474576271
-                    ],
-                    "optional": [
-                        0.8714436248682824,
-                        0.832391713747646
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
-                    "penSettings": {
-                        "color": "#ffffff",
-                        "thickness": 14,
-                        "fontSize": 16
-                    },
-                    "text": "1_TextBox_3"
+                    "text": "2_TextBox_1"
                 }
             ]
-        },
-        {
-            "ImagePath": "2_Goal.png",
-            "SlideCode": [
-                "0/0"
-            ],
-            "SlideLayout": "Screenshot",
-            "SlideTitle": "2_Goal_title",
-            "SlideDesc": "2_Goal_body",
-            "Annotations": []
         },
         {
             "ImagePath": "3_slide.png",
@@ -305,7 +261,7 @@
                     "type": "TextBox",
                     "offset": [
                         292.68703898840886,
-                        357.96610169491527
+                        359.32203389830505
                     ],
                     "optional": [
                         0.7692307692307693,
@@ -325,68 +281,13 @@
             ]
         },
         {
-            "ImagePath": "5_slide.png",
-            "SlideCode": [
-                "0/0"
-            ],
-            "SlideLayout": "Text",
-            "SlideTitle": "5_slide_title",
-            "SlideDesc": "5_slide_body",
-            "Annotations": [
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        292.68703898840886,
-                        176.27118644067798
-                    ],
-                    "optional": [
-                        0.7692307692307693,
-                        0.4538606403013183
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#FFFFFF"
-                    },
-                    "penSettings": {
-                        "color": "#a8d0e6",
-                        "thickness": 14,
-                        "fontSize": 26
-                    },
-                    "text": "5_TextBox_0"
-                },
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        292.68703898840886,
-                        359.32203389830505
-                    ],
-                    "optional": [
-                        0.7692307692307693,
-                        0.8455743879472694
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
-                    "penSettings": {
-                        "color": "#ffffff",
-                        "thickness": 14,
-                        "fontSize": 20
-                    },
-                    "text": "5_TextBox_1"
-                }
-            ]
-        },
-        {
-            "ImagePath": "6_WelcometoSlicer.png",
+            "ImagePath": "5_WelcometoSlicer.png",
             "SlideCode": [
                 "1/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "6_WelcometoSlicer_title",
-            "SlideDesc": "6_WelcometoSlicer_body",
+            "SlideTitle": "5_WelcometoSlicer_title",
+            "SlideDesc": "5_WelcometoSlicer_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/WelcomeModuleWidget/WelcomeAndAboutCollapsibleWidget/aboutTextBrowser/qt_scrollarea_viewport",
@@ -405,7 +306,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "6_Arrow_0"
+                    "text": "5_Arrow_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -428,18 +329,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "6_TextBox_1"
+                    "text": "5_TextBox_1"
                 }
             ]
         },
         {
-            "ImagePath": "7_SlicerUserInterface.png",
+            "ImagePath": "6_SlicerUserInterface.png",
             "SlideCode": [
                 "2/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "7_SlicerUserInterface_title",
-            "SlideDesc": "7_SlicerUserInterface_body",
+            "SlideTitle": "6_SlicerUserInterface_title",
+            "SlideDesc": "6_SlicerUserInterface_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/ModuleToolBar/QToolButton:2",
@@ -458,18 +359,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_ArrowText_0"
+                    "text": "6_ArrowText_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
                     "type": "TextBox",
                     "offset": [
-                        281.8598524762908,
-                        23.851145038167942
+                        242.74499473129606,
+                        144.40677966101697
                     ],
                     "optional": [
-                        0.8693361433087461,
-                        0.6030534351145038
+                        0.8314014752370916,
+                        0.6817325800376648
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -481,7 +382,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_TextBox_1"
+                    "text": "6_TextBox_1"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/WelcomeModuleWidget",
@@ -500,7 +401,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_Rectangle_2"
+                    "text": "6_Rectangle_2"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/DataProbeCollapsibleWidget",
@@ -523,7 +424,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_TextBox_3"
+                    "text": "6_TextBox_3"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/DataProbeCollapsibleWidget",
@@ -542,7 +443,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_Arrow_4"
+                    "text": "6_Arrow_4"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -565,7 +466,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_TextBox_5"
+                    "text": "6_TextBox_5"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetYellow/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -584,18 +485,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "7_ArrowText_6"
+                    "text": "6_ArrowText_6"
                 }
             ]
         },
         {
-            "ImagePath": "8_WelcomeModule.png",
+            "ImagePath": "7_WelcomeModule.png",
             "SlideCode": [
                 "3/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "8_WelcomeModule_title",
-            "SlideDesc": "8_WelcomeModule_body",
+            "SlideTitle": "7_WelcomeModule_title",
+            "SlideDesc": "7_WelcomeModule_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/WelcomeModuleWidget/OtherUsefulHintsCollapsibleWidget/documentationTextBrowser/qt_scrollarea_viewport",
@@ -614,7 +515,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "8_Arrow_0"
+                    "text": "7_Arrow_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -637,18 +538,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "8_TextBox_1"
+                    "text": "7_TextBox_1"
                 }
             ]
         },
         {
-            "ImagePath": "9_WelcomeModule.png",
+            "ImagePath": "8_WelcomeModule.png",
             "SlideCode": [
                 "3/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "9_WelcomeModule_title",
-            "SlideDesc": "9_WelcomeModule_body",
+            "SlideTitle": "8_WelcomeModule_title",
+            "SlideDesc": "8_WelcomeModule_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -671,18 +572,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "9_TextBox_0"
+                    "text": "8_TextBox_0"
                 }
             ]
         },
         {
-            "ImagePath": "10_SampleData.png",
+            "ImagePath": "9_SampleData.png",
             "SlideCode": [
                 "4/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "10_SampleData_title",
-            "SlideDesc": "10_SampleData_body",
+            "SlideTitle": "9_SampleData_title",
+            "SlideDesc": "9_SampleData_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/HelpCollapsibleButton",
@@ -701,7 +602,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "10_Arrow_0"
+                    "text": "9_Arrow_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDViewControllerWidget:0/BarWidget/CenterButton_Header",
@@ -724,18 +625,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "10_TextBox_1"
+                    "text": "9_TextBox_1"
                 }
             ]
         },
         {
-            "ImagePath": "11_SampleData.png",
+            "ImagePath": "10_SampleData.png",
             "SlideCode": [
                 "4/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "11_SampleData_title",
-            "SlideDesc": "11_SampleData_body",
+            "SlideTitle": "10_SampleData_title",
+            "SlideDesc": "10_SampleData_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/HelpCollapsibleButton",
@@ -758,7 +659,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "11_TextBox_0"
+                    "text": "10_TextBox_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
@@ -781,7 +682,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "11_TextBox_1"
+                    "text": "10_TextBox_1"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox/DTIBrainPushButton",
@@ -804,7 +705,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "11_TextBox_2"
+                    "text": "10_TextBox_2"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -827,7 +728,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "11_TextBox_3"
+                    "text": "10_TextBox_3"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -850,18 +751,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "11_TextBox_4"
+                    "text": "10_TextBox_4"
                 }
             ]
         },
         {
-            "ImagePath": "12_SampleData.png",
+            "ImagePath": "11_SampleData.png",
             "SlideCode": [
                 "4/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "12_SampleData_title",
-            "SlideDesc": "12_SampleData_body",
+            "SlideTitle": "11_SampleData_title",
+            "SlideDesc": "11_SampleData_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox/MRHeadPushButton",
@@ -880,18 +781,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "12_ArrowText_0"
+                    "text": "11_ArrowText_0"
                 }
             ]
         },
         {
-            "ImagePath": "13_WelcomeModule.png",
+            "ImagePath": "12_WelcomeModule.png",
             "SlideCode": [
                 "5/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "13_WelcomeModule_title",
-            "SlideDesc": "13_WelcomeModule_body",
+            "SlideTitle": "12_WelcomeModule_title",
+            "SlideDesc": "12_WelcomeModule_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
@@ -914,19 +815,19 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "13_TextBox_0"
+                    "text": "12_TextBox_0"
                 }
             ]
         },
         {
-            "ImagePath": "14_MRBrainSampleDataset.png",
+            "ImagePath": "13_MRBrainSampleDataset.png",
             "SlideCode": [
                 "6/0",
                 "6/1"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "14_MRBrainSampleDataset_title",
-            "SlideDesc": "14_MRBrainSampleDataset_body",
+            "SlideTitle": "13_MRBrainSampleDataset_title",
+            "SlideDesc": "13_MRBrainSampleDataset_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox/DTIBrainPushButton",
@@ -949,7 +850,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "14_TextBox_0"
+                    "text": "13_TextBox_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget/MoreButton",
@@ -968,19 +869,19 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "14_Arrow_1"
+                    "text": "13_Arrow_1"
                 }
             ]
         },
         {
-            "ImagePath": "15_MRBrainSampleDataset.png",
+            "ImagePath": "14_MRBrainSampleDataset.png",
             "SlideCode": [
                 "6/0",
                 "6/1"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "15_MRBrainSampleDataset_title",
-            "SlideDesc": "15_MRBrainSampleDataset_body",
+            "SlideTitle": "14_MRBrainSampleDataset_title",
+            "SlideDesc": "14_MRBrainSampleDataset_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/SliceController/qMRMLSliceControllerWidget/LabelMapVisibilityButton",
@@ -999,7 +900,7 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "15_Arrow_0"
+                    "text": "14_Arrow_0"
                 },
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
@@ -1022,18 +923,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "15_TextBox_1"
+                    "text": "14_TextBox_1"
                 }
             ]
         },
         {
-            "ImagePath": "16_MRBrainSampleDataset.png",
+            "ImagePath": "15_MRBrainSampleDataset.png",
             "SlideCode": [
                 "7/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "16_MRBrainSampleDataset_title",
-            "SlideDesc": "16_MRBrainSampleDataset_body",
+            "SlideTitle": "15_MRBrainSampleDataset_title",
+            "SlideDesc": "15_MRBrainSampleDataset_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox/CTACardioPushButton",
@@ -1056,18 +957,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "16_TextBox_0"
+                    "text": "15_TextBox_0"
                 }
             ]
         },
         {
-            "ImagePath": "17_GoingFurther.png",
+            "ImagePath": "16_GoingFurther.png",
             "SlideCode": [
                 "8/0"
             ],
             "SlideLayout": "Screenshot",
-            "SlideTitle": "17_GoingFurther_title",
-            "SlideDesc": "17_GoingFurther_body",
+            "SlideTitle": "16_GoingFurther_title",
+            "SlideDesc": "16_GoingFurther_body",
             "Annotations": [
                 {
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetGreen/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
@@ -1090,18 +991,18 @@
                         "thickness": 4,
                         "fontSize": 24
                     },
-                    "text": "17_TextBox_0"
+                    "text": "16_TextBox_0"
                 }
             ]
         },
         {
-            "ImagePath": "18_slide.png",
+            "ImagePath": "17_slide.png",
             "SlideCode": [
                 "0/0"
             ],
             "SlideLayout": "Text",
-            "SlideTitle": "18_slide_title",
-            "SlideDesc": "18_slide_body",
+            "SlideTitle": "17_slide_title",
+            "SlideDesc": "17_slide_body",
             "Annotations": [
                 {
                     "widgetPath": "TutorialAnnotator/BlankPage",
@@ -1113,6 +1014,61 @@
                     "optional": [
                         0.7692307692307693,
                         0.4538606403013183
+                    ],
+                    "custom": {
+                        "textAlign": "center",
+                        "textColor": "#FFFFFF"
+                    },
+                    "penSettings": {
+                        "color": "#a8d0e6",
+                        "thickness": 14,
+                        "fontSize": 26
+                    },
+                    "text": "17_TextBox_0"
+                },
+                {
+                    "widgetPath": "TutorialAnnotator/BlankPage",
+                    "type": "TextBox",
+                    "offset": [
+                        292.68703898840886,
+                        357.96610169491527
+                    ],
+                    "optional": [
+                        0.7692307692307693,
+                        0.8455743879472694
+                    ],
+                    "custom": {
+                        "textAlign": "center",
+                        "textColor": "#7F7F7F"
+                    },
+                    "penSettings": {
+                        "color": "#ffffff",
+                        "thickness": 14,
+                        "fontSize": 20
+                    },
+                    "text": "17_TextBox_1"
+                }
+            ]
+        },
+        {
+            "ImagePath": "18_slide.png",
+            "SlideCode": [
+                "0/0"
+            ],
+            "SlideLayout": "Acknowledgment",
+            "SlideTitle": "18_slide_title",
+            "SlideDesc": "18_slide_body",
+            "Annotations": [
+                {
+                    "widgetPath": "TutorialAnnotator/BlankPage",
+                    "type": "TextBox",
+                    "offset": [
+                        294,
+                        177
+                    ],
+                    "optional": [
+                        0.76953125,
+                        0.45416666666666666
                     ],
                     "custom": {
                         "textAlign": "center",
@@ -1146,61 +1102,6 @@
                         "fontSize": 20
                     },
                     "text": "18_TextBox_1"
-                }
-            ]
-        },
-        {
-            "ImagePath": "19_slide.png",
-            "SlideCode": [
-                "0/0"
-            ],
-            "SlideLayout": "Acknowledgment",
-            "SlideTitle": "19_slide_title",
-            "SlideDesc": "19_slide_body",
-            "Annotations": [
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        294,
-                        177
-                    ],
-                    "optional": [
-                        0.76953125,
-                        0.45416666666666666
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#FFFFFF"
-                    },
-                    "penSettings": {
-                        "color": "#a8d0e6",
-                        "thickness": 14,
-                        "fontSize": 26
-                    },
-                    "text": "19_TextBox_0"
-                },
-                {
-                    "widgetPath": "TutorialAnnotator/BlankPage",
-                    "type": "TextBox",
-                    "offset": [
-                        292.68703898840886,
-                        357.96610169491527
-                    ],
-                    "optional": [
-                        0.7692307692307693,
-                        0.8455743879472694
-                    ],
-                    "custom": {
-                        "textAlign": "center",
-                        "textColor": "#7F7F7F"
-                    },
-                    "penSettings": {
-                        "color": "#ffffff",
-                        "thickness": 14,
-                        "fontSize": 20
-                    },
-                    "text": "19_TextBox_1"
                 }
             ]
         }
