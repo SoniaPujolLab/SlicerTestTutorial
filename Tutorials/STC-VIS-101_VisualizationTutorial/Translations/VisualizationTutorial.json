@@ -2007,7 +2007,7 @@
                     "text": "42_Arrow_1"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/ClippingButton/MRMLClipNodeDisplayWidget/checkBox_Clipping",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/DisplayButton/ModelDisplayWidget/RepresentationCollapsibleGroupBox/ClippingCheckBox",
                     "type": "ArrowText",
                     "offset": [
                         -1.811056682995087,

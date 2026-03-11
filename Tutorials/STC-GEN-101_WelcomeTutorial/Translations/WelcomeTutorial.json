@@ -365,12 +365,12 @@
                     "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
                     "type": "TextBox",
                     "offset": [
-                        242.74499473129606,
-                        144.40677966101697
+                        283.32330300909734,
+                        110.52569169960475
                     ],
                     "optional": [
-                        0.8314014752370916,
-                        0.6817325800376648
+                        0.8880335899230231,
+                        0.7747035573122529
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -639,15 +639,15 @@
             "SlideDesc": "10_SampleData_body",
             "Annotations": [
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/HelpCollapsibleButton",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox",
                     "type": "TextBox",
                     "offset": [
-                        153.7618545837724,
-                        25.603053435114504
+                        29.559132260321903,
+                        -62.52964426877472
                     ],
                     "optional": [
-                        0.14014752370916755,
-                        0.32061068702290074
+                        0.22463261021693492,
+                        0.6627140974967062
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -662,15 +662,15 @@
                     "text": "10_TextBox_0"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/ThreeDWidget1/qMRMLThreeDView:0/ctkVTKOpenGLNativeWidget:0",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox",
                     "type": "TextBox",
                     "offset": [
-                        93.02950474183348,
-                        74.00381679389312
+                        204.22673198040587,
+                        -61.189723320158095
                     ],
                     "optional": [
-                        0.5922023182297155,
-                        0.4866412213740459
+                        0.3093072078376487,
+                        0.6561264822134387
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -685,15 +685,15 @@
                     "text": "10_TextBox_1"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox/DTIBrainPushButton",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox",
                     "type": "TextBox",
                     "offset": [
-                        -154.55848261327714,
-                        3.9535315985129955
+                        353.3659902029391,
+                        -62.52964426877472
                     ],
                     "optional": [
-                        0.20459146825161909,
-                        0.6447401507377177
+                        0.4324702589223233,
+                        0.7075098814229249
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -708,15 +708,15 @@
                     "text": "10_TextBox_2"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox",
                     "type": "TextBox",
                     "offset": [
-                        -44.546891464699684,
-                        -79.9830508474576
+                        493.1000699790063,
+                        318.0079051383399
                     ],
                     "optional": [
-                        0.6680716543730242,
-                        0.664783427495292
+                        0.6396081175647306,
+                        0.9341238471673254
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -731,15 +731,15 @@
                     "text": "10_TextBox_3"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0/QWidget:0/qMRMLSliceWidgetRed/frame/SliceView/ctkVTKOpenGLNativeWidget:0",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/SampleDataModuleWidget/GeneralCollapsibleGroupBox",
                     "type": "TextBox",
                     "offset": [
-                        -49.94204425711274,
-                        132.43129770992368
+                        30.902729181245626,
+                        308.62845849802363
                     ],
                     "optional": [
-                        0.541622760800843,
-                        0.847328244274809
+                        0.28481455563331,
+                        0.9104084321475626
                     ],
                     "custom": {
                         "textColor": "#000000",
