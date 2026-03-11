@@ -88,12 +88,12 @@ jobs:
                   echo "  ⚠️  No default translation file found, skipping translation check"
                 else
                   # Count keys in default file with non-empty values (baseline for 100%)
-                  # This filters out keys with empty strings ("key": "") or whitespace-only values
-                  default_keys_count=$(grep -oP '"[^"]+"\s*:\s*"[^\s"].*?"' "$default_file" | wc -l)
+                  # Use Python JSON parsing to avoid grep-based false positives
+                    default_keys_count=$(python3 -c "import json,sys; data=json.load(open(sys.argv[1], encoding='utf-8')); norm=lambda v: str(v).strip() if v is not None else ''; print(sum(1 for v in data.values() if norm(v)))" "$default_file")
                   echo "  Default translation has $default_keys_count keys (with non-empty values)"
-                  
-                  # Calculate minimum required keys (90% threshold)
-                  min_required_keys=$(echo "$default_keys_count * 0.9" | bc | cut -d. -f1)
+
+                  # Calculate minimum required keys (90% threshold, rounded up)
+                  min_required_keys=$(( (default_keys_count * 90 + 99) / 100 ))
                   echo "  Minimum required keys for 90%: $min_required_keys"
                 fi
                 
@@ -106,19 +106,23 @@ jobs:
                       lang_code="${BASH_REMATCH[1]}"
                       # Skip default
                       if [[ "$lang_code" != "default" ]]; then
-                        # Check if translation is at least 90% complete
+                        # Check if translation is at least 90% complete and not equal to English default values
                         if [[ -f "$default_file" ]]; then
-                          # Count keys with non-empty values in the language file
-                          lang_keys_count=$(grep -oP '"[^"]+"\s*:\s*"[^\s"].*?"' "$dict_file" | wc -l)
-                          
-                          # Calculate completion percentage
+                          # Read translation metrics from Python:
+                          # default_keys_count lang_non_empty_count lang_different_count same_as_default_count
+                            metrics=$(python3 -c "import json,sys; default=json.load(open(sys.argv[1], encoding='utf-8')); lang=json.load(open(sys.argv[2], encoding='utf-8')); norm=lambda v: str(v).strip() if v is not None else ''; keys=[k for k,v in default.items() if norm(v)]; vals=[norm(lang.get(k,'')) for k in keys]; defs=[norm(default.get(k,'')) for k in keys]; non_empty=sum(1 for v in vals if v); same=sum(1 for v,d in zip(vals,defs) if v and v==d); diff=sum(1 for v,d in zip(vals,defs) if v and v!=d); print(len(keys), non_empty, diff, same)" "$default_file" "$dict_file")
+
+                          read -r default_keys_count lang_non_empty_count lang_different_count same_as_default_count <<< "$metrics"
+
+                          # Calculate completion percentage based on keys translated to values different from English
                           if [[ $default_keys_count -gt 0 ]]; then
-                            completion_pct=$(echo "scale=1; $lang_keys_count * 100 / $default_keys_count" | bc)
-                            echo "  $lang_code: $lang_keys_count/$default_keys_count keys ($completion_pct%)"  
-                            
-                            # Only include if >= 90% complete
-                            if [[ $lang_keys_count -ge $min_required_keys ]]; then
-                              echo "    ✅ $lang_code is sufficiently translated (>= 90%)"  
+                            completion_pct=$(python3 -c "import sys; numerator=int(sys.argv[1]); denominator=int(sys.argv[2]); print(f'{(numerator * 100 / denominator):.1f}')" "$lang_different_count" "$default_keys_count")
+                            echo "  $lang_code: $lang_different_count/$default_keys_count keys translated and different from English ($completion_pct%)"
+                            echo "    Non-empty values: $lang_non_empty_count | Equal to English: $same_as_default_count"
+
+                            # Include only if >= 90% translated and no value remains identical to English
+                            if [[ $lang_different_count -ge $min_required_keys && $same_as_default_count -eq 0 ]]; then
+                              echo "    ✅ $lang_code is sufficiently translated (>= 90% and all translated values differ from English)"
                               
                               if [[ -z "$available_languages" ]]; then
                                 available_languages="$lang_code"
@@ -129,7 +133,7 @@ jobs:
                                 fi
                               fi
                             else
-                              echo "    ⚠️  $lang_code skipped (< 90% translated)"
+                              echo "    ⚠️  $lang_code skipped (needs >= 90% translated-different values and 0 values equal to English)"
                             fi
                           fi
                         else

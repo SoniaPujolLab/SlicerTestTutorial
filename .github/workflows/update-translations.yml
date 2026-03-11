@@ -67,7 +67,25 @@ jobs:
         # Check if manually triggered with specific files
         if [[ -n "${{ github.event.inputs.translation_files }}" ]]; then
           echo "Manual trigger with specific files: ${{ github.event.inputs.translation_files }}"
-          RELEVANT_FILES="${{ github.event.inputs.translation_files }}"
+          RELEVANT_FILES=""
+          IFS=',' read -ra MANUAL_FILES <<< "${{ github.event.inputs.translation_files }}"
+          for manual_file in "${MANUAL_FILES[@]}"; do
+            if [[ -z "$manual_file" ]]; then
+              continue
+            fi
+
+            # Ignore generic English translations (en); keep en-US/en_US
+            if [[ "$manual_file" =~ _([eE][nN])\.ts$ ]]; then
+              echo "Skipping generic English file (manual input): $manual_file"
+              continue
+            fi
+
+            if [[ -n "$RELEVANT_FILES" ]]; then
+              RELEVANT_FILES="$RELEVANT_FILES,$manual_file"
+            else
+              RELEVANT_FILES="$manual_file"
+            fi
+          done
         else
           # Find ALL translation files for our tutorials (not just changed ones)
           echo "Scanning for all translation files matching our tutorials..."
@@ -86,6 +104,13 @@ jobs:
                   language_raw="${BASH_REMATCH[2]}"
                   # Normalize language format
                   language=$(echo "$language_raw" | sed 's/_/-/g')
+
+                  # Ignore generic English translations (en); keep en-US/en_US
+                  if [[ "$language" == "en" ]]; then
+                    echo "Skipping generic English file: $file"
+                    continue
+                  fi
+
                   echo "Found matching file: $file (Tutorial: $tutorial_id, Language: $language)"
                   
                   if [[ -n "$RELEVANT_FILES" ]]; then
@@ -131,6 +156,13 @@ jobs:
           if [[ "$file" =~ ^([^_]+)_([a-z]{2}[_-][A-Z]{2}|[a-z]{2})\.ts$ ]]; then
             tutorial_id="${BASH_REMATCH[1]}"
             language_raw="${BASH_REMATCH[2]}"
+            language_normalized=$(echo "$language_raw" | sed 's/_/-/g')
+
+            # Ignore generic English translations (en); keep en-US/en_US
+            if [[ "$language_normalized" == "en" ]]; then
+              echo "Skipping generic English file during processing: $file"
+              continue
+            fi
             
             # Keep language format as-is (Qt uses underscores: pt_BR, en_US, es_419)
             language="$language_raw"

@@ -41,13 +41,47 @@ def load_existing_translations(ts_path):
                     # Preserve translation if it has content, regardless of type (finished or unfinished)
                     if translation_elem is not None:
                         translation_text = translation_elem.text or ""
+                        translation_type = translation_elem.get("type", "finished")
                         if translation_text.strip():  # Only preserve if there's actual content
-                            translations[key] = (source_text, translation_text)
+                            translations[key] = (source_text, translation_text, translation_type)
         
         return translations
     except Exception as e:
         print(f"Warning: Could not load existing translations from {ts_path}: {e}")
         return {}
+
+def restore_translations(ts_path, existing_translations):
+    """Restore translations into a freshly generated TS file"""
+    try:
+        tree = ET.parse(ts_path)
+        root = tree.getroot()
+        
+        restored_count = 0
+        for context in root.findall("context"):
+            for message in context.findall("message"):
+                extracomment_elem = message.find("extracomment")
+                translation_elem = message.find("translation")
+                
+                if extracomment_elem is not None and translation_elem is not None:
+                    key = extracomment_elem.text
+                    
+                    # If we have a saved translation for this key, restore it
+                    if key in existing_translations:
+                        old_source, translation_text, translation_type = existing_translations[key]
+                        
+                        # Restore the translation
+                        translation_elem.text = translation_text
+                        translation_elem.set("type", translation_type)
+                        restored_count += 1
+        
+        # Write the updated TS file
+        tree.write(ts_path, encoding='utf-8', xml_declaration=True)
+        
+        if restored_count > 0:
+            print(f"[INFO] Restored {restored_count} existing translations")
+        
+    except Exception as e:
+        print(f"[WARNING] Could not restore translations: {e}")
 
 # ------------------------
 # JSON -> temporary .cpp
@@ -200,30 +234,35 @@ def create_ts_manually(temp_cpp, ts_output, language="en-US", context_name="Tuto
 # Run lupdate
 # ------------------------
 def run_lupdate(temp_cpp, ts_output, lupdate_path="lupdate", target_language=None):
-    """Run lupdate to generate/update TS file. Converts hyphen to underscore for lupdate compatibility."""
+    """
+    Run lupdate to generate/update TS file.
     
-    # If we have a target language with hyphen (e.g., pt-BR, es-419), convert to underscore for lupdate
-    # lupdate expects underscore format (pt_BR, es_419), we'll fix it back to hyphen in post_process
-    lupdate_lang = target_language.replace('-', '_') if target_language else None
+    lupdate doesn't update source text when it changes, so we need to:
+    1. Save existing translations
+    2. Delete the old .ts file
+    3. Run lupdate to generate fresh .ts with correct source text
+    4. Restore translations into the new file
+    """
     
-    if lupdate_lang and lupdate_lang != target_language:
-        temp_ts_output = ts_output.replace(f"_{target_language}.ts", f"_{lupdate_lang}.ts")
-        
-        original_exists = os.path.exists(ts_output)
-        if original_exists:
-            os.replace(ts_output, temp_ts_output)
-        
-        cmd = [lupdate_path, temp_cpp, "-ts", temp_ts_output]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        
-        # Rename back to hyphen format
-        if os.path.exists(temp_ts_output):
-            os.replace(temp_ts_output, ts_output)
+    # Save existing translations before regenerating
+    existing_translations = load_existing_translations(ts_output)
+    
+    # Delete old .ts file to force lupdate to regenerate with correct source text
+    if os.path.exists(ts_output):
+        os.remove(ts_output)
+    
+    # Run lupdate to generate fresh .ts file
+    cmd = [lupdate_path, temp_cpp, "-ts", ts_output]
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    
+    # Restore translations if we had any
+    if existing_translations:
+        restore_translations(ts_output, existing_translations)
+        preserved_count = len(existing_translations)
+        print(f"[OK] TS file generated: {ts_output} (preserved {preserved_count} translations)")
     else:
-        cmd = [lupdate_path, temp_cpp, "-ts", ts_output]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        print(f"[OK] TS file generated: {ts_output}")
     
-    print(f"[OK] TS file generated: {ts_output}")
     return True
 
 def post_process_ts_file(ts_path, original_json_path, target_language=None):
@@ -244,6 +283,9 @@ def post_process_ts_file(ts_path, original_json_path, target_language=None):
         # Also replace any full temp paths
         pattern2 = r'filename="[^"]*[/\\][^/\\]*temp\.cpp"'
         content = re.sub(pattern2, replacement, content)
+        
+        # Fix context name from "Main" to "TutorialMaker"
+        content = re.sub(r'<name>Main</name>', '<name>TutorialMaker</name>', content)
         
         # Fix language code format: use hyphen instead of underscore, and don't add region if not needed
         if target_language:
