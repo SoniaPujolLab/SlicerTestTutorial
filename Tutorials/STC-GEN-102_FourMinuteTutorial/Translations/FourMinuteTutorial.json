@@ -309,15 +309,15 @@
                     "text": "5_Arrow_0"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/DataProbeCollapsibleWidget/QFrame:0/QFrame:2/QLabel:3",
+                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/LogoLabel",
                     "type": "TextBox",
                     "offset": [
-                        -1.9315068493150704,
-                        -58.4406779661017
+                        49.713086074177745,
+                        54.43083003952569
                     ],
                     "optional": [
-                        0.4214963119072708,
-                        0.6101694915254238
+                        0.5591322603219034,
+                        0.69433465085639
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -435,15 +435,15 @@
             "SlideDesc": "8_3Dvisualization_body",
             "Annotations": [
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/DataProbeCollapsibleWidget/QFrame:0/QFrame:2/QLabel:3",
+                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0",
                     "type": "TextBox",
                     "offset": [
-                        8.858798735511066,
-                        -91.7966101694916
+                        120.74807557732686,
+                        51.75098814229247
                     ],
                     "optional": [
-                        0.8577449947312961,
-                        0.9058380414312618
+                        0.988103568929321,
+                        0.8603425559947299
                     ],
                     "custom": {
                         "textColor": "#000000",
@@ -532,25 +532,6 @@
                         "fontSize": 24
                     },
                     "text": "9_TextBox_1"
-                },
-                {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/ModulePanel/ScrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/ModelsModuleWidget/DisplayButton",
-                    "type": "Selecting",
-                    "offset": [
-                        0.0,
-                        -0.1355932203389898
-                    ],
-                    "optional": [
-                        0.06743940990516333,
-                        0.5216572504708098
-                    ],
-                    "custom": {},
-                    "penSettings": {
-                        "color": "#ffe98f",
-                        "thickness": 4,
-                        "fontSize": 24
-                    },
-                    "text": "9_Selecting_2"
                 }
             ]
         },
@@ -587,15 +568,15 @@
                     "text": "10_TextBox_0"
                 },
                 {
-                    "widgetPath": "qSlicerMainWindow/PanelDockWidget/dockWidgetContents/DataProbeCollapsibleWidget/QFrame:0/QFrame:2/QLabel:3",
+                    "widgetPath": "qSlicerMainWindow/CentralWidget/CentralWidgetLayoutFrame/QSplitter:0",
                     "type": "TextBox",
                     "offset": [
-                        -0.5827186512118061,
-                        -1.4576271186440408
+                        147.6200139958013,
+                        71.8498023715415
                     ],
                     "optional": [
-                        0.45205479452054786,
-                        0.7777777777777778
+                        0.9650104968509449,
+                        0.6205533596837944
                     ],
                     "custom": {
                         "textColor": "#000000",
