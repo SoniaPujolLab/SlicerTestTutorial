@@ -12,8 +12,8 @@ import tempfile
 import subprocess
 from pathlib import Path
 
-# Default settings - Qt/Slicer uses underscores in language codes
-DEFAULT_LANGUAGES = ["pt_BR", "es_419", "fr_FR"]
+# Default settings 
+DEFAULT_LANGUAGES = ["pt-BR", "es-419"]
 SLICER_TIMEOUT = 300  # 5 minutes timeout per test
 
 class TutorialTestRunner:

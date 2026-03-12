@@ -31,7 +31,7 @@ on:
 
 env:
   SLICER_VERSION: '5.10.0'
-  DEFAULT_LANGUAGES: 'pt_BR es_419'
+  DEFAULT_LANGUAGES: 'pt-BR es-419'
   SCREEN_RESOLUTION: '1920x1080'
   PIP_NO_CACHE_DIR: '1'
   PYTHONUNBUFFERED: '1'
@@ -92,9 +92,9 @@ jobs:
                     default_keys_count=$(python3 -c "import json,sys; data=json.load(open(sys.argv[1], encoding='utf-8')); norm=lambda v: str(v).strip() if v is not None else ''; print(sum(1 for v in data.values() if norm(v)))" "$default_file")
                   echo "  Default translation has $default_keys_count keys (with non-empty values)"
 
-                  # Calculate minimum required keys (90% threshold, rounded up)
-                  min_required_keys=$(( (default_keys_count * 90 + 99) / 100 ))
-                  echo "  Minimum required keys for 90%: $min_required_keys"
+                  # Calculate minimum required keys (80% threshold, rounded up)
+                  min_required_keys=$(( (default_keys_count * 80 + 99) / 100 ))
+                  echo "  Minimum required keys for 80%: $min_required_keys"
                 fi
                 
                 # Find all text_dict_*.json files except default
@@ -106,8 +106,19 @@ jobs:
                       lang_code="${BASH_REMATCH[1]}"
                       # Skip default
                       if [[ "$lang_code" != "default" ]]; then
-                        # Check if translation is at least 90% complete and not equal to English default values
-                        if [[ -f "$default_file" ]]; then
+                        # Always include en-US (English)
+                        if [[ "$lang_code" == "en-US" ]]; then
+                          echo "    ✅ en-US is always included (English)"
+                          
+                          if [[ -z "$available_languages" ]]; then
+                            available_languages="$lang_code"
+                          else
+                            if [[ ! " $available_languages " =~ " $lang_code " ]]; then
+                              available_languages="$available_languages $lang_code"
+                            fi
+                          fi
+                        # Check if translation is at least 80% complete and not equal to English default values
+                        elif [[ -f "$default_file" ]]; then
                           # Read translation metrics from Python:
                           # default_keys_count lang_non_empty_count lang_different_count same_as_default_count
                             metrics=$(python3 -c "import json,sys; default=json.load(open(sys.argv[1], encoding='utf-8')); lang=json.load(open(sys.argv[2], encoding='utf-8')); norm=lambda v: str(v).strip() if v is not None else ''; keys=[k for k,v in default.items() if norm(v)]; vals=[norm(lang.get(k,'')) for k in keys]; defs=[norm(default.get(k,'')) for k in keys]; non_empty=sum(1 for v in vals if v); same=sum(1 for v,d in zip(vals,defs) if v and v==d); diff=sum(1 for v,d in zip(vals,defs) if v and v!=d); print(len(keys), non_empty, diff, same)" "$default_file" "$dict_file")
@@ -120,9 +131,9 @@ jobs:
                             echo "  $lang_code: $lang_different_count/$default_keys_count keys translated and different from English ($completion_pct%)"
                             echo "    Non-empty values: $lang_non_empty_count | Equal to English: $same_as_default_count"
 
-                            # Include only if >= 90% translated and no value remains identical to English
+                            # Include only if >= 80% translated and no value remains identical to English
                             if [[ $lang_different_count -ge $min_required_keys && $same_as_default_count -eq 0 ]]; then
-                              echo "    ✅ $lang_code is sufficiently translated (>= 90% and all translated values differ from English)"
+                              echo "    ✅ $lang_code is sufficiently translated (>= 80% and all translated values differ from English)"
                               
                               if [[ -z "$available_languages" ]]; then
                                 available_languages="$lang_code"
@@ -133,7 +144,7 @@ jobs:
                                 fi
                               fi
                             else
-                              echo "    ⚠️  $lang_code skipped (needs >= 90% translated-different values and 0 values equal to English)"
+                              echo "    ⚠️  $lang_code skipped (needs >= 80% translated-different values and 0 values equal to English)"
                             fi
                           fi
                         else
@@ -152,12 +163,11 @@ jobs:
                 done
               fi
               
-              # If no languages found, use defaults
+              # Display available languages (note: en-US is always included separately)
               if [[ -z "$available_languages" ]]; then
-                available_languages="${{ env.DEFAULT_LANGUAGES }}"
-                echo "  No translations found, using defaults: $available_languages"
+                echo "  No additional translations found (en-US will be included automatically)"
               else
-                echo "  Available languages: $available_languages"
+                echo "  Additional languages: $available_languages"
               fi
               
               if [[ $tutorial_count -gt 0 ]]; then
