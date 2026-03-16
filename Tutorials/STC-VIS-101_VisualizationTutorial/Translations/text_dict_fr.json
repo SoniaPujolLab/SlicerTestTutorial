@@ -81,7 +81,7 @@
   "37_ArrowText_1": "Sélectionnez le module Modèles dans la liste des modèles",
   "38_ArrowText_0": "Réduisez l’opacité du modèle Skin en utilisant le curseur de visibilité",
   "39_ArrowText_0": "Slicer affiche la liste des modèles 3D chargés dans la scène.\n\nSélectionnez le modèle Skin.vtk",
-  "39_TextBox_1": "The skull bone and \neyeballs models appear \nthrough the skin",
+  "39_TextBox_1": "L’os du crâne et \ndes modèles oculaires apparaissent \nà travers la peau",
   "40_ArrowText_1": "Sélectionnez le modèle skull bone et cliquez sur l’icône Eye pour désactiver sa visibilité",
   "40_TextBox_2": "Les modèles de la matière blanche et du nerf optique apparaissent à travers la peau",
   "41_Interactingwith3Dmodels_title": "Interaction avec les modèles 3D",
