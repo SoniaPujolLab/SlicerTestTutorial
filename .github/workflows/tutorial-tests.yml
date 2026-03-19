@@ -117,7 +117,7 @@ jobs:
                               available_languages="$available_languages $lang_code"
                             fi
                           fi
-                        # Check if translation is at least 80% complete and not equal to English default values
+                        # Check if translation is at least 80% complete and allows up to 10% equal to English values
                         elif [[ -f "$default_file" ]]; then
                           # Read translation metrics from Python:
                           # default_keys_count lang_non_empty_count lang_different_count same_as_default_count
@@ -128,12 +128,14 @@ jobs:
                           # Calculate completion percentage based on keys translated to values different from English
                           if [[ $default_keys_count -gt 0 ]]; then
                             completion_pct=$(python3 -c "import sys; numerator=int(sys.argv[1]); denominator=int(sys.argv[2]); print(f'{(numerator * 100 / denominator):.1f}')" "$lang_different_count" "$default_keys_count")
+                            same_pct=$(python3 -c "import sys; same=int(sys.argv[1]); total=int(sys.argv[2]); print(f'{(same * 100 / total):.1f}')" "$same_as_default_count" "$default_keys_count")
                             echo "  $lang_code: $lang_different_count/$default_keys_count keys translated and different from English ($completion_pct%)"
-                            echo "    Non-empty values: $lang_non_empty_count | Equal to English: $same_as_default_count"
+                            echo "    Non-empty values: $lang_non_empty_count | Equal to English: $same_as_default_count ($same_pct%)"
 
-                            # Include only if >= 80% translated and no value remains identical to English
-                            if [[ $lang_different_count -ge $min_required_keys && $same_as_default_count -eq 0 ]]; then
-                              echo "    ✅ $lang_code is sufficiently translated (>= 80% and all translated values differ from English)"
+                            # Include only if >= 80% translated and <= 10% of values are identical to English
+                            same_pct_ok=$(python3 -c "import sys; print(1 if float(sys.argv[1]) <= 10.0 else 0)" "$same_pct")
+                            if [[ $lang_different_count -ge $min_required_keys && $same_pct_ok -eq 1 ]]; then
+                              echo "    ✅ $lang_code is sufficiently translated (>= 80% translated-different and <= 10% equal to English)"
                               
                               if [[ -z "$available_languages" ]]; then
                                 available_languages="$lang_code"
@@ -144,7 +146,7 @@ jobs:
                                 fi
                               fi
                             else
-                              echo "    ⚠️  $lang_code skipped (needs >= 80% translated-different values and 0 values equal to English)"
+                              echo "    ⚠️  $lang_code skipped (needs >= 80% translated-different values and <= 10% equal to English)"
                             fi
                           fi
                         else
