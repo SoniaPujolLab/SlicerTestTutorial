@@ -19,8 +19,7 @@ on:
         required: false
         type: string
       languages:
-        description: 'Languages to test (space-separated)'
-        default: 'pt-BR es-419'
+        description: 'Languages to test (space-separated, leave empty to auto-detect per tutorial)'
         required: false
         type: string
       use_github_tutorialmaker:
