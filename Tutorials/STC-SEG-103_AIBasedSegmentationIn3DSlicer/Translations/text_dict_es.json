@@ -44,6 +44,6 @@
   "29_TextBox_0": "Slicer exhibe los resultados de la segmentación basada en IA utilizando la segmentación de cuerpo entero TS1-quick",
   "30_TextBox_0": "Conclusión",
   "30_TextBox_1": "La extensión MONAIAuto3DSeg de 3D Slicer proporciona una segmentación rápida de estructuras anatómicas y patológicas basada en IA.\n\n\nEl módulo puede ejecutarse en ordenadores portátiles y de sobremesa estándar sin GPU.",
-  "31_TextBox_0": "Reconocimiento",
+  "31_TextBox_0": "Agradecimientos",
   "31_TextBox_1": "El proyecto de internacionalización de 3D Slicer y el proyecto 3D Slicer para Latinoamérica han sido posibles gracias a la financiación de la Iniciativa Chan Zuckerberg."
 }
