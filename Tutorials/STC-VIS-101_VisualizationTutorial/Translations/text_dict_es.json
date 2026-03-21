@@ -59,9 +59,9 @@
   "22_TextBox_1": "• Las técnicas de renderizado \nvolumétrico permiten la \nvisualización 3D de \nconjuntos de datos 3D.\n\n• El módulo de renderizado\nvolumétrico de Slicer permite\nla visualización 3D interactiva\nde imágenes DICOM",
   "23_ArrowText_0": "Pulse en Preajuste en la pestaña Pantalla y\nseleccione el preajuste CT-Cardiac3 ",
   "24_TextBox_2": "Seleccione Representación de Ray Casting por GPU VTK.\nPulse en el icono del ojo en la pestaña Volumen para exhibir\nla imagen representada del volumen en el visor 3D",
-  "25_ArrowText_0": "Utilice el control deslizante\nde desplazamiento para\ncambiar la función de\ntransferencia y visualizar\nla aorta",
+  "25_ArrowText_0": "Utilice el control deslizante de \ndesplazamiento para cambiar \nla función de transferencia y\nexhibición de la aorta",
   "26_ArrowText_0": "Pulse en Mostrar ROI para\nmostrar una región de interés\n(ROI) en el visor 3D y marque\nla opción Habilitar",
-  "27_TextBox_0": "Desactive la visibilidad de\nlas cortes axiales, sagitales y \ncoronales en el visor 2D \n\n\nColoque la región de interés \n(ROI) alrededor del riñón \nizquierdo usando los \ncontroladores de color",
+  "27_TextBox_0": "Desactive la visibilidad de\nlas cortes axiales, sagitales y \ncoronales en el visor 2D \n\n\nColoca la RDI alrededor del\nriñón izquierdo usando los\npuntos de control de color",
   "28_ArrowText_0": "Pulse en el icono del ojo\npara mostrar la imagen del\nvolumen representado",
   "29_TextBox_0": "Slicer exhibe la imagen\nrepresentada por volumen\ndel riñón izquierdo ",
   "30_TextBox_0": "Ampliar la ROI para generar\nuna imagen representada en\nvolumen del riñón derecho",
@@ -94,6 +94,6 @@
   "44_TextBox_0": "Slicer exhibe una vista 3D\ndel quiasma óptico",
   "45_TextBox_0": "Conclusión",
   "45_TextBox_1": "• 3D Slicer ofrece funcionalidades avanzadas para cargar y visualizar datos de imágenes médicas en 3D.\n\n• Este tutorial muestra cómo usar la renderización volumétrica y el modelado de superficies 3D para la visualización interactiva de\n datos de tomografía computarizada (TC) y resonancia magnética (RM).\n\nContacto: spujol@bwh.harvard.edu",
-  "46_TextBox_0": "Reconocimiento",
+  "46_TextBox_0": "Agradecimientos",
   "46_TextBox_1": "Centro de Análisis de Neuroimágenes (NIBIB P41 EB015902)"
 }
