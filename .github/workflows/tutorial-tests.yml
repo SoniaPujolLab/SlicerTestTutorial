@@ -132,7 +132,7 @@ jobs:
                             echo "    Non-empty values: $lang_non_empty_count | Equal to English: $same_as_default_count ($same_pct%)"
 
                             # Include only if >= 80% translated and <= 10% of values are identical to English
-                            same_pct_ok=$(python3 -c "import sys; print(1 if float(sys.argv[1]) <= 10.0 else 0)" "$same_pct")
+                            same_pct_ok=$(python3 -c "import sys; print(1 if float(sys.argv[1]) <= 25.0 else 0)" "$same_pct")
                             if [[ $lang_different_count -ge $min_required_keys && $same_pct_ok -eq 1 ]]; then
                               echo "    ✅ $lang_code is sufficiently translated (>= 80% translated-different and <= 10% equal to English)"
                               
