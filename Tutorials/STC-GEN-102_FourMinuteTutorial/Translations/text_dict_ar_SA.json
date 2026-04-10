@@ -1,6 +1,6 @@
 {
   "0_TextBox_0": "Slicer4 Minute\n",
-  "0_TextBox_1": "دكتورة سونيا بوجول",
+  "0_TextBox_1": "دكتورة سونيا بوجول.",
   "0_TextBox_3": "Assistant Professor of Radiology\nBrigham and Women’s Hospital\nHarvard Medical School",
   "1_TextBox_0": "Slicer4 minute tutorial",
   "16_TextBox_0": "Slicer4 minute tutorial",
@@ -34,6 +34,6 @@
   "14_TextBox_0": "The white matter surface, as well as the left and right optic nerves, appear in the viewer",
   "15_TextBox_0": "Select the hemispheric_white_matter.vtk model\n\nCheck Clipping in the 3D Display tab\n\nIn the Clipping Planes tab, select the option 'Green Slice Clipping' and check 'Negative'",
   "16_TextBox_1": "*This tutorial was a short introduction on interactive 3D visualization of MRI data and 3D models in Slicer.\n\n*The Slicer5 training compendium contains a series of tutorials and pre-computed datasets to learn how to use the software.",
-  "17_TextBox_0": "Acknowledgements",
+  "17_TextBox_0": "الإقرارات",
   "17_TextBox_1": "National Alliance for Medical Image\nComputing\nNIH U54EB005149\n\nNeuroimage Analysis Center\nNIH P41EB015902\n"
 }
