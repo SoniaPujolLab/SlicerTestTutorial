@@ -94,6 +94,6 @@
   "44_TextBox_0": "Slicer displays a 3D view of \nthe optic chiasm",
   "45_TextBox_0": "Conclusion",
   "45_TextBox_1": "• 3D Slicer provides advanced functionalities for loading and viewing 3D medical imaging data\n\n• The tutorial demonstrates how to use volume rendering and 3D surface modeling for interactive visualization of CT and MRI data\n\n\nContact: spujol@bwh.harvard.edu",
-  "46_TextBox_0": "Acknowledgements",
+  "46_TextBox_0": "الإقرارات",
   "46_TextBox_1": "Neuroimage Analysis Center (NIBIB P41 EB015902)"
 }
