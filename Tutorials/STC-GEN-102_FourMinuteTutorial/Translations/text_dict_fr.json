@@ -6,7 +6,7 @@
   "16_TextBox_0": "Tutoriel Slicer4 minute",
   "1_TextBox_1": "Ce tutoriel est une introduction de 4 minutes aux capacités de visualisation 3D du logiciel Slicer5 pour l’analyse d’images médicales. ",
   "2_TextBox_0": "Logiciel et jeu de données Slicer5",
-  "2_TextBox_1": "*Téléchargez le logiciel Slicer5 disponible à l’adresse http://download.slicer.org\n\n*Téléchargez le jeu de données Slicer4minute disponible à l’adresse \nhttps://www.slicer.org/wiki/Documentation/4.10/Training",
+  "2_TextBox_1": "*Téléchargez le logiciel Slicer5 disponible à l’adresse http://download.slicer.org\n\n*Téléchargez le jeu de données Slicer4minute disponible à l’adresse https://www.slicer.org/wiki/Documentation/4.10/Training",
   "3_3DSlicerversion5_title": "3D Slicer version 5",
   "4_TextBox_0": "Slicer affiche les éléments de la scène slicer4minute.\nLa scène contient une IRM ainsi que des modèles de surface 3D du cerveau.\t",
   "4_TextBox_1": "*Une scène Slicer est un fichier MRML (Medical Reality Modeling Language) qui contient une liste d’éléments chargés dans Slicer (volumes, modèles, repères, transformations, etc.)\n*Dans l’exemple suivant, nous utilisons une scène « Slicer4minute.mrml » composée d’une IRM et de modèles 3D de la tête.\n*Le fichier de scène et les jeux de données ont été enregistrés sous forme de fichier MRB (Medical Reality Bundle).\n*Le format de fichier MRB est le format d’archive de Slicer.",
