@@ -1,7 +1,7 @@
 {
-  "0_TextBox_0": "Segmentation basée sur l'IA dans 3D Slicer",
-  "0_TextBox_1": "Sonia Pujol, Ph.D., Brigham and Women's Hospital, Harvard Medical School, Boston, MA",
-  "0_TextBox_3": "Slicer Ribeirão Preto Workshop, 30 Juin 2025",
+  "0_TextBox_0": "Segmentation basé sur l'IA dans 3DSlicer",
+  "0_TextBox_1": "Sonia Pujol, Ph. D. \nBrigham and Women's Hospital,\nHarvard Medical School\nBoston, MA",
+  "0_TextBox_3": "Slicer Ribeirão Preto Workshop\nLe 30 juin 2025",
   "1_TextBox_0": "Segmentation manuelle vs segmentation assistée par IA",
   "2_TextBox_0": "Segmentation manuelle vs segmentation assistée par IA",
   "1_TextBox_1": "Les images médicales ont traditionnellement été segmentées manuellement, ce qui est un processus fastidieux qui nécessite un effort intensif de la part des radiologues et est sujet à la variabilité inter-observateurs.",
