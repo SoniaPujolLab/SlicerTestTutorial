@@ -13,7 +13,7 @@
   "5_TextBox_0": "Extension Slicer MONAIAuto3DSeg",
   "6_TextBox_0": "Extension Slicer MONAIAuto3DSeg",
   "5_TextBox_1": "Ce tutoriel utilise les modèles pré-entraînés de l’extension Slicer MONAIAuto3DSeg.\n\n\nL’outil est conçu pour fonctionner sur des ordinateurs portables ou des ordinateurs de bureau standards sans GPU.",
-  "6_TextBox_1": "Support de multiples modalités (CT, IRM).\n\nAnatomies multiples (tête, thorax, abdomen, pelvis, etc.).\n\nPathologies multiples (tumeur, hémorragie, œdème).",
+  "6_TextBox_1": "Support de multiples modalités (CT, IRM).\n\n\nAnatomies multiples (tête, thorax, abdomen, pelvis, etc.).\n\n\nPathologies multiples (tumeur, hémorragie, œdème).",
   "7_TextBox_0": "Tutoriel IA Slicer : Tâches de segmentation",
   "7_TextBox_1": "Tâche de segmentation #1 : Prostate\n\n\nTâche de segmentation #2 : Gliome cérébral\n\n\nTâche de segmentation #3 : Segmentation du corps entier",
   "8_TextBox_0": "Tâche de segmentation par IA n°1 : Prostate",
