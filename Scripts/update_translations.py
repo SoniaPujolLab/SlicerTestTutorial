@@ -363,10 +363,11 @@ def ts_to_json(ts_path, json_output):
                 continue
 
             # Get the translation or fall back to source text
+            # Note: we use the translation even if type="unfinished" — that only means
+            # the translator hasn't marked it as done in Weblate, but the text can still
+            # be valid. We only fall back to the English source if translation is empty.
             translation_text = ""
-            if (translation_elem is not None and 
-                translation_elem.text and 
-                translation_elem.get("type") != "unfinished"):
+            if translation_elem is not None and translation_elem.text and translation_elem.text.strip():
                 translation_text = translation_elem.text
             else:
                 translation_text = source_elem.text
