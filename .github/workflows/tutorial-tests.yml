@@ -290,7 +290,7 @@ jobs:
     - name: Setup Python
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install requests
+        python3 -m pip install requests Pillow
         
         # Pre-download common packages to avoid issues during test
         python3 -m pip install --no-cache-dir numpy || echo "numpy install optional"
@@ -437,24 +437,13 @@ jobs:
         echo "TUTORIAL_RESULTS_DIR=$tutorial_results_dir" >> $GITHUB_ENV
         echo "Will test languages: $test_languages"
     
-    - name: Clean previous Files directory
+    - name: Ensure Files directory exists
       shell: bash
       run: |
-        echo "Cleaning previous Files directory for: ${{ matrix.tutorial.name }}"
-        
+        echo "Ensuring Files directory exists for: ${{ matrix.tutorial.name }}"
         files_dir="Tutorials/${{ matrix.tutorial.name }}/Files"
-        
-        if [[ -d "$files_dir" ]]; then
-          echo "Found existing Files directory, removing..."
-          rm -rf "$files_dir"
-          echo "✅ Removed old Files directory"
-        else
-          echo "No existing Files directory found (this is fine for first run)"
-        fi
-        
-        # Recreate empty Files directory
         mkdir -p "$files_dir"
-        echo "✅ Created fresh Files directory"
+        echo "✅ Files directory ready (existing files preserved for smart comparison)"
     
     - name: Setup tutorial files in TutorialMaker
       shell: bash
@@ -543,10 +532,13 @@ jobs:
                   target_dir="Tutorials/$tutorial_full_name/Files/$language"
                   mkdir -p "$target_dir"
                   
-                  # Copy entire output directory (HTML, MD, images, etc.)
-                  echo "    Copying all files..."
-                  cp -r "$output_dir"/* "$target_dir/" 2>/dev/null || true
-                  echo "    ✅ Copied all files for $language"
+                  # Smart sync output directory (avoid replacing visually identical images)
+                  echo "    Syncing files with smart comparison..."
+                  python3 Scripts/smart_image_sync.py \
+                    --source "$output_dir" \
+                    --target "$target_dir" \
+                    --tolerance 0.001
+                  echo "    ✅ Smart sync completed for $language"
                   
                   # List what was copied
                   echo "    Files copied:"
@@ -711,21 +703,23 @@ jobs:
           has_results=true
         fi
         
-        if [[ -d "Tutorials/${{ matrix.tutorial.name }}/Files" ]]; then
-          echo "✅ Files directory exists"
-          echo "Languages found:"
-          ls -d "Tutorials/${{ matrix.tutorial.name }}/Files/"*/ 2>/dev/null || echo "  No language folders"
-          echo ""
-          echo "Total files:"
-          find "Tutorials/${{ matrix.tutorial.name }}/Files" -type f | wc -l
+        # Check if git detects any changes in Files
+        git_status=$(git status --porcelain "Tutorials/${{ matrix.tutorial.name }}/Files/" || true)
+        if [[ -n "$git_status" ]]; then
+          echo "✅ Detected genuine changes in Files:"
+          echo "$git_status"
           has_files=true
+        else
+          echo "ℹ️ No changes detected in Files (all outputs are visually identical)"
+          has_files=false
         fi
         
         # Set environment variable for PR step
-        if [[ "$has_results" == "true" ]] || [[ "$has_files" == "true" ]]; then
+        if [[ "$has_files" == "true" ]]; then
           echo "HAS_FILES=true" >> $GITHUB_ENV
         else
           echo "HAS_FILES=false" >> $GITHUB_ENV
+          echo "Skipping PR creation as no files changed"
         fi
     
     - name: Create Pull Request with test results
@@ -744,7 +738,6 @@ jobs:
         branch: test-results-${{ matrix.tutorial.id }}-${{ github.run_number }}
         delete-branch: true
         add-paths: |
-          Tutorials/${{ matrix.tutorial.name }}/Results/
           Tutorials/${{ matrix.tutorial.name }}/Files/
         title: 'Test Results: ${{ matrix.tutorial.name }}'
         body: |
