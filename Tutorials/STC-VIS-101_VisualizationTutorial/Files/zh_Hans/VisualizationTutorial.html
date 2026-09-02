@@ -1,0 +1,800 @@
+ <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>VisualizationTutorial</title>
+                        </head>
+                        <body>
+                            
+            <div class="cover">
+                <div class="coverContent">
+                    <h1 class="coverTitle">3D Slicer 中数据加载与 3D 可视化的基础知识</h1>
+                    <p class="coverAuthor">作者：索尼娅·普霍尔 博士</p>
+                    <p class="coverDate">2024年11月24日</p>
+                    <p class="coverDescription">哈佛医学院布里格姆妇女医院放射科助理教授</p>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">总体目标</h2>
+                    <div class="textBody"><p>本教程介绍了在 3D Slicer 中加载和查看 DICOM 图像及 3D 模型的基础知识。</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">学习目标</h2>
+                    <div class="textBody"><p> • 按照本教程操作，您将能够</p><p></p><p>• 在 Slicer 中加载并显示 DICOM 图像</p><p></p><p>• 对 CT 数据进行体积渲染</p><p></p><p>• 加载并显示由 MRI 数据重建的 3D 模型</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">教程资料</h2>
+                    <div class="textBody"><p>• 3D Slicer 5.10 版</p><p></p><p>•  3D VisualizationDataSet.zip</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">数据集教程</h2>
+                    <div class="textBody"><p>文件 3DVisualizationDataset.zip 包含两个目录：</p><p></p><p>- dataset1_Thorax_Abdomen </p><p>- dataset2_Head</p><p></p><p>请在您的计算机上解压文件 3DVisualizationDataset.zip 以访问这些数据集</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">免责声明</h2>
+                    <div class="textBody"><p>• 3D Slicer 是一款基于 BSD 风格许可证发布的免费开源软件。</p><p></p><p></p><p>• 该软件未获得 FDA 批准，也未获得 CE 认证，仅供研究使用。</p><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">教程大纲</h2>
+                    <div class="textBody"><p>•  第 1 部分：加载和查看 DICOM 数据</p><p></p><p>•  第 2 部分：体积渲染</p><p></p><p></p><p>• 第 3 部分：加载和查看 3D 模型</p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">第 1 部分：DICOM 数据加载</h1>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">加载 DICOM 体积数据</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="8_LoadingaDICOMvolume.png" alt="加载 DICOM 体积数据">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">加载 DICOM 体积数据</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="9_LoadingaDICOMvolume.png" alt="加载 DICOM 体积数据">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="10_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="11_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="12_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="13_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="14_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="15_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="16_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="17_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM 图像的可视化</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="18_VisualizingDICOMimages.png" alt="DICOM 图像的可视化">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D 查看器控制器</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="19_3DViewerController.png" alt="3D 查看器控制器">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D 查看器控制器</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="20_3DViewerController.png" alt="3D 查看器控制器">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">第2部分：体积渲染</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">体积渲染</h2>
+                    <div class="textBody"><p>• 体积渲染</p><p>技术可实现对三维</p><p>数据集的</p><p>三维可视化</p><p></p><p>• Slicer 中的体积渲染</p><p>模块支持</p><p>对 DICOM 图像进行</p><p>交互式三维可视化</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="23_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="24_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="25_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="26_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="27_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="28_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="29_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="30_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">体积渲染</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="31_VolumeRendering.png" alt="体积渲染">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">第3部分：加载和
+查看3D模型
+</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">数据集教程</h2>
+                    <div class="textBody"><p>• 目录 dataset2_Head 中包含一个名为 Head_scene.mrb 的 Slicer 场景</p><p></p><p>• 该场景包含由哈佛医学院布里格姆妇女医院放射科开发的 SPL 大脑图谱中的 3D 模型（NIH P41 RR013218，NIH R01 MH05074）</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">切片场景</h2>
+                    <div class="textBody"><p>Slicer 将所有加载的数据存储在一个称为“场景”的存储库中</p><p></p><p></p><p>每个数据集（例如图像体积、曲面模型或点集）在 Slicer 场景中都以节点的形式表示。</p><p></p><p></p><p>所有 Slicer 模块都是基于存储在 Slicer 场景中的数据进行操作的。</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">加载场景</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="35_LoadingaScene.png" alt="加载场景">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">查看3D模型</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="36_Viewing3Dmodels.png" alt="查看3D模型">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">查看3D模型</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="37_Viewing3Dmodels.png" alt="查看3D模型">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">查看3D模型</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="38_Viewing3Dmodels.png" alt="查看3D模型">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">查看3D模型</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="39_Viewing3Dmodels.png" alt="查看3D模型">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">查看3D模型</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="40_Viewing3Dmodels.png" alt="查看3D模型">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">与3D模型进行交互</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="41_Interactingwith3Dmodels.png" alt="与3D模型进行交互">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">与3D模型进行交互</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="42_Interactingwith3Dmodels.png" alt="与3D模型进行交互">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">与3D模型进行交互</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="43_Interactingwith3Dmodels.png" alt="与3D模型进行交互">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">与3D模型进行交互</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="44_Interactingwith3Dmodels.png" alt="与3D模型进行交互">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">结论</h2>
+                    <div class="textBody"><p>• 3D Slicer 提供了用于加载和查看 3D 医学影像数据的高级功能</p><p></p><p>• 本教程演示了如何利用体积渲染和 3D 表面建模技术，对 CT 和 MRI 数据进行交互式可视化</p><p></p><p></p><p>联系方式：spujol@bwh.harvard.edu</p></div>
+                </div>
+            </div>
+        
+            <div class="backCover">
+                <div class="backCoverContent">
+                    <h1 class="coverTitle">致谢</h1>
+                    <ul class="coverAcknowledgments">
+                        <li><div class='ackItem'><p>神经影像分析中心（NIBIB P41 EB015902）</p></div></li>
+                    </ul>
+                </div>
+            </div>
+        
+                        </body>
+                        <style>
+                            
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* Slide Containers */
+        .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+            background: white;
+            max-width: 1200px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            page-break-after: always;
+            page-break-inside: avoid;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Stacked content */
+        .slideContent, .textContent, .blankContent {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Centered content */
+        .coverContent, .backCoverContent, .sectionContent {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coverContent {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .coverTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .coverAuthor {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .coverDate {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+
+        .coverDescription {
+            font-size: 2.1rem;
+            line-height: 1.8;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Regular Slides */
+        .slideTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .containerImage {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .slideImage {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideDescription {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+            margin-top: 10px;
+        }
+
+        /* Back Cover */
+        .backCover {
+            background: linear-gradient(135deg, #004d99 0%, #003366 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .backCoverContent {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .backCover .coverTitle {
+            font-size: 4.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 20px;
+        }
+
+        .coverAcknowledgments {
+            list-style: none;
+            padding: 0;
+        }
+
+        .coverAcknowledgments li {
+            margin-bottom: 25px;
+        }
+
+        .ackItem {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .ackItem strong {
+            display: block;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .ackItem p {
+            font-size: 1.9rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Section Slide */
+        .sectionSlide {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sectionTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* Text Slide */
+        .textSlide {
+            background: white;
+        }
+
+        .textTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .textBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Blank Slide */
+        .blankSlide {
+            background: white;
+        }
+
+        .blankTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .blankBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Print Styles */
+        @media print {
+            * {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+                max-width: none;
+                width: 297mm;
+                height: 148.5mm;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .slideContent, .textContent, .blankContent {
+                overflow: hidden;
+            }
+        }
+
+        @page {
+            size: 297mm 148.5mm;
+            margin: 0;
+        }
+    
+                        </style>
+                        <script>
+                        function fitSlides() {
+                            var specs = [
+                                { container: '.slideContent', texts: ['.slideTitle', '.slideDescription'], scaleUp: false },
+                                { container: '.textContent',  texts: ['.textTitle', '.textBody'], scaleUp: true },
+                                { container: '.blankContent', texts: ['.blankBody'], scaleUp: true }
+                            ];
+
+                            specs.forEach(function(spec) {
+                                document.querySelectorAll(spec.container).forEach(function(el) {
+                                    var textEls = spec.texts
+                                        .map(function(s) { return el.querySelector(s); })
+                                        .filter(Boolean);
+                                    if (!textEls.length) return;
+
+                                    // reset any previous inline font-size
+                                    textEls.forEach(function(t) { t.style.fontSize = ''; });
+
+                                    // Step 1: capture constrained dimensions
+                                    var rect      = el.getBoundingClientRect();
+                                    var available = rect.height;
+                                    var elWidth   = rect.width;
+                                    if (available <= 0 || elWidth <= 0) return;
+
+                                    // Step 2: clone off-screen with the SAME width → accurate natural height
+                                    function measure(source) {
+                                        var c = source.cloneNode(true);
+                                        c.style.cssText = [
+                                            'position:fixed',
+                                            'top:-99999px',
+                                            'left:-99999px',
+                                            'width:' + elWidth + 'px',
+                                            'height:auto',
+                                            'min-height:0',
+                                            'overflow:visible',
+                                            'flex:none',
+                                            'visibility:hidden'
+                                        ].join(';');
+                                        document.body.appendChild(c);
+                                        var h = c.getBoundingClientRect().height;
+                                        document.body.removeChild(c);
+                                        return h;
+                                    }
+
+                                    var natural = measure(el);
+
+                                    // Step 3: scale UP if text-only slide has significant empty space
+                                    if (spec.scaleUp && natural < available * 0.9) {
+                                        var upRatio = (available * 0.95) / natural;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = (fs * upRatio) + 'px';
+                                        });
+                                        natural = measure(el);
+                                    }
+
+                                    if (natural <= available) return;
+
+                                    // Step 4: single-shot scale down
+                                    var ratio = available / natural;
+                                    textEls.forEach(function(t) {
+                                        var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                        t.style.fontSize = Math.max(fs * ratio, 6) + 'px';
+                                    });
+
+                                    // Step 5: one correction pass for line-height rounding
+                                    var after = measure(el);
+                                    if (after > available) {
+                                        var ratio2 = available / after;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = Math.max(fs * ratio2, 6) + 'px';
+                                        });
+                                    }
+                                });
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            requestAnimationFrame(function() {
+                                requestAnimationFrame(fitSlides);
+                            });
+                        });
+                        window.addEventListener('beforeprint', fitSlides);
+                        </script>
+                        </html>
+                    

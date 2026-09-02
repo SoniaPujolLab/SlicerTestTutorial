@@ -1,0 +1,799 @@
+ <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>VisualizationTutorial</title>
+                        </head>
+                        <body>
+                            
+            <div class="cover">
+                <div class="coverContent">
+                    <h1 class="coverTitle">Notions de base sur le chargement de données et la visualisation 3D dans 3D Slicer</h1>
+                    <p class="coverAuthor">Auteur : Sonia Pujol, Ph.D.</p>
+                    <p class="coverDate">24/11/2024</p>
+                    <p class="coverDescription">Professeur adjoint en radiologie Brigham and Women’s Hospital Harvard Medical School</p>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Objectif global</h2>
+                    <div class="textBody"><p>Ce tutoriel est une introduction aux notions de base du chargement et de l’affichage des images DICOM et des modèles 3D dans 3D Slicer.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Objectifs d’apprentissage</h2>
+                    <div class="textBody"><p> • À la suite de ce tutoriel, vous serez capable :</p><p></p><p>• de charger et visualiser des images DICOM dans Slicer</p><p></p><p>• de réaliser un rendu volumique des données CT</p><p></p><p>• de charger et visualiser des modèles 3D reconstruits à partir de données IRM</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Matériels du tutoriel</h2>
+                    <div class="textBody"><p>• 3D Slicer version 5.10</p><p></p><p>• 3D VisualizationDataSet.zip</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Jeu de données du tutoriel</h2>
+                    <div class="textBody"><p>Le fichier 3DVisualizationDataset.zip contient deux répertoires :</p><p></p><p>- dataset1_Thorax_Abdomen</p><p>- dataset2_Head</p><p></p><p>Décompressez le fichier 3DVisualizationDataset.zip sur votre ordinateur pour accéder aux jeux de données</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Avertissement</h2>
+                    <div class="textBody"><p>• 3D Slicer est un logiciel libre et open source, distribué sous une licence de type BSD.</p><p></p><p></p><p>• Le logiciel n’est pas approuvé par la FDA ni marqué CE, et est destiné uniquement à un usage de recherche.</p><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Plan du tutoriel</h2>
+                    <div class="textBody"><p>• Partie 1 : Chargement et visualisation des données DICOM</p><p></p><p>• Partie 2 : Rendu volumique</p><p></p><p></p><p>• Partie 3 : Chargement et visualisation des modèles 3D</p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">Partie 1 : Chargement des données DICOM</h1>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Chargement d’un volume DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="8_LoadingaDICOMvolume.png" alt="Chargement d’un volume DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Chargement d’un volume DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="9_LoadingaDICOMvolume.png" alt="Chargement d’un volume DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="10_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="11_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="12_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="13_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="14_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="15_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="16_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="17_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation d'images DICOM</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="18_VisualizingDICOMimages.png" alt="Visualisation d'images DICOM">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Contrôleur de la Visionneuse 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="19_3DViewerController.png" alt="Contrôleur de la Visionneuse 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Contrôleur de la Visionneuse 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="20_3DViewerController.png" alt="Contrôleur de la Visionneuse 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">Partie 2 : Rendu volumique</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Rendu Volumique</h2>
+                    <div class="textBody"><p>• Les techniques de rendu volumique permettent la visualisation 3D de jeux de données tridimensionnels</p><p></p><p>• Le module Rendu volumique de Slicer permet la visualisation 3D interactive des images DICOM</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="23_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="24_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="25_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="26_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="27_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="28_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="29_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="30_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Rendu Volumique</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="31_VolumeRendering.png" alt="Rendu Volumique">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">Partie 3 : Chargement et visualisation des modèles 3D
+</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Jeu de données du tutoriel</h2>
+                    <div class="textBody"><p>• Le répertoire dataset2_Head contient la scène Slicer appelée Head_scene.mrb</p><p></p><p>• La scène contient des modèles 3D issus de l’atlas cérébral SPL développé par le département de radiologie du Brigham and Women’s Hospital, Harvard Medical School (NIH P41 RR013218, NIH R01 MH05074)</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Scène Slicer</h2>
+                    <div class="textBody"><p>Slicer stocke toutes les données chargées dans un dépôt appelé scène.</p><p></p><p></p><p>Chaque jeu de données, comme un volume d’image, un modèle de surface ou un ensemble de points, est représenté par un nœud dans une scène Slicer.</p><p></p><p></p><p>Tous les modules de Slicer fonctionnent sur les données stockées dans une scène Slicer.</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Chargement d’une scène</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="35_LoadingaScene.png" alt="Chargement d’une scène">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation des modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="36_Viewing3Dmodels.png" alt="Visualisation des modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation des modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="37_Viewing3Dmodels.png" alt="Visualisation des modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation des modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="38_Viewing3Dmodels.png" alt="Visualisation des modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation des modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="39_Viewing3Dmodels.png" alt="Visualisation des modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Visualisation des modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="40_Viewing3Dmodels.png" alt="Visualisation des modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Interaction avec les modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="41_Interactingwith3Dmodels.png" alt="Interaction avec les modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Interaction avec les modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="42_Interactingwith3Dmodels.png" alt="Interaction avec les modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Interaction avec les modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="43_Interactingwith3Dmodels.png" alt="Interaction avec les modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">Interaction avec les modèles 3D</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="44_Interactingwith3Dmodels.png" alt="Interaction avec les modèles 3D">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Conclusion</h2>
+                    <div class="textBody"><p>• 3D Slicer offre des fonctionnalités avancées pour le chargement et la visualisation de données d’imagerie médicale 3D.</p><p></p><p>• Le tutoriel montre comment utiliser le rendu volumique et la modélisation de surface 3D pour la visualisation interactive des données CT et IRM.</p><p></p><p></p><p>Contact : spujol@bwh.harvard.edu</p></div>
+                </div>
+            </div>
+        
+            <div class="backCover">
+                <div class="backCoverContent">
+                    <h1 class="coverTitle">Remerciements</h1>
+                    <ul class="coverAcknowledgments">
+                        <li><div class='ackItem'><p>Neuroimage Analysis </p><p>Center </p><p>(NIBIB P41 EB015902)</p></div></li>
+                    </ul>
+                </div>
+            </div>
+        
+                        </body>
+                        <style>
+                            
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* Slide Containers */
+        .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+            background: white;
+            max-width: 1200px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            page-break-after: always;
+            page-break-inside: avoid;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Stacked content */
+        .slideContent, .textContent, .blankContent {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Centered content */
+        .coverContent, .backCoverContent, .sectionContent {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coverContent {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .coverTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .coverAuthor {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .coverDate {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+
+        .coverDescription {
+            font-size: 2.1rem;
+            line-height: 1.8;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Regular Slides */
+        .slideTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .containerImage {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .slideImage {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideDescription {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+            margin-top: 10px;
+        }
+
+        /* Back Cover */
+        .backCover {
+            background: linear-gradient(135deg, #004d99 0%, #003366 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .backCoverContent {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .backCover .coverTitle {
+            font-size: 4.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 20px;
+        }
+
+        .coverAcknowledgments {
+            list-style: none;
+            padding: 0;
+        }
+
+        .coverAcknowledgments li {
+            margin-bottom: 25px;
+        }
+
+        .ackItem {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .ackItem strong {
+            display: block;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .ackItem p {
+            font-size: 1.9rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Section Slide */
+        .sectionSlide {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sectionTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* Text Slide */
+        .textSlide {
+            background: white;
+        }
+
+        .textTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .textBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Blank Slide */
+        .blankSlide {
+            background: white;
+        }
+
+        .blankTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .blankBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Print Styles */
+        @media print {
+            * {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+                max-width: none;
+                width: 297mm;
+                height: 148.5mm;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .slideContent, .textContent, .blankContent {
+                overflow: hidden;
+            }
+        }
+
+        @page {
+            size: 297mm 148.5mm;
+            margin: 0;
+        }
+    
+                        </style>
+                        <script>
+                        function fitSlides() {
+                            var specs = [
+                                { container: '.slideContent', texts: ['.slideTitle', '.slideDescription'], scaleUp: false },
+                                { container: '.textContent',  texts: ['.textTitle', '.textBody'], scaleUp: true },
+                                { container: '.blankContent', texts: ['.blankBody'], scaleUp: true }
+                            ];
+
+                            specs.forEach(function(spec) {
+                                document.querySelectorAll(spec.container).forEach(function(el) {
+                                    var textEls = spec.texts
+                                        .map(function(s) { return el.querySelector(s); })
+                                        .filter(Boolean);
+                                    if (!textEls.length) return;
+
+                                    // reset any previous inline font-size
+                                    textEls.forEach(function(t) { t.style.fontSize = ''; });
+
+                                    // Step 1: capture constrained dimensions
+                                    var rect      = el.getBoundingClientRect();
+                                    var available = rect.height;
+                                    var elWidth   = rect.width;
+                                    if (available <= 0 || elWidth <= 0) return;
+
+                                    // Step 2: clone off-screen with the SAME width → accurate natural height
+                                    function measure(source) {
+                                        var c = source.cloneNode(true);
+                                        c.style.cssText = [
+                                            'position:fixed',
+                                            'top:-99999px',
+                                            'left:-99999px',
+                                            'width:' + elWidth + 'px',
+                                            'height:auto',
+                                            'min-height:0',
+                                            'overflow:visible',
+                                            'flex:none',
+                                            'visibility:hidden'
+                                        ].join(';');
+                                        document.body.appendChild(c);
+                                        var h = c.getBoundingClientRect().height;
+                                        document.body.removeChild(c);
+                                        return h;
+                                    }
+
+                                    var natural = measure(el);
+
+                                    // Step 3: scale UP if text-only slide has significant empty space
+                                    if (spec.scaleUp && natural < available * 0.9) {
+                                        var upRatio = (available * 0.95) / natural;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = (fs * upRatio) + 'px';
+                                        });
+                                        natural = measure(el);
+                                    }
+
+                                    if (natural <= available) return;
+
+                                    // Step 4: single-shot scale down
+                                    var ratio = available / natural;
+                                    textEls.forEach(function(t) {
+                                        var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                        t.style.fontSize = Math.max(fs * ratio, 6) + 'px';
+                                    });
+
+                                    // Step 5: one correction pass for line-height rounding
+                                    var after = measure(el);
+                                    if (after > available) {
+                                        var ratio2 = available / after;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = Math.max(fs * ratio2, 6) + 'px';
+                                        });
+                                    }
+                                });
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            requestAnimationFrame(function() {
+                                requestAnimationFrame(fitSlides);
+                            });
+                        });
+                        window.addEventListener('beforeprint', fitSlides);
+                        </script>
+                        </html>
+                    

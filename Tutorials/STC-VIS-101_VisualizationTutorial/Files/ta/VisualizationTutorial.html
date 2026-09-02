@@ -1,0 +1,800 @@
+ <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>VisualizationTutorial</title>
+                        </head>
+                        <body>
+                            
+            <div class="cover">
+                <div class="coverContent">
+                    <h1 class="coverTitle">3D ச்லைசரில் தரவு ஏற்றுதல் மற்றும் 3D காட்சிப்படுத்தலின் அடிப்படைகள்</h1>
+                    <p class="coverAuthor">ஆசிரியர்: சோனியா புசோல், Ph.D.</p>
+                    <p class="coverDate">24/11/2024</p>
+                    <p class="coverDescription">கதிரியக்கவியல் உதவிப் பேராசிரியர் பிரிகாம் மற்றும் மகளிர் மருத்துவமனை ஆர்வர்ட் மருத்துவப் பள்ளி</p>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">ஒட்டுமொத்த இலக்கு</h2>
+                    <div class="textBody"><p>இந்த பயிற்சியானது 3D ச்லைசரில் DICOM படங்கள் மற்றும் 3D மாடல்களை ஏற்றுதல் மற்றும் பார்ப்பதற்கான அடிப்படைகள் பற்றிய அறிமுகமாகும்.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">கற்றல் நோக்கங்கள்</h2>
+                    <div class="textBody"><p> • இந்தப் பயிற்சியைத் தொடர்ந்து, உங்களால் முடியும் </p><p></p><p>• ச்லைசரில் DICOM படங்களை ஏற்ற மற்றும் காட்சிப்படுத்த </p><p></p><p>• CT தரவின் வால்யூம் வழங்குதல் செய்ய </p><p></p><p>எம்ஆர்ஐ தரவிலிருந்து புனரமைக்கப்பட்ட 3டி மாடல்களை ஏற்றுவதற்கும் காட்சிப்படுத்துவதற்கும்</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">பயிற்சி பொருட்கள்</h2>
+                    <div class="textBody"><p>• 3D ச்லைசர் பதிப்பு 5.10 </p><p></p><p>• 3D VisualizationDataSet.zip</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">பயிற்சி தரவுத்தொகுப்பு</h2>
+                    <div class="textBody"><p>3DVisualizationDataset.zip கோப்பு இரண்டு கோப்பகங்களைக் கொண்டுள்ளது: </p><p></p><p>- தரவுத்தொகுப்பு1_Thorax_Abdomen </p><p>- தரவுத்தொகுப்பு2_தலை </p><p></p><p>தரவுத்தொகுப்புகளை அணுக உங்கள் கணினியில் 3DVisualizationDataset.zip கோப்பை அன்சிப் செய்யவும்</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">மறுப்பு</h2>
+                    <div class="textBody"><p>• 3D ச்லைசர் என்பது BSD பாணி உரிமத்தின் கீழ் விநியோகிக்கப்படும் இலவச திறந்த மூல மென்பொருள் பயன்பாடாகும். </p><p></p><p></p><p>• மென்பொருள் FDA அங்கீகரிக்கப்படவில்லை அல்லது CE-குறியீடு செய்யப்படவில்லை, மேலும் இது ஆராய்ச்சி பயன்பாட்டிற்கு மட்டுமே.</p><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">டுடோரியல் அவுட்லைன்</h2>
+                    <div class="textBody"><p>• பகுதி 1: DICOM தரவை ஏற்றுதல் மற்றும் பார்த்தல் </p><p></p><p>• பகுதி 2: வால்யூம் வழங்குதல் </p><p></p><p></p><p>• பகுதி 3: 3D மாடல்களை ஏற்றுதல் மற்றும் பார்ப்பது</p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">பகுதி 1: DICOM தரவு ஏற்றுதல்</h1>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM தொகுதியை ஏற்றுகிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="8_LoadingaDICOMvolume.png" alt="DICOM தொகுதியை ஏற்றுகிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM தொகுதியை ஏற்றுகிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="9_LoadingaDICOMvolume.png" alt="DICOM தொகுதியை ஏற்றுகிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="10_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="11_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="12_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="13_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="14_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="15_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="16_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="17_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">DICOM படங்களை காட்சிப்படுத்துதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="18_VisualizingDICOMimages.png" alt="DICOM படங்களை காட்சிப்படுத்துதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3டி வியூவர் கன்ட்ரோலர்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="19_3DViewerController.png" alt="3டி வியூவர் கன்ட்ரோலர்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3டி வியூவர் கன்ட்ரோலர்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="20_3DViewerController.png" alt="3டி வியூவர் கன்ட்ரோலர்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">பகுதி 2: வால்யூம் வழங்குதல்</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="textBody"><p>• வால்யூம் வழங்குதல் </p><p>நுட்பங்கள் 3D ஐ செயல்படுத்துகின்றன </p><p>3D காட்சிப்படுத்தல் </p><p>தரவுத்தொகுப்புகள் </p><p></p><p>• வால்யூம் வழங்குதல் </p><p>ச்லைசரில் உள்ள தொகுதி செயல்படுத்துகிறது </p><p>ஊடாடும் 3D காட்சிப்படுத்தல் </p><p>DICOM படங்கள்</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="23_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="24_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="25_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="26_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="27_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="28_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="29_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="30_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">வால்யூம் வழங்குதல்</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="31_VolumeRendering.png" alt="வால்யூம் வழங்குதல்">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">பகுதி 3: ஏற்றுதல் மற்றும் 
+3D மாதிரிகளைப் பார்க்கிறது
+</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">பயிற்சி தரவுத்தொகுப்பு</h2>
+                    <div class="textBody"><p>• அடைவு தரவுத்தொகுப்பு2_Head Head_scene.mrb எனப்படும் ச்லைசர் காட்சியைக் கொண்டுள்ளது </p><p></p><p>ஆர்வர்ட் மருத்துவப் பள்ளியின் ப்ரிகாம் மற்றும் மகளிர் மருத்துவமனை (NIH P41 RR013218, NIH R01 MH05074) கதிரியக்கவியல் துறையால் உருவாக்கப்பட்ட SPL மூளை அட்லசிலிருந்து 3D மாதிரிகள் காட்சியில் உள்ளன</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">ச்லைசர் காட்சி</h2>
+                    <div class="textBody"><p>ச்லைசர் அனைத்து ஏற்றப்பட்ட தரவையும் காட்சி எனப்படும் களஞ்சியத்தில் சேமிக்கிறது </p><p></p><p></p><p>பட அளவு, மேற்பரப்பு மாதிரி அல்லது புள்ளி தொகுப்பு போன்ற ஒவ்வொரு தரவுத் தொகுப்பும் ஒரு ச்லைசர் காட்சியில் ஒரு முனையாகக் குறிப்பிடப்படுகிறது. </p><p></p><p></p><p>அனைத்து ச்லைசர் தொகுதிகளும் ச்லைசர் காட்சியில் சேமிக்கப்பட்ட தரவுகளில் இயங்குகின்றன.</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">ஒரு காட்சியை ஏற்றுகிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="35_LoadingaScene.png" alt="ஒரு காட்சியை ஏற்றுகிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாடல்களைப் பார்க்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="36_Viewing3Dmodels.png" alt="3D மாடல்களைப் பார்க்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாடல்களைப் பார்க்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="37_Viewing3Dmodels.png" alt="3D மாடல்களைப் பார்க்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாடல்களைப் பார்க்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="38_Viewing3Dmodels.png" alt="3D மாடல்களைப் பார்க்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாடல்களைப் பார்க்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="39_Viewing3Dmodels.png" alt="3D மாடல்களைப் பார்க்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாடல்களைப் பார்க்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="40_Viewing3Dmodels.png" alt="3D மாடல்களைப் பார்க்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாதிரிகளுடன் தொடர்பு கொள்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="41_Interactingwith3Dmodels.png" alt="3D மாதிரிகளுடன் தொடர்பு கொள்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாதிரிகளுடன் தொடர்பு கொள்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="42_Interactingwith3Dmodels.png" alt="3D மாதிரிகளுடன் தொடர்பு கொள்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாதிரிகளுடன் தொடர்பு கொள்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="43_Interactingwith3Dmodels.png" alt="3D மாதிரிகளுடன் தொடர்பு கொள்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle">3D மாதிரிகளுடன் தொடர்பு கொள்கிறது</h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="44_Interactingwith3Dmodels.png" alt="3D மாதிரிகளுடன் தொடர்பு கொள்கிறது">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">முடிவுரை</h2>
+                    <div class="textBody"><p>• 3D ச்லைசர் 3D மருத்துவ இமேசிங் தரவை ஏற்றுவதற்கும் பார்ப்பதற்கும் மேம்பட்ட செயல்பாடுகளை வழங்குகிறது </p><p></p><p>• CT மற்றும் MRI தரவுகளின் ஊடாடும் காட்சிப்படுத்தலுக்கு வால்யூம் வழங்குதல் மற்றும் 3D மேற்பரப்பு மாடலிங் ஆகியவற்றை எவ்வாறு பயன்படுத்துவது என்பதை டுடோரியல் விளக்குகிறது. </p><p></p><p></p><p>தொடர்புக்கு: spujol@bwh.harvard.edu</p></div>
+                </div>
+            </div>
+        
+            <div class="backCover">
+                <div class="backCoverContent">
+                    <h1 class="coverTitle">அங்கீகாரங்கள்</h1>
+                    <ul class="coverAcknowledgments">
+                        <li><div class='ackItem'><p>நியூரோஇமேச் பகுப்பாய்வு நடுவண் (NIBIB P41 EB015902)</p></div></li>
+                    </ul>
+                </div>
+            </div>
+        
+                        </body>
+                        <style>
+                            
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* Slide Containers */
+        .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+            background: white;
+            max-width: 1200px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            page-break-after: always;
+            page-break-inside: avoid;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Stacked content */
+        .slideContent, .textContent, .blankContent {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Centered content */
+        .coverContent, .backCoverContent, .sectionContent {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coverContent {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .coverTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .coverAuthor {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .coverDate {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+
+        .coverDescription {
+            font-size: 2.1rem;
+            line-height: 1.8;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Regular Slides */
+        .slideTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .containerImage {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .slideImage {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideDescription {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+            margin-top: 10px;
+        }
+
+        /* Back Cover */
+        .backCover {
+            background: linear-gradient(135deg, #004d99 0%, #003366 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .backCoverContent {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .backCover .coverTitle {
+            font-size: 4.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 20px;
+        }
+
+        .coverAcknowledgments {
+            list-style: none;
+            padding: 0;
+        }
+
+        .coverAcknowledgments li {
+            margin-bottom: 25px;
+        }
+
+        .ackItem {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .ackItem strong {
+            display: block;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .ackItem p {
+            font-size: 1.9rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Section Slide */
+        .sectionSlide {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sectionTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* Text Slide */
+        .textSlide {
+            background: white;
+        }
+
+        .textTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .textBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Blank Slide */
+        .blankSlide {
+            background: white;
+        }
+
+        .blankTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .blankBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Print Styles */
+        @media print {
+            * {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+                max-width: none;
+                width: 297mm;
+                height: 148.5mm;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .slideContent, .textContent, .blankContent {
+                overflow: hidden;
+            }
+        }
+
+        @page {
+            size: 297mm 148.5mm;
+            margin: 0;
+        }
+    
+                        </style>
+                        <script>
+                        function fitSlides() {
+                            var specs = [
+                                { container: '.slideContent', texts: ['.slideTitle', '.slideDescription'], scaleUp: false },
+                                { container: '.textContent',  texts: ['.textTitle', '.textBody'], scaleUp: true },
+                                { container: '.blankContent', texts: ['.blankBody'], scaleUp: true }
+                            ];
+
+                            specs.forEach(function(spec) {
+                                document.querySelectorAll(spec.container).forEach(function(el) {
+                                    var textEls = spec.texts
+                                        .map(function(s) { return el.querySelector(s); })
+                                        .filter(Boolean);
+                                    if (!textEls.length) return;
+
+                                    // reset any previous inline font-size
+                                    textEls.forEach(function(t) { t.style.fontSize = ''; });
+
+                                    // Step 1: capture constrained dimensions
+                                    var rect      = el.getBoundingClientRect();
+                                    var available = rect.height;
+                                    var elWidth   = rect.width;
+                                    if (available <= 0 || elWidth <= 0) return;
+
+                                    // Step 2: clone off-screen with the SAME width → accurate natural height
+                                    function measure(source) {
+                                        var c = source.cloneNode(true);
+                                        c.style.cssText = [
+                                            'position:fixed',
+                                            'top:-99999px',
+                                            'left:-99999px',
+                                            'width:' + elWidth + 'px',
+                                            'height:auto',
+                                            'min-height:0',
+                                            'overflow:visible',
+                                            'flex:none',
+                                            'visibility:hidden'
+                                        ].join(';');
+                                        document.body.appendChild(c);
+                                        var h = c.getBoundingClientRect().height;
+                                        document.body.removeChild(c);
+                                        return h;
+                                    }
+
+                                    var natural = measure(el);
+
+                                    // Step 3: scale UP if text-only slide has significant empty space
+                                    if (spec.scaleUp && natural < available * 0.9) {
+                                        var upRatio = (available * 0.95) / natural;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = (fs * upRatio) + 'px';
+                                        });
+                                        natural = measure(el);
+                                    }
+
+                                    if (natural <= available) return;
+
+                                    // Step 4: single-shot scale down
+                                    var ratio = available / natural;
+                                    textEls.forEach(function(t) {
+                                        var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                        t.style.fontSize = Math.max(fs * ratio, 6) + 'px';
+                                    });
+
+                                    // Step 5: one correction pass for line-height rounding
+                                    var after = measure(el);
+                                    if (after > available) {
+                                        var ratio2 = available / after;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = Math.max(fs * ratio2, 6) + 'px';
+                                        });
+                                    }
+                                });
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            requestAnimationFrame(function() {
+                                requestAnimationFrame(fitSlides);
+                            });
+                        });
+                        window.addEventListener('beforeprint', fitSlides);
+                        </script>
+                        </html>
+                    

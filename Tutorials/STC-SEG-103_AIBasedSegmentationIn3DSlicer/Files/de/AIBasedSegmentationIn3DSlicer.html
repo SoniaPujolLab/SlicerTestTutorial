@@ -1,0 +1,649 @@
+ <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>AIBasedSegmentationIn3DSlicer</title>
+                        </head>
+                        <body>
+                            
+            <div class="cover">
+                <div class="coverContent">
+                    <h1 class="coverTitle">AI-Basisbezogene Aufteilung in 3D Slicer</h1>
+                    <p class="coverAuthor">Dr. Sonia Pujol 
+Brigham and Women’s Hospital,
+Harvard Medical School
+Boston, MA</p>
+                    <p class="coverDate"> </p>
+                    <p class="coverDescription">Slicer-Workshop in Ribeirão Preto
+30. Juni 2025</p>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Manuelle vs. KI-gestützte Segmentierung</h2>
+                    <div class="textBody"><p>Medizinische Bilder wurden bisher in der Regel manuell segmentiert – ein zeitaufwändiger Prozess, der einen hohen Aufwand seitens der Radiologen erfordert und mit Abweichungen zwischen den einzelnen Befundern behaftet ist.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Manuelle vs. KI-gestützte Segmentierung</h2>
+                    <div class="textBody"><p>In den letzten zehn Jahren wurde die Bildsegmentierung durch die Entwicklung von Deep-Learning-Algorithmen vorangetrieben (z. B. nnUnet des Deutschen Krebsforschungszentrums (DKFZ) und der Helmholtz-Gemeinschaft).</p><p></p><p></p><p>KI-gestützte Segmentierungswerkzeuge können die Segmentierungszeit verkürzen und reproduzierbarere Ergebnisse liefern.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">KI-Fachbegriffe</h2>
+                    <div class="textBody"><p>Ein Modell ist ein KI-Algorithmus, der darauf trainiert wurde, eine bestimmte Aufgabe auszuführen (z. B. ein Modell zur Segmentierung von Hirntumoren).</p><p></p><p>Die Gewichte eines KI-Modells sind kleine Zahlen, die bestimmen, welche Bedeutung das Modell den verschiedenen Bildmerkmalen beimisst.</p><p></p><p>Während der Trainingsphase lernt ein Modell Muster aus von Experten beschrifteten Daten und passt seine Gewichte an, um seine Vorhersagen zu verbessern.</p><p></p><p>Während der Validierungs-/Testphase wird das Modell anhand eines separaten Datensatzes bewertet, der während der Trainingsphase nicht verwendet wurde.</p><p></p><p>Bei der Inferenz wird das Modell auf neue Datensätze angewendet, um die spezifische Aufgabe auszuführen, für die es trainiert wurde.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">3D Slicer AI-Tutorial</h2>
+                    <div class="textBody"><p>Im Mittelpunkt dieses Tutorials steht die Durchführung von Inferenzaufgaben unter Verwendung verschiedener vortrainierter KI-Modelle zur automatisierten Segmentierung anatomischer und pathologischer Strukturen.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">MONAIAuto3DSeg Slicer-Erweiterung</h2>
+                    <div class="textBody"><p>In diesem Tutorial werden die vortrainierten Modelle der Erweiterung „MONAIAuto3DSeg Slicer“ verwendet.</p><p></p><p></p><p>Das Tool ist für den Einsatz auf Laptops oder durchschnittlichen Desktop-Computern ohne GPU ausgelegt.</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">MONAIAuto3DSeg Slicer-Erweiterung</h2>
+                    <div class="textBody"><p>Unterstützung verschiedener Bildgebungsverfahren (CT, MRT).</p><p></p><p></p><p>Verschiedene anatomische Bereiche (Kopf, Thorax, Abdomen, Becken usw.).</p><p></p><p></p><p>Verschiedene Erkrankungen (Tumor, Blutung, Ödem).</p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Slicer-AI-Tutorial: Segmentierungsaufgaben</h2>
+                    <div class="textBody"><p>Segmentierungsaufgabe Nr. 1: Prostata </p><p></p><p></p><p>Segmentierungsaufgabe Nr. 2: Hirngliom </p><p></p><p></p><p>Segmentierungsaufgabe Nr. 3: Ganzkörpersegmentierung</p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">KI-Segmentierungsaufgabe Nr. 1: Prostata</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle"> </h2>
+                    <div class="textBody"><p>KI-gestützte Segmentierung der peripheren Zone (PZ) und der Übergangszone (TZ) der Prostata auf T2-gewichteten MRT-Bildern.</p><p></p><p></p><p>Datensatz:</p><p>msd_prostate_01-t2</p><p>msd_prostate_01-adc</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="10_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="11_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="12_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="13_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="14_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="15_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="16_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">KI-Segmentierungsaufgabe Nr. 2: Hirngliom</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle"> </h2>
+                    <div class="textBody"><p>KI-gestützte Segmentierung von Neoplasmen, Nekrosen und Ödemen in MRT-Bildern des Gehirns.</p><p></p><p></p><p>Datensätze:</p><p>1) BraTS-GLI_00005-000-t1n (T1-gewichtet)</p><p>2) BraTS-GLI_00005-000-t1c (T1-gewichtet nach Gd-Gabe)</p><p>3) BraTS-GLI_00005-000-t2w (T2-gewichtet)</p><p>4) BraTS-GLI_00005-000-t2f (T2-FLAIR)</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="19_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="20_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="21_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="22_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="23_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="sectionSlide">
+                <div class="sectionContent">
+                    <h1 class="sectionTitle">KI-Segmentierungsaufgabe Nr. 3: Ganzkörpersegmentierung</h1>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle"> </h2>
+                    <div class="textBody"><p>KI-gestützte Segmentierung des gesamten Körpers.</p><p></p><p></p><p>Datensatz:</p><p>CT_ThoraxAbdomen</p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="26_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="27_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="28_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="slide">
+                <div class="slideContent">
+                    <h2 class="slideTitle"></h2>
+                    <div class="containerImage">
+                        <img class="slideImage" src="29_slide.png" alt="">
+                    </div>
+                    <div class="slideDescription"><p></p></div>
+                </div>
+            </div>
+        
+            <div class="textSlide">
+                <div class="textContent">
+                    <h2 class="textTitle">Fazit</h2>
+                    <div class="textBody"><p>Die 3D Slicer-Erweiterung „MONAIAuto3DSeg“ ermöglicht eine schnelle, KI-basierte Segmentierung anatomischer und pathologischer Strukturen.</p><p></p><p></p><p>Das Modul kann auf handelsüblichen Laptops und Desktop-Computern ohne GPU ausgeführt werden.</p></div>
+                </div>
+            </div>
+        
+            <div class="backCover">
+                <div class="backCoverContent">
+                    <h1 class="coverTitle">Danksagungen</h1>
+                    <ul class="coverAcknowledgments">
+                        <li><div class='ackItem'><p>Das Internationalisierungsprojekt von 3D Slicer und das Projekt „3D Slicer für Lateinamerika“ wurden durch die finanzielle Unterstützung der Chan Zuckerberg Initiative ermöglicht.</p></div></li>
+                    </ul>
+                </div>
+            </div>
+        
+                        </body>
+                        <style>
+                            
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* Slide Containers */
+        .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+            background: white;
+            max-width: 1200px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            page-break-after: always;
+            page-break-inside: avoid;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Stacked content */
+        .slideContent, .textContent, .blankContent {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Centered content */
+        .coverContent, .backCoverContent, .sectionContent {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coverContent {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .coverTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .coverAuthor {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .coverDate {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+
+        .coverDescription {
+            font-size: 2.1rem;
+            line-height: 1.8;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Regular Slides */
+        .slideTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .containerImage {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .slideImage {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideDescription {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+            margin-top: 10px;
+        }
+
+        /* Back Cover */
+        .backCover {
+            background: linear-gradient(135deg, #004d99 0%, #003366 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .backCoverContent {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .backCover .coverTitle {
+            font-size: 4.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 20px;
+        }
+
+        .coverAcknowledgments {
+            list-style: none;
+            padding: 0;
+        }
+
+        .coverAcknowledgments li {
+            margin-bottom: 25px;
+        }
+
+        .ackItem {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .ackItem strong {
+            display: block;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .ackItem p {
+            font-size: 1.9rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Section Slide */
+        .sectionSlide {
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sectionTitle {
+            font-size: 5.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* Text Slide */
+        .textSlide {
+            background: white;
+        }
+
+        .textTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .textBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Blank Slide */
+        .blankSlide {
+            background: white;
+        }
+
+        .blankTitle {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #003366;
+        }
+
+        .blankBody {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        /* Print Styles */
+        @media print {
+            * {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .slide, .cover, .backCover, .sectionSlide, .textSlide, .blankSlide {
+                max-width: none;
+                width: 297mm;
+                height: 148.5mm;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .slideContent, .textContent, .blankContent {
+                overflow: hidden;
+            }
+        }
+
+        @page {
+            size: 297mm 148.5mm;
+            margin: 0;
+        }
+    
+                        </style>
+                        <script>
+                        function fitSlides() {
+                            var specs = [
+                                { container: '.slideContent', texts: ['.slideTitle', '.slideDescription'], scaleUp: false },
+                                { container: '.textContent',  texts: ['.textTitle', '.textBody'], scaleUp: true },
+                                { container: '.blankContent', texts: ['.blankBody'], scaleUp: true }
+                            ];
+
+                            specs.forEach(function(spec) {
+                                document.querySelectorAll(spec.container).forEach(function(el) {
+                                    var textEls = spec.texts
+                                        .map(function(s) { return el.querySelector(s); })
+                                        .filter(Boolean);
+                                    if (!textEls.length) return;
+
+                                    // reset any previous inline font-size
+                                    textEls.forEach(function(t) { t.style.fontSize = ''; });
+
+                                    // Step 1: capture constrained dimensions
+                                    var rect      = el.getBoundingClientRect();
+                                    var available = rect.height;
+                                    var elWidth   = rect.width;
+                                    if (available <= 0 || elWidth <= 0) return;
+
+                                    // Step 2: clone off-screen with the SAME width → accurate natural height
+                                    function measure(source) {
+                                        var c = source.cloneNode(true);
+                                        c.style.cssText = [
+                                            'position:fixed',
+                                            'top:-99999px',
+                                            'left:-99999px',
+                                            'width:' + elWidth + 'px',
+                                            'height:auto',
+                                            'min-height:0',
+                                            'overflow:visible',
+                                            'flex:none',
+                                            'visibility:hidden'
+                                        ].join(';');
+                                        document.body.appendChild(c);
+                                        var h = c.getBoundingClientRect().height;
+                                        document.body.removeChild(c);
+                                        return h;
+                                    }
+
+                                    var natural = measure(el);
+
+                                    // Step 3: scale UP if text-only slide has significant empty space
+                                    if (spec.scaleUp && natural < available * 0.9) {
+                                        var upRatio = (available * 0.95) / natural;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = (fs * upRatio) + 'px';
+                                        });
+                                        natural = measure(el);
+                                    }
+
+                                    if (natural <= available) return;
+
+                                    // Step 4: single-shot scale down
+                                    var ratio = available / natural;
+                                    textEls.forEach(function(t) {
+                                        var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                        t.style.fontSize = Math.max(fs * ratio, 6) + 'px';
+                                    });
+
+                                    // Step 5: one correction pass for line-height rounding
+                                    var after = measure(el);
+                                    if (after > available) {
+                                        var ratio2 = available / after;
+                                        textEls.forEach(function(t) {
+                                            var fs = parseFloat(window.getComputedStyle(t).fontSize);
+                                            t.style.fontSize = Math.max(fs * ratio2, 6) + 'px';
+                                        });
+                                    }
+                                });
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            requestAnimationFrame(function() {
+                                requestAnimationFrame(fitSlides);
+                            });
+                        });
+                        window.addEventListener('beforeprint', fitSlides);
+                        </script>
+                        </html>
+                    
