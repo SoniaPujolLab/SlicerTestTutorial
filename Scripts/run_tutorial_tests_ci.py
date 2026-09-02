@@ -545,7 +545,7 @@ try:
         qt.QApplication.setCursorFlashTime(0)
         log_message("Qt cursor blinking disabled (setCursorFlashTime=0)")
     except Exception as cursor_err:
-        log_message(f"Warning: could not set cursor flash time: {cursor_err}")
+        log_message("Warning: could not set cursor flash time: " + str(cursor_err))
     
     # Wait for initialization
     for i in range(3):
